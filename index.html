@@ -219,26 +219,10 @@
         <div class="cta-box">
           <h2>Фото для Госуслуг за 30 секунд</h2>
           <p>Загрузите селфи и посмотрите результат до оплаты.</p>
-          <form
-            class="upload"
-            id="upload-form"
-            action="https://formspree.io/f/mvkpprkk"
-            method="POST"
-            enctype="multipart/form-data"
-          >
-            <input type="hidden" name="_subject" value="Госфото: новое селфи" />
-            <label class="upload-label">
-              <input
-                id="photo-input"
-                type="file"
-                name="photo"
-                accept="image/*"
-                required
-              />
-              <span class="btn btn-dark" id="upload-btn">Загрузить селфи</span>
-              <small>JPG, PNG, HEIC · до 20 МБ</small>
-            </label>
-          </form>
+          <div class="upload">
+            <button class="btn btn-dark" id="upload-btn" type="button">Загрузить селфи</button>
+            <small>JPG, PNG, HEIC · до 20 МБ</small>
+          </div>
         </div>
       </section>
 
@@ -272,9 +256,8 @@
       <form method="dialog" class="notice-dialog-inner">
         <h2 id="update-dialog-title">Сейчас идёт обновление</h2>
         <p>
-          Сервис временно обновляем. Ваше фото мы получили — свяжемся на
-          <a href="mailto:hello@gosphoto.ru">hello@gosphoto.ru</a>, когда всё
-          будет готово.
+          Извините, загрузка фото пока недоступна. Мы обновляем сервис и скоро
+          вернём эту возможность.
         </p>
         <button class="btn btn-primary" value="ok">Понятно</button>
       </form>
@@ -288,8 +271,6 @@
         toggle.setAttribute("aria-expanded", String(open));
       });
 
-      const form = document.getElementById("upload-form");
-      const input = document.getElementById("photo-input");
       const uploadBtn = document.getElementById("upload-btn");
       const dialog = document.getElementById("update-dialog");
       const endpoint = "https://formspree.io/f/mvkpprkk";
@@ -302,40 +283,30 @@
         }
       }
 
-      input?.addEventListener("change", async () => {
-        if (!input.files?.length) return;
-
-        const file = input.files[0];
-        if (file.size > 20 * 1024 * 1024) {
-          alert("Файл слишком большой. Максимум 20 МБ.");
-          input.value = "";
-          return;
+      uploadBtn?.addEventListener("click", () => {
+        if (typeof ym === "function") {
+          ym(111303098, "reachGoal", "photo_upload");
         }
 
-        uploadBtn.textContent = "Отправляем…";
-        uploadBtn.setAttribute("aria-busy", "true");
-
-        const data = new FormData(form);
-
-        try {
-          const res = await fetch(endpoint, {
-            method: "POST",
-            body: data,
-            headers: { Accept: "application/json" },
-          });
-
-          if (!res.ok) throw new Error("Formspree error");
-          if (typeof ym === "function") {
-            ym(111303098, "reachGoal", "photo_upload");
-          }
-          showUpdateDialog();
-        } catch (err) {
-          alert("Не удалось отправить фото. Попробуйте ещё раз или напишите на hello@gosphoto.ru");
-        } finally {
-          uploadBtn.textContent = "Загрузить селфи";
-          uploadBtn.removeAttribute("aria-busy");
-          input.value = "";
+        const clickData = new FormData();
+        const params = new URLSearchParams(location.search);
+        clickData.append("_subject", "Госфото: клик «Загрузить селфи»");
+        clickData.append("event", "photo_upload_click");
+        clickData.append("page_url", location.href);
+        clickData.append("referrer", document.referrer || "direct");
+        for (const [key, value] of params) {
+          if (key.startsWith("utm_")) clickData.append(key, value);
         }
+
+        fetch(endpoint, {
+          method: "POST",
+          body: clickData,
+          headers: { Accept: "application/json" },
+        }).catch(() => {
+          // Не мешаем пользователю, если аналитический запрос не прошёл.
+        });
+
+        showUpdateDialog();
       });
     </script>
   </body>
