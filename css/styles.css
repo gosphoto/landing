@@ -460,6 +460,13 @@ a {
   display: inline-grid;
   justify-items: center;
   gap: 0.55rem;
+  margin: 0;
+}
+
+.upload-label {
+  display: inline-grid;
+  justify-items: center;
+  gap: 0.55rem;
   cursor: pointer;
 }
 
@@ -475,6 +482,53 @@ a {
   color: rgba(20, 20, 20, 0.55);
   font-weight: 600;
   font-size: 0.8rem;
+}
+
+.notice-dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  max-width: min(26rem, calc(100vw - 2rem));
+  box-shadow: var(--shadow);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.notice-dialog::backdrop {
+  background: rgba(20, 20, 20, 0.45);
+}
+
+.notice-dialog-inner {
+  margin: 0;
+  padding: 1.75rem 1.5rem 1.5rem;
+  display: grid;
+  gap: 0.85rem;
+  justify-items: start;
+}
+
+.notice-dialog-inner h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.notice-dialog-inner p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.98rem;
+}
+
+.notice-dialog-inner a {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.notice-dialog-inner .btn {
+  margin-top: 0.35rem;
+  justify-self: stretch;
+  text-align: center;
 }
 
 .about {
