@@ -1,6 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="8" fill="#fdcb58"/>
-  <circle cx="16" cy="16" r="10.5" stroke="#141414" stroke-width="2.2"/>
-  <circle cx="16" cy="16" r="4.8" stroke="#141414" stroke-width="2.2"/>
-  <circle cx="21.2" cy="10.8" r="1.35" fill="#141414"/>
+  <!-- outer ring -->
+  <circle cx="16" cy="16" r="11" fill="#141414"/>
+  <circle cx="16" cy="16" r="8.6" fill="#fdcb58"/>
+  <!-- inner ring -->
+  <circle cx="16" cy="16" r="5.2" fill="#141414"/>
+  <circle cx="16" cy="16" r="2.9" fill="#fdcb58"/>
+  <!-- flash dot -->
+  <circle cx="21.4" cy="10.6" r="1.5" fill="#141414"/>
 </svg>
