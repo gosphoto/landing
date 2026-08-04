@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GoSphoto — фото на документы онлайн</title>
+    <meta
+      name="description"
+      content="Сделайте фото на паспорт, загранпаспорт и Госуслуги из селфи за 30 секунд. Соответствует требованиям — или переделаем."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="GoSphoto">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="16" cy="16" r="6.5" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="22.5" cy="9.5" r="1.6" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="logo-text">GoSphoto</span>
+      </a>
+
+      <nav class="nav" aria-label="Основное меню">
+        <a href="#docs">Документы <span class="chev">▾</span></a>
+        <a href="#how">Как это работает <span class="chev">▾</span></a>
+        <a href="#guarantee">Гарантия</a>
+        <a href="#about">О сервисе</a>
+      </nav>
+
+      <div class="header-contact">
+        <a class="phone" href="mailto:hello@gosphoto.ru">
+          <span class="phone-icon" aria-hidden="true">✉</span>
+          <span>
+            <strong>hello@gosphoto.ru</strong>
+            <small>Ответим в течение дня</small>
+          </span>
+        </a>
+      </div>
+
+      <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Онлайн-фото<br />на документы</h1>
+          <p class="hero-lead">
+            Сделайте фото на паспорт и Госуслуги дома. Загрузите селфи —
+            скачайте готовый файл за 30&nbsp;секунд.
+          </p>
+          <a class="btn btn-primary" href="#start">Сделать фото</a>
+          <ul class="hero-trust">
+            <li>Под требования Госуслуг</li>
+            <li>Оплата после превью</li>
+            <li>Гарантия принятия</li>
+          </ul>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-panel">
+            <img
+              class="hero-person"
+              src="assets/hero-jump.png"
+              alt=""
+              width="720"
+              height="960"
+            />
+          </div>
+
+          <div class="process-card process-before">
+            <img src="assets/selfie-before.png" alt="" width="160" height="160" />
+          </div>
+
+          <svg class="process-arrow" viewBox="0 0 40 80" width="36" height="72" fill="none">
+            <path
+              d="M20 4c0 28-10 40-10 58"
+              stroke="#1a1a1a"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+            <path d="M4 54l6 12 12-8" stroke="#1a1a1a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+
+          <div class="process-card process-after">
+            <img src="assets/passport-result.png" alt="" width="220" height="220" />
+            <span class="badge-time">3с</span>
+            <span class="guide-line"></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="how">
+        <div class="section-head">
+          <h2>Как это работает</h2>
+          <p>Три шага — без фотосалона и очередей.</p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span class="step-num">01</span>
+            <h3>Выберите документ</h3>
+            <p>Паспорт РФ, загранпаспорт, Госуслуги, 3×4 и другие форматы.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">02</span>
+            <h3>Загрузите селфи</h3>
+            <p>Подойдёт обычное фото с телефона на любом фоне.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">03</span>
+            <h3>Скачайте файл</h3>
+            <p>Сначала превью — платите, только если результат нравится.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section-muted" id="docs">
+        <div class="section-head">
+          <h2>Популярные документы</h2>
+          <p>Файл сразу под размер и требования выбранного документа.</p>
+        </div>
+        <div class="docs-grid">
+          <a class="doc-card" href="#start">
+            <strong>Паспорт РФ</strong>
+            <span>35×45 · Госуслуги / МФЦ</span>
+          </a>
+          <a class="doc-card" href="#start">
+            <strong>Загранпаспорт</strong>
+            <span>Цифровой файл для заявления</span>
+          </a>
+          <a class="doc-card" href="#start">
+            <strong>Госуслуги</strong>
+            <span>JPEG под загрузку на портал</span>
+          </a>
+          <a class="doc-card" href="#start">
+            <strong>Фото 3×4</strong>
+            <span>С листом для печати 10×15</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="section" id="guarantee">
+        <div class="guarantee">
+          <div>
+            <h2>Гарантия принятия</h2>
+            <p>
+              Готовим файл под технические параметры документа. Если портал или
+              ведомство отклонили фото из‑за этих параметров — переделаем
+              бесплатно или вернём оплату.
+            </p>
+          </div>
+          <a class="btn btn-primary" href="#start">Попробовать</a>
+        </div>
+      </section>
+
+      <section class="section section-cta" id="start">
+        <div class="cta-box">
+          <h2>Сделайте фото за 30 секунд</h2>
+          <p>Загрузите селфи и посмотрите результат до оплаты.</p>
+          <label class="upload">
+            <input type="file" accept="image/*" />
+            <span class="btn btn-dark">Загрузить селфи</span>
+            <small>JPG, PNG, HEIC · до 20 МБ</small>
+          </label>
+        </div>
+      </section>
+
+      <section class="section" id="about">
+        <div class="about">
+          <h2>О сервисе</h2>
+          <p>
+            GoSphoto — онлайн-сервис подготовки фото на документы для России.
+            Мы делаем акцент на файлах для Госуслуг: вес, формат и кадр, чтобы
+            загрузка проходила с первого раза.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="logo-text">GoSphoto</span>
+        <p>Фото на документы онлайн</p>
+      </div>
+      <div class="footer-links">
+        <a href="#docs">Документы</a>
+        <a href="#how">Как это работает</a>
+        <a href="#guarantee">Гарантия</a>
+        <a href="mailto:hello@gosphoto.ru">Контакты</a>
+      </div>
+      <p class="footer-copy">© GoSphoto</p>
+    </footer>
+
+    <script>
+      const toggle = document.querySelector(".nav-toggle");
+      const nav = document.querySelector(".nav");
+      toggle?.addEventListener("click", () => {
+        const open = nav.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", String(open));
+      });
+    </script>
+  </body>
+</html>
