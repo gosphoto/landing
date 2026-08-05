@@ -2,6 +2,8 @@
 
 Схема как у **fixaverse.ru** (`masterdoc-toir`): статика на VPS `91.207.75.72`, nginx + certbot, GitHub Actions rsync.
 
+Бэкенд — отдельный репо **[gosphoto/api](https://github.com/gosphoto/api)** → `/opt/gosphoto-api`. Nginx лендинга проксирует `/api/` и `/health`.
+
 ## DNS (reg.ru)
 
 A-записи на **`91.207.75.72`**:
@@ -20,29 +22,22 @@ dig +short www.gosphoto.ru A
 
 ## GitHub secrets (`gosphoto/landing`)
 
-Скопируй те же, что на `masterdoc-app/masterdoc-toir` / `client-app`:
-
 | Secret | Назначение |
 |--------|------------|
 | `DEPLOY_SSH_PRIVATE_KEY` | SSH-ключ на web VPS |
 | `DEPLOY_USER` | пользователь SSH |
 | `CERTBOT_EMAIL` | email для Let's Encrypt (опционально, дефолт `admin@gosphoto.ru`) |
 
-```bash
-# из репо, где секреты уже есть — значения вручную в UI:
-# Settings → Secrets and variables → Actions
-# или: gh secret set DEPLOY_SSH_PRIVATE_KEY -R gosphoto/landing < key.pem
-```
+Секреты API (`OPENROUTER_*`) — только в [gosphoto/api](https://github.com/gosphoto/api/settings/secrets/actions).
 
 ## Что делает CI
 
 На push в `main`:
 
-1. Проверяет `index.html`, `css/`, `assets/`, `deploy/`, `api/`
+1. Проверяет `index.html`, `css/`, `assets/`, `deploy/`
 2. rsync сайта → `/var/www/gosphoto.ru/`
-3. rsync `api/` → `/opt/gosphoto-api/` + `docker compose up -d --build`
-4. Ставит nginx + certbot → `/opt/gosphoto-landing/` (`/api/` и `/health` → gate)
-5. Smoke curl лендинга + `/health`
+3. Ставит nginx + certbot → `/opt/gosphoto-landing/`
+4. Smoke curl
 
 Ручной запуск: Actions → **Deploy gosphoto.ru** → Run workflow.
 

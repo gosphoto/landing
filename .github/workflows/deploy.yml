@@ -13,7 +13,6 @@ concurrency:
 env:
   DEPLOY_HOST: 91.207.75.72
   DEPLOY_PATH: /opt/gosphoto-landing
-  API_PATH: /opt/gosphoto-api
   WEB_ROOT: /var/www/gosphoto.ru
   SITE_HOST: gosphoto.ru
 
@@ -31,9 +30,6 @@ jobs:
           test -f deploy/gosphoto.ru.nginx.conf
           test -f deploy/gosphoto.ru.nginx.http.conf
           test -f deploy/install-gosphoto-nginx.sh
-          test -f api/Dockerfile
-          test -f api/docker-compose.yml
-          test -f api/app/main.py
           echo "Landing OK"
 
   deploy:
@@ -69,7 +65,7 @@ jobs:
         run: |
           ssh -i "$HOME/.ssh/deploy_ed25519" -o IdentitiesOnly=yes \
             "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "mkdir -p ${DEPLOY_PATH} ${API_PATH} ${WEB_ROOT}"
+            "mkdir -p ${DEPLOY_PATH} ${WEB_ROOT}"
 
       - name: Rsync static site
         env:
@@ -79,7 +75,6 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude 'deploy' \
-            --exclude 'api' \
             --exclude 'README.md' \
             --exclude '.gitignore' \
             -e "ssh -i $HOME/.ssh/deploy_ed25519 -o IdentitiesOnly=yes" \
@@ -96,26 +91,6 @@ jobs:
             deploy/gosphoto.ru.nginx.http.conf \
             deploy/install-gosphoto-nginx.sh \
             "${DEPLOY_USER}@${DEPLOY_HOST}:${DEPLOY_PATH}/"
-
-      - name: Rsync photo gate API
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          rsync -avz --delete \
-            --exclude '__pycache__' \
-            --exclude '.venv' \
-            --exclude 'models' \
-            -e "ssh -i $HOME/.ssh/deploy_ed25519 -o IdentitiesOnly=yes" \
-            api/ \
-            "${DEPLOY_USER}@${DEPLOY_HOST}:${API_PATH}/"
-
-      - name: Build and start photo gate
-        env:
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          ssh -i "$HOME/.ssh/deploy_ed25519" -o IdentitiesOnly=yes \
-            "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "cd ${API_PATH} && docker compose up -d --build"
 
       - name: Install nginx site and TLS
         env:
@@ -139,7 +114,3 @@ jobs:
           || ssh -i "$HOME/.ssh/deploy_ed25519" -o IdentitiesOnly=yes \
             "${DEPLOY_USER}@${DEPLOY_HOST}" \
             "curl -fsS http://127.0.0.1/ -H 'Host: ${SITE_HOST}' | head -c 500; nginx -t; systemctl status nginx --no-pager | head -20"
-          ssh -i "$HOME/.ssh/deploy_ed25519" -o IdentitiesOnly=yes \
-            "${DEPLOY_USER}@${DEPLOY_HOST}" \
-            "curl -fsS https://${SITE_HOST}/health && \
-             curl -fsS http://127.0.0.1:8091/health"

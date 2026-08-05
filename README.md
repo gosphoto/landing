@@ -4,10 +4,22 @@
 
 Дизайн в духе PhotoAiD: светлый фон, жёлтый акцент, hero с до/после.
 
-## Прод
+## Продакшен
 
 https://gosphoto.ru — деплой как у fixaverse.ru (VPS + nginx + Actions).  
 Инфра: [deploy/INFRA.md](deploy/INFRA.md).
+
+### Secrets (GitHub Actions)
+
+| Secret | Назначение |
+|--------|------------|
+| `DEPLOY_SSH_PRIVATE_KEY` | SSH на VPS |
+| `DEPLOY_USER` | SSH user |
+| `CERTBOT_EMAIL` | Let's Encrypt (опционально) |
+| `OPENROUTER_API_KEY` | правка селфи через OpenRouter (`/api/process`) |
+| `OPENROUTER_IMAGE_MODEL` | опционально, default `google/gemini-2.5-flash-image` |
+
+Добавить ключ: https://github.com/gosphoto/landing/settings/secrets/actions
 
 ## Локально
 
@@ -26,4 +38,5 @@ http://localhost:5173
 - `deploy/` — nginx + install script (`/api/` → `127.0.0.1:8091`)
 - `.github/workflows/deploy.yml` — CI/CD (статика + nginx + rebuild gate)
 
-Gate: `POST https://gosphoto.ru/api/validate`
+Gate: `POST https://gosphoto.ru/api/validate`  
+Process: `POST https://gosphoto.ru/api/process` (gate → OpenRouter edit → local 35×45 crop)
