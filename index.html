@@ -349,7 +349,20 @@
       </div>
     </dialog>
 
-    <dialog class="notice-dialog" id="update-dialog" aria-labelledby="update-dialog-title">
+    <dialog class="notice-dialog" id="result-dialog" aria-labelledby="result-dialog-title">
+      <div class="notice-dialog-inner result-dialog-inner">
+        <h2 id="result-dialog-title">Фото для Госуслуг</h2>
+        <p id="result-status">Обрабатываем снимок…</p>
+        <img id="result-image" class="result-image" alt="Готовое фото" hidden />
+        <p class="chooser-error" id="result-error" hidden></p>
+        <div class="result-actions">
+          <a class="btn btn-primary" id="result-download" href="#" download="gosphoto-passport.jpg" hidden>Скачать JPEG</a>
+          <button class="btn btn-dark" type="button" id="result-close" data-metrika-goal="click_result_close">Закрыть</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="notice-dialog" id="update-dialog" aria-labelledby="update-dialog-title" hidden>
       <form method="dialog" class="notice-dialog-inner">
         <h2 id="update-dialog-title">Сейчас идёт обновление</h2>
         <p>
@@ -365,6 +378,7 @@
       const METRIKA_ID = 111303098;
       const MAX_BYTES = 20 * 1024 * 1024;
       const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+      const PROCESS_API = "/api/process";
 
       const toggle = document.querySelector(".nav-toggle");
       const nav = document.querySelector(".nav");
@@ -377,6 +391,12 @@
       const chooserDialog = document.getElementById("chooser-dialog");
       const cameraDialog = document.getElementById("camera-dialog");
       const updateDialog = document.getElementById("update-dialog");
+      const resultDialog = document.getElementById("result-dialog");
+      const resultStatus = document.getElementById("result-status");
+      const resultImage = document.getElementById("result-image");
+      const resultError = document.getElementById("result-error");
+      const resultDownload = document.getElementById("result-download");
+      const resultClose = document.getElementById("result-close");
       const chooserClose = document.getElementById("chooser-close");
       const cameraClose = document.getElementById("camera-close");
       const cameraBack = document.getElementById("camera-back");
@@ -488,12 +508,54 @@
         setError(errorEl, "");
         setPreview(previewEl, slotEl, file);
         if (goal) reachGoal(goal);
-        window.setTimeout(() => {
-          stopCamera();
-          closeDialog(cameraDialog);
-          closeDialog(chooserDialog);
-          showDialog(updateDialog);
-        }, 450);
+        processPhoto(file);
+      }
+
+      async function processPhoto(file) {
+        stopCamera();
+        closeDialog(cameraDialog);
+        closeDialog(chooserDialog);
+        setError(resultError, "");
+        resultImage.hidden = true;
+        resultDownload.hidden = true;
+        resultStatus.textContent = "Обрабатываем снимок…";
+        showDialog(resultDialog);
+
+        const body = new FormData();
+        body.append("file", file, file.name || "selfie.jpg");
+        try {
+          const res = await fetch(PROCESS_API, { method: "POST", body });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            const msg =
+              (data.detail && (data.detail.message || data.detail)) ||
+              "Ошибка сервера. Попробуйте другое фото.";
+            throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+          }
+          if (!data.ok) {
+            throw new Error(data.message || "Фото не прошло проверку.");
+          }
+          const mime = data.mime || "image/jpeg";
+          const url = `data:${mime};base64,${data.image_base64}`;
+          resultImage.src = url;
+          resultImage.hidden = false;
+          resultDownload.href = url;
+          resultDownload.hidden = false;
+          const ok = data.compliance && data.compliance.pass;
+          resultStatus.textContent = ok
+            ? "Готово — 35×45 мм, белый фон, под требования Госуслуг."
+            : "Готово. Проверьте кадр перед загрузкой на Госуслуги.";
+          reachGoal("photo_processed", {
+            compliance: ok ? "pass" : "soft",
+          });
+        } catch (err) {
+          resultStatus.textContent = "Не удалось обработать";
+          setError(
+            resultError,
+            (err && err.message) || "Попробуйте другое фото или позже."
+          );
+          reachGoal("photo_process_fail");
+        }
       }
 
       function stopCamera() {
@@ -584,7 +646,11 @@
         showDialog(chooserDialog);
       });
 
-      chooserClose?.addEventListener("click", () => closeDialog(chooserDialog));
+      resultClose?.addEventListener("click", () => closeDialog(resultDialog));
+      resultDialog?.addEventListener("click", (event) => {
+        if (event.target === resultDialog) closeDialog(resultDialog);
+      });
+
       cameraClose?.addEventListener("click", () => {
         stopCamera();
         closeDialog(cameraDialog);
