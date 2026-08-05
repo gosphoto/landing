@@ -76,14 +76,14 @@
       </a>
 
       <nav class="nav" aria-label="Основное меню">
-        <a href="#docs">Документы <span class="chev">▾</span></a>
-        <a href="#how">Как это работает <span class="chev">▾</span></a>
-        <a href="#guarantee">Гарантия</a>
-        <a href="#about">О сервисе</a>
+        <a href="#docs" data-metrika-goal="click_nav" data-metrika-param="docs">Документы <span class="chev">▾</span></a>
+        <a href="#how" data-metrika-goal="click_nav" data-metrika-param="how">Как это работает <span class="chev">▾</span></a>
+        <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="guarantee">Гарантия</a>
+        <a href="#about" data-metrika-goal="click_nav" data-metrika-param="about">О сервисе</a>
       </nav>
 
       <div class="header-contact">
-        <a class="phone" href="mailto:hello@gosphoto.ru">
+        <a class="phone" href="mailto:hello@gosphoto.ru" data-metrika-goal="click_contact_email">
           <span class="phone-icon" aria-hidden="true">✉</span>
           <span>
             <strong>hello@gosphoto.ru</strong>
@@ -92,7 +92,7 @@
         </a>
       </div>
 
-      <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false">
+      <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false" data-metrika-goal="click_nav_toggle">
         <span></span><span></span>
       </button>
     </header>
@@ -105,7 +105,7 @@
             Сделайте фото для заявления на Госуслугах дома. Загрузите селфи —
             получите файл, который портал примет, за 30&nbsp;секунд.
           </p>
-          <a class="btn btn-primary" href="#start">Сделать фото для Госуслуг</a>
+          <a class="btn btn-primary" href="#start" data-metrika-goal="click_hero_cta">Сделать фото для Госуслуг</a>
           <ul class="hero-trust">
             <li>Под загрузку на Госуслуги</li>
             <li>Оплата после превью</li>
@@ -182,19 +182,19 @@
           <p>Цифровой файл под требования Госуслуг и нужный документ.</p>
         </div>
         <div class="docs-grid">
-          <a class="doc-card" href="#start">
+          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="zagran">
             <strong>Госуслуги · загран</strong>
             <span>JPEG для электронного заявления</span>
           </a>
-          <a class="doc-card" href="#start">
+          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="passport_rf">
             <strong>Госуслуги · паспорт РФ</strong>
             <span>Файл для анкеты + печать при необходимости</span>
           </a>
-          <a class="doc-card" href="#start">
+          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="print_35x45">
             <strong>Паспорт / загран</strong>
             <span>35×45 под МФЦ и МВД</span>
           </a>
-          <a class="doc-card" href="#start">
+          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="print_3x4">
             <strong>Фото 3×4</strong>
             <span>С листом для печати 10×15</span>
           </a>
@@ -211,7 +211,7 @@
               или вернём оплату.
             </p>
           </div>
-          <a class="btn btn-primary" href="#start">Сделать фото</a>
+          <a class="btn btn-primary" href="#start" data-metrika-goal="click_guarantee_cta">Сделать фото</a>
         </div>
       </section>
 
@@ -220,8 +220,8 @@
           <h2>Фото для Госуслуг за 30 секунд</h2>
           <p>Загрузите селфи и посмотрите результат до оплаты.</p>
           <div class="upload">
-            <button class="btn btn-dark" id="upload-btn" type="button">Загрузить селфи</button>
-            <small>JPG, PNG, HEIC · до 20 МБ</small>
+            <button class="btn btn-dark" id="upload-btn" type="button" data-metrika-goal="photo_upload">Загрузить селфи</button>
+            <small>JPG, PNG · до 20 МБ</small>
           </div>
         </div>
       </section>
@@ -244,13 +244,110 @@
         <p>Фото для Госуслуг · gosphoto.ru</p>
       </div>
       <div class="footer-links">
-        <a href="#docs">Документы</a>
-        <a href="#how">Как это работает</a>
-        <a href="#guarantee">Гарантия</a>
-        <a href="mailto:hello@gosphoto.ru">Контакты</a>
+        <a href="#docs" data-metrika-goal="click_nav" data-metrika-param="footer_docs">Документы</a>
+        <a href="#how" data-metrika-goal="click_nav" data-metrika-param="footer_how">Как это работает</a>
+        <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="footer_guarantee">Гарантия</a>
+        <a href="mailto:hello@gosphoto.ru" data-metrika-goal="click_contact_email" data-metrika-param="footer">Контакты</a>
       </div>
       <p class="footer-copy">© Госфото</p>
     </footer>
+
+    <dialog class="chooser-dialog" id="chooser-dialog" aria-labelledby="chooser-dialog-title">
+      <div class="chooser-dialog-inner">
+        <div class="chooser-head">
+          <h2 id="chooser-dialog-title">Добавьте фото</h2>
+          <button class="chooser-close" type="button" id="chooser-close" aria-label="Закрыть" data-metrika-goal="click_chooser_close">
+            ×
+          </button>
+        </div>
+        <p class="chooser-lead">Выберите снимок из галереи или сделайте новое селфи.</p>
+        <div class="chooser-slots">
+          <button class="photo-slot" type="button" id="slot-choose" aria-label="Загрузить фото" data-metrika-goal="photo_choose_open">
+            <span class="photo-slot-preview" id="preview-choose" hidden></span>
+            <span class="photo-slot-placeholder">
+              <span class="photo-slot-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                  <rect
+                    x="8"
+                    y="12"
+                    width="32"
+                    height="24"
+                    rx="4"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                  />
+                  <path
+                    d="M16 28l6-7 5 5 3-3 6 7"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="18" cy="18" r="2.2" fill="currentColor" />
+                </svg>
+              </span>
+              <strong>Загрузить фото</strong>
+              <small>JPG, PNG · до 20 МБ</small>
+            </span>
+          </button>
+          <button class="photo-slot" type="button" id="slot-camera" aria-label="Сделать новое" data-metrika-goal="photo_camera">
+            <span class="photo-slot-preview" id="preview-camera" hidden></span>
+            <span class="photo-slot-placeholder">
+              <span class="photo-slot-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                  <rect
+                    x="6"
+                    y="14"
+                    width="36"
+                    height="24"
+                    rx="5"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                  />
+                  <path
+                    d="M18 14l2.5-4h7L30 14"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="24" cy="26" r="7" stroke="currentColor" stroke-width="2.2" />
+                </svg>
+              </span>
+              <strong>Сделать новое</strong>
+              <small>Фронтальная камера</small>
+            </span>
+          </button>
+        </div>
+        <p class="chooser-error" id="chooser-error" hidden></p>
+        <input
+          type="file"
+          id="input-choose"
+          accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+          hidden
+        />
+      </div>
+    </dialog>
+
+    <dialog class="camera-dialog" id="camera-dialog" aria-labelledby="camera-dialog-title">
+      <div class="camera-dialog-inner">
+        <div class="chooser-head">
+          <h2 id="camera-dialog-title">Сделать селфи</h2>
+          <button class="chooser-close" type="button" id="camera-close" aria-label="Закрыть" data-metrika-goal="click_camera_close">
+            ×
+          </button>
+        </div>
+        <div class="camera-stage">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas" hidden></canvas>
+        </div>
+        <p class="chooser-error" id="camera-error" hidden></p>
+        <div class="camera-actions">
+          <button class="btn btn-dark" type="button" id="camera-back" data-metrika-goal="click_camera_back">Назад</button>
+          <button class="btn btn-primary" type="button" id="camera-shutter" data-metrika-goal="photo_shutter">Сфотографировать</button>
+        </div>
+      </div>
+    </dialog>
 
     <dialog class="notice-dialog" id="update-dialog" aria-labelledby="update-dialog-title">
       <form method="dialog" class="notice-dialog-inner">
@@ -259,11 +356,16 @@
           Извините, загрузка фото пока недоступна. Мы обновляем сервис и скоро
           вернём эту возможность.
         </p>
-        <button class="btn btn-primary" value="ok">Понятно</button>
+        <button class="btn btn-primary" value="ok" id="update-ok" data-metrika-goal="click_update_ok">Понятно</button>
       </form>
     </dialog>
 
     <script>
+      const TRACK_CONVERSIONS = true;
+      const METRIKA_ID = 111303098;
+      const MAX_BYTES = 20 * 1024 * 1024;
+      const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+
       const toggle = document.querySelector(".nav-toggle");
       const nav = document.querySelector(".nav");
       toggle?.addEventListener("click", () => {
@@ -272,22 +374,54 @@
       });
 
       const uploadBtn = document.getElementById("upload-btn");
-      const dialog = document.getElementById("update-dialog");
+      const chooserDialog = document.getElementById("chooser-dialog");
+      const cameraDialog = document.getElementById("camera-dialog");
+      const updateDialog = document.getElementById("update-dialog");
+      const chooserClose = document.getElementById("chooser-close");
+      const cameraClose = document.getElementById("camera-close");
+      const cameraBack = document.getElementById("camera-back");
+      const cameraShutter = document.getElementById("camera-shutter");
+      const cameraVideo = document.getElementById("camera-video");
+      const cameraCanvas = document.getElementById("camera-canvas");
+      const cameraError = document.getElementById("camera-error");
+      const slotChoose = document.getElementById("slot-choose");
+      const slotCamera = document.getElementById("slot-camera");
+      const inputChoose = document.getElementById("input-choose");
+      const previewChoose = document.getElementById("preview-choose");
+      const previewCamera = document.getElementById("preview-camera");
+      const chooserError = document.getElementById("chooser-error");
       const endpoint = "https://formspree.io/f/mvkpprkk";
+      let cameraStream = null;
 
-      function showUpdateDialog() {
-        if (typeof dialog.showModal === "function") {
-          dialog.showModal();
+      function showDialog(el) {
+        if (typeof el.showModal === "function") {
+          el.showModal();
         } else {
-          dialog.setAttribute("open", "");
+          el.setAttribute("open", "");
         }
       }
 
-      uploadBtn?.addEventListener("click", () => {
-        if (typeof ym === "function") {
-          ym(111303098, "reachGoal", "photo_upload");
+      function closeDialog(el) {
+        if (typeof el.close === "function") {
+          el.close();
+        } else {
+          el.removeAttribute("open");
         }
+      }
 
+      function reachGoal(name, params) {
+        if (!TRACK_CONVERSIONS || !name) return;
+        if (typeof ym === "function") {
+          if (params) {
+            ym(METRIKA_ID, "reachGoal", name, params);
+          } else {
+            ym(METRIKA_ID, "reachGoal", name);
+          }
+        }
+      }
+
+      function trackFormspreeClick() {
+        if (!TRACK_CONVERSIONS) return;
         const clickData = new FormData();
         const params = new URLSearchParams(location.search);
         clickData.append("_subject", "Госфото: клик «Загрузить селфи»");
@@ -297,16 +431,196 @@
         for (const [key, value] of params) {
           if (key.startsWith("utm_")) clickData.append(key, value);
         }
-
         fetch(endpoint, {
           method: "POST",
           body: clickData,
           headers: { Accept: "application/json" },
-        }).catch(() => {
-          // Не мешаем пользователю, если аналитический запрос не прошёл.
-        });
+        }).catch(() => {});
+      }
 
-        showUpdateDialog();
+      // Делегированный трекинг всех data-metrika-goal (кнопки и ссылки).
+      document.addEventListener(
+        "click",
+        (event) => {
+          const target = event.target.closest("[data-metrika-goal]");
+          if (!target) return;
+          const goal = target.getAttribute("data-metrika-goal");
+          const param = target.getAttribute("data-metrika-param");
+          reachGoal(goal, param ? { item: param } : undefined);
+        },
+        true
+      );
+
+      function setError(el, message) {
+        if (!el) return;
+        if (!message) {
+          el.hidden = true;
+          el.textContent = "";
+          return;
+        }
+        el.hidden = false;
+        el.textContent = message;
+      }
+
+      function setPreview(previewEl, slotEl, file) {
+        const url = URL.createObjectURL(file);
+        previewEl.style.backgroundImage = `url("${url}")`;
+        previewEl.hidden = false;
+        slotEl.classList.add("has-preview");
+      }
+
+      function validateImage(file) {
+        if (!file) return "Файл не выбран.";
+        const typeOk =
+          ALLOWED_TYPES.has(file.type) ||
+          /\.(jpe?g|png)$/i.test(file.name || "");
+        if (!typeOk) return "Нужен файл JPG или PNG.";
+        if (file.size > MAX_BYTES) return "Файл больше 20 МБ.";
+        return null;
+      }
+
+      function finishWithFile(file, { goal, previewEl, slotEl, errorEl }) {
+        const error = validateImage(file);
+        if (error) {
+          setError(errorEl, error);
+          return;
+        }
+        setError(errorEl, "");
+        setPreview(previewEl, slotEl, file);
+        if (goal) reachGoal(goal);
+        window.setTimeout(() => {
+          stopCamera();
+          closeDialog(cameraDialog);
+          closeDialog(chooserDialog);
+          showDialog(updateDialog);
+        }, 450);
+      }
+
+      function stopCamera() {
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((track) => track.stop());
+          cameraStream = null;
+        }
+        if (cameraVideo) cameraVideo.srcObject = null;
+      }
+
+      async function openFrontCamera() {
+        setError(cameraError, "");
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setError(cameraError, "Камера недоступна в этом браузере.");
+          showDialog(cameraDialog);
+          return;
+        }
+        closeDialog(chooserDialog);
+        showDialog(cameraDialog);
+        cameraShutter.disabled = true;
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: { ideal: "user" },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+          });
+          cameraVideo.srcObject = cameraStream;
+          await cameraVideo.play();
+          cameraShutter.disabled = false;
+        } catch (err) {
+          cameraShutter.disabled = true;
+          const denied =
+            err && (err.name === "NotAllowedError" || err.name === "PermissionDeniedError");
+          setError(
+            cameraError,
+            denied
+              ? "Разрешите доступ к камере в браузере."
+              : "Не удалось открыть фронтальную камеру."
+          );
+        }
+      }
+
+      function captureSelfie() {
+        if (!cameraVideo?.videoWidth) {
+          setError(cameraError, "Камера ещё не готова.");
+          return;
+        }
+        const width = cameraVideo.videoWidth;
+        const height = cameraVideo.videoHeight;
+        cameraCanvas.width = width;
+        cameraCanvas.height = height;
+        const ctx = cameraCanvas.getContext("2d");
+        ctx.translate(width, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(cameraVideo, 0, 0, width, height);
+        cameraCanvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              setError(cameraError, "Не удалось сделать снимок.");
+              return;
+            }
+            const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
+            finishWithFile(file, {
+              goal: null,
+              previewEl: previewCamera,
+              slotEl: slotCamera,
+              errorEl: cameraError,
+            });
+          },
+          "image/jpeg",
+          0.92
+        );
+      }
+
+      function leaveCamera() {
+        stopCamera();
+        closeDialog(cameraDialog);
+        showDialog(chooserDialog);
+      }
+
+      uploadBtn?.addEventListener("click", () => {
+        // photo_upload уходит через data-metrika-goal
+        trackFormspreeClick();
+        setError(chooserError, "");
+        showDialog(chooserDialog);
+      });
+
+      chooserClose?.addEventListener("click", () => closeDialog(chooserDialog));
+      cameraClose?.addEventListener("click", () => {
+        stopCamera();
+        closeDialog(cameraDialog);
+      });
+      cameraBack?.addEventListener("click", leaveCamera);
+      cameraShutter?.addEventListener("click", captureSelfie);
+
+      chooserDialog?.addEventListener("click", (event) => {
+        if (event.target === chooserDialog) {
+          reachGoal("click_chooser_close", { item: "backdrop" });
+          closeDialog(chooserDialog);
+        }
+      });
+      cameraDialog?.addEventListener("click", (event) => {
+        if (event.target === cameraDialog) {
+          reachGoal("click_camera_close", { item: "backdrop" });
+          stopCamera();
+          closeDialog(cameraDialog);
+        }
+      });
+      cameraDialog?.addEventListener("close", stopCamera);
+
+      slotChoose?.addEventListener("click", () => inputChoose?.click());
+      slotCamera?.addEventListener("click", () => {
+        openFrontCamera();
+      });
+
+      inputChoose?.addEventListener("change", () => {
+        const file = inputChoose.files?.[0];
+        inputChoose.value = "";
+        finishWithFile(file, {
+          goal: "photo_choose",
+          previewEl: previewChoose,
+          slotEl: slotChoose,
+          errorEl: chooserError,
+        });
       });
     </script>
   </body>

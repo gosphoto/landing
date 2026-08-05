@@ -484,6 +484,194 @@ a {
   font-size: 0.8rem;
 }
 
+.chooser-dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: min(34rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.chooser-dialog::backdrop,
+.notice-dialog::backdrop {
+  background: rgba(20, 20, 20, 0.45);
+}
+
+.chooser-dialog-inner {
+  margin: 0;
+  padding: 1.5rem 1.35rem 1.4rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.chooser-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.chooser-head h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  letter-spacing: -0.03em;
+}
+
+.chooser-close {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0.1rem 0.35rem;
+}
+
+.chooser-lead {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.chooser-slots {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+}
+
+.photo-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 11.5rem;
+  padding: 1rem 0.75rem;
+  border: 1.5px dashed rgba(20, 20, 20, 0.28);
+  border-radius: var(--radius-lg);
+  background:
+    linear-gradient(180deg, #fffdf6 0%, #fff 55%),
+    radial-gradient(circle at 30% 20%, rgba(253, 203, 88, 0.18), transparent 55%);
+  color: var(--ink);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+
+.photo-slot:hover,
+.photo-slot:focus-visible {
+  border-color: var(--yellow-deep);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.photo-slot-placeholder {
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  text-align: center;
+  z-index: 1;
+}
+
+.photo-slot-placeholder strong {
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+}
+
+.photo-slot-placeholder small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.photo-slot-icon {
+  color: rgba(20, 20, 20, 0.72);
+  margin-bottom: 0.15rem;
+}
+
+.photo-slot-preview {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 2;
+}
+
+.photo-slot.has-preview .photo-slot-placeholder {
+  opacity: 0;
+}
+
+.chooser-error {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.camera-dialog {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0;
+  width: min(34rem, calc(100vw - 2rem));
+  max-width: calc(100vw - 2rem);
+  box-shadow: var(--shadow);
+  background: var(--surface);
+  color: var(--ink);
+}
+
+.camera-dialog::backdrop {
+  background: rgba(20, 20, 20, 0.45);
+}
+
+.camera-dialog-inner {
+  margin: 0;
+  padding: 1.5rem 1.35rem 1.4rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.camera-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: #111;
+  aspect-ratio: 3 / 4;
+  max-height: min(58vh, 28rem);
+}
+
+.camera-stage video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+}
+
+.camera-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 0.75rem;
+}
+
+.camera-actions .btn {
+  width: 100%;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .chooser-slots {
+    grid-template-columns: 1fr;
+  }
+
+  .photo-slot {
+    min-height: 9.5rem;
+  }
+
+  .camera-actions {
+    grid-template-columns: 1fr;
+  }
+}
+
 .notice-dialog {
   border: none;
   border-radius: var(--radius-lg);
@@ -492,10 +680,6 @@ a {
   box-shadow: var(--shadow);
   background: var(--surface);
   color: var(--ink);
-}
-
-.notice-dialog::backdrop {
-  background: rgba(20, 20, 20, 0.45);
 }
 
 .notice-dialog-inner {
