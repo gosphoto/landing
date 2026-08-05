@@ -22,5 +22,8 @@ http://localhost:5173
 - `index.html` — страница
 - `css/styles.css` — стили
 - `assets/` — hero и карточки до/после
-- `deploy/` — nginx + install script
-- `.github/workflows/deploy.yml` — CI/CD
+- `api/` — photo gate (MediaPipe Face Landmarker), Docker → `/opt/gosphoto-api`
+- `deploy/` — nginx + install script (`/api/` → `127.0.0.1:8091`)
+- `.github/workflows/deploy.yml` — CI/CD (статика + nginx + rebuild gate)
+
+Gate: `POST https://gosphoto.ru/api/validate`

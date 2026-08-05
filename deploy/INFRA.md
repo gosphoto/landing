@@ -38,10 +38,11 @@ dig +short www.gosphoto.ru A
 
 На push в `main`:
 
-1. Проверяет `index.html`, `css/`, `assets/`, `deploy/`
+1. Проверяет `index.html`, `css/`, `assets/`, `deploy/`, `api/`
 2. rsync сайта → `/var/www/gosphoto.ru/`
-3. Ставит nginx + certbot → `/opt/gosphoto-landing/`
-4. Smoke curl
+3. rsync `api/` → `/opt/gosphoto-api/` + `docker compose up -d --build`
+4. Ставит nginx + certbot → `/opt/gosphoto-landing/` (`/api/` и `/health` → gate)
+5. Smoke curl лендинга + `/health`
 
 Ручной запуск: Actions → **Deploy gosphoto.ru** → Run workflow.
 
