@@ -194,10 +194,6 @@
             <strong>Паспорт / загран</strong>
             <span>35×45 под МФЦ и МВД</span>
           </a>
-          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="print_3x4">
-            <strong>Фото 3×4</strong>
-            <span>С листом для печати 10×15</span>
-          </a>
         </div>
       </section>
 
@@ -505,6 +501,7 @@
       const previewCamera = document.getElementById("preview-camera");
       const chooserError = document.getElementById("chooser-error");
       const endpoint = "https://formspree.io/f/mvkpprkk";
+      const SEND_FORMSPREE = false; // временно отключено
       let cameraStream = null;
 
       function showDialog(el) {
@@ -535,7 +532,7 @@
       }
 
       function trackFormspreeClick() {
-        if (!TRACK_CONVERSIONS) return;
+        if (!SEND_FORMSPREE || !TRACK_CONVERSIONS) return;
         const clickData = new FormData();
         const params = new URLSearchParams(location.search);
         clickData.append("_subject", "Госфото: клик «Загрузить селфи»");

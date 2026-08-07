@@ -99,7 +99,7 @@
         <div class="result-screen-inner">
           <div class="result-screen-head">
             <p class="result-kicker">Ваш результат</p>
-            <h1 id="result-screen-title">РФ паспорт · 35×45 мм</h1>
+            <h1 id="result-screen-title">35×45 мм</h1>
             <p class="result-lead" id="result-screen-lead">
               Фото приведено к требованиям Госуслуг / МВД (п.&nbsp;34.3)
             </p>
@@ -239,9 +239,31 @@
 
         function reachGoal(name, params) {
           try {
-            if (typeof ym === "function") ym(111303098, "reachGoal", name, params || {});
+            if (typeof ym === "function") {
+              if (params) ym(111303098, "reachGoal", name, params);
+              else ym(111303098, "reachGoal", name);
+            }
           } catch (_) {}
         }
+
+        // Делегированный трекинг всех data-metrika-goal (кнопки и ссылки).
+        document.addEventListener(
+          "click",
+          (event) => {
+            const target = event.target.closest("[data-metrika-goal]");
+            if (!target) return;
+            const goal = target.getAttribute("data-metrika-goal");
+            const param = target.getAttribute("data-metrika-param");
+            const params = param ? { item: param } : {};
+            const id = parseResultId();
+            if (id && (goal === "download_digital" || goal === "download_print")) {
+              params.result_id = id;
+              params.kind = goal === "download_digital" ? "digital" : "print";
+            }
+            reachGoal(goal, Object.keys(params).length ? params : undefined);
+          },
+          true
+        );
 
         function parseResultId() {
           const m = location.pathname.match(/^\/result\/([a-f0-9]{32})\/?$/i);
