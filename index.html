@@ -352,8 +352,22 @@
     <dialog class="notice-dialog" id="result-dialog" aria-labelledby="result-dialog-title">
       <div class="notice-dialog-inner result-dialog-inner">
         <h2 id="result-dialog-title">Фото для Госуслуг</h2>
-        <p id="result-status">Обрабатываем снимок…</p>
-        <img id="result-image" class="result-image" alt="Готовое фото" hidden />
+        <div class="result-stage" id="result-stage" hidden>
+          <img id="result-image" class="result-image" alt="Загруженное фото" />
+          <div class="result-progress" id="result-progress" hidden>
+            <div class="result-progress-track" aria-hidden="true">
+              <div class="result-progress-bar" id="result-progress-bar"></div>
+            </div>
+            <p class="result-progress-step" id="result-progress-step" aria-live="polite">Проверяем фото…</p>
+            <ol class="result-progress-list" id="result-progress-list" aria-hidden="true">
+              <li data-step="0">Проверка</li>
+              <li data-step="1">Фон</li>
+              <li data-step="2">Кадр</li>
+              <li data-step="3">Файл</li>
+            </ol>
+          </div>
+        </div>
+        <p id="result-status" class="result-status">Обрабатываем снимок…</p>
         <p class="chooser-error" id="result-error" hidden></p>
         <div class="result-actions">
           <a class="btn btn-primary" id="result-download" href="#" download="gosphoto-passport.jpg" hidden>Скачать JPEG</a>
@@ -393,10 +407,88 @@
       const updateDialog = document.getElementById("update-dialog");
       const resultDialog = document.getElementById("result-dialog");
       const resultStatus = document.getElementById("result-status");
+      const resultStage = document.getElementById("result-stage");
       const resultImage = document.getElementById("result-image");
+      const resultProgress = document.getElementById("result-progress");
+      const resultProgressBar = document.getElementById("result-progress-bar");
+      const resultProgressStep = document.getElementById("result-progress-step");
+      const resultProgressList = document.getElementById("result-progress-list");
       const resultError = document.getElementById("result-error");
       const resultDownload = document.getElementById("result-download");
       const resultClose = document.getElementById("result-close");
+      let resultPreviewUrl = null;
+      let progressTimer = null;
+      let progressStepIndex = 0;
+
+      const PROGRESS_STEPS = [
+        { label: "Проверяем лицо и качество…", pct: 18 },
+        { label: "Убираем фон, делаем белый…", pct: 42 },
+        { label: "Кадрируем под 35×45 мм…", pct: 68 },
+        { label: "Готовим JPEG для Госуслуг…", pct: 88 },
+      ];
+
+      function revokeResultPreview() {
+        if (resultPreviewUrl) {
+          URL.revokeObjectURL(resultPreviewUrl);
+          resultPreviewUrl = null;
+        }
+      }
+
+      function syncProgressList(activeIndex) {
+        if (!resultProgressList) return;
+        resultProgressList.querySelectorAll("li").forEach((li) => {
+          const i = Number(li.getAttribute("data-step"));
+          li.classList.toggle("is-done", i < activeIndex);
+          li.classList.toggle("is-current", i === activeIndex);
+        });
+      }
+
+      function applyProgressStep(index) {
+        const step = PROGRESS_STEPS[Math.min(index, PROGRESS_STEPS.length - 1)];
+        progressStepIndex = index;
+        if (resultProgressStep) resultProgressStep.textContent = step.label;
+        if (resultStatus) resultStatus.textContent = step.label;
+        if (resultProgressBar) resultProgressBar.style.width = `${step.pct}%`;
+        syncProgressList(Math.min(index, PROGRESS_STEPS.length - 1));
+      }
+
+      function startProgress() {
+        stopProgress(false);
+        if (resultStage) resultStage.classList.add("is-processing");
+        if (resultProgress) {
+          resultProgress.hidden = false;
+          resultProgress.classList.add("is-active");
+        }
+        applyProgressStep(0);
+        let i = 0;
+        progressTimer = window.setInterval(() => {
+          i = Math.min(i + 1, PROGRESS_STEPS.length - 1);
+          applyProgressStep(i);
+          if (i >= PROGRESS_STEPS.length - 1 && progressTimer) {
+            window.clearInterval(progressTimer);
+            progressTimer = null;
+            if (resultProgressBar) {
+              resultProgressBar.classList.add("is-waiting");
+            }
+          }
+        }, 2200);
+      }
+
+      function stopProgress(success) {
+        if (progressTimer) {
+          window.clearInterval(progressTimer);
+          progressTimer = null;
+        }
+        if (resultProgressBar) {
+          resultProgressBar.classList.remove("is-waiting");
+          if (success) resultProgressBar.style.width = "100%";
+        }
+        if (resultStage) resultStage.classList.remove("is-processing");
+        if (resultProgress) {
+          resultProgress.hidden = true;
+          resultProgress.classList.remove("is-active");
+        }
+      }
       const chooserClose = document.getElementById("chooser-close");
       const cameraClose = document.getElementById("camera-close");
       const cameraBack = document.getElementById("camera-back");
@@ -516,9 +608,16 @@
         closeDialog(cameraDialog);
         closeDialog(chooserDialog);
         setError(resultError, "");
-        resultImage.hidden = true;
         resultDownload.hidden = true;
-        resultStatus.textContent = "Обрабатываем снимок…";
+        resultDownload.removeAttribute("href");
+
+        revokeResultPreview();
+        resultPreviewUrl = URL.createObjectURL(file);
+        resultImage.src = resultPreviewUrl;
+        resultImage.alt = "Загруженное фото";
+        resultImage.classList.remove("is-passport");
+        if (resultStage) resultStage.hidden = false;
+        startProgress();
         showDialog(resultDialog);
 
         const body = new FormData();
@@ -537,8 +636,11 @@
           }
           const mime = data.mime || "image/jpeg";
           const url = `data:${mime};base64,${data.image_base64}`;
+          revokeResultPreview();
           resultImage.src = url;
-          resultImage.hidden = false;
+          resultImage.alt = "Готовое фото";
+          resultImage.classList.add("is-passport");
+          stopProgress(true);
           resultDownload.href = url;
           resultDownload.hidden = false;
           const ok = data.compliance && data.compliance.pass;
@@ -549,7 +651,10 @@
             compliance: ok ? "pass" : "soft",
           });
         } catch (err) {
+          stopProgress(false);
           resultStatus.textContent = "Не удалось обработать";
+          resultDownload.hidden = true;
+          resultDownload.removeAttribute("href");
           setError(
             resultError,
             (err && err.message) || "Попробуйте другое фото или позже."
@@ -646,9 +751,18 @@
         showDialog(chooserDialog);
       });
 
-      resultClose?.addEventListener("click", () => closeDialog(resultDialog));
+      resultClose?.addEventListener("click", () => {
+        stopProgress(false);
+        closeDialog(resultDialog);
+      });
       resultDialog?.addEventListener("click", (event) => {
-        if (event.target === resultDialog) closeDialog(resultDialog);
+        if (event.target === resultDialog) {
+          stopProgress(false);
+          closeDialog(resultDialog);
+        }
+      });
+      resultDialog?.addEventListener("close", () => {
+        stopProgress(false);
       });
 
       cameraClose?.addEventListener("click", () => {
