@@ -236,108 +236,6 @@
           </p>
         </div>
       </section>
-
-      <section class="section result-screen" id="result-screen" hidden>
-        <div class="result-screen-inner">
-          <div class="result-screen-head">
-            <p class="result-kicker">Ваш результат</p>
-            <h2 id="result-screen-title">РФ паспорт · 35×45 мм</h2>
-            <p class="result-lead" id="result-screen-lead">
-              Фото приведено к требованиям Госуслуг / МВД (п.&nbsp;34.3)
-            </p>
-            <p class="result-badge" id="result-badge" hidden></p>
-          </div>
-
-          <div class="result-products">
-            <article class="result-product">
-              <h3>Для Госуслуг</h3>
-              <p class="result-product-note">Цифровой JPEG для электронного заявления</p>
-              <img
-                id="result-digital-image"
-                class="result-product-image is-passport"
-                alt="Фото 35×45 для Госуслуг"
-              />
-              <a
-                class="btn btn-primary"
-                id="result-download"
-                href="#"
-                download="gosphoto-passport.jpg"
-                hidden
-                data-metrika-goal="download_digital"
-                >Скачать JPEG</a
-              >
-            </article>
-            <article class="result-product">
-              <h3>Для печати</h3>
-              <p class="result-product-note">Лист 10×15 см · 4 фото 35×45</p>
-              <img
-                id="result-print-image"
-                class="result-product-image is-print"
-                alt="Лист 10×15 для печати"
-              />
-              <a
-                class="btn btn-dark"
-                id="result-download-print"
-                href="#"
-                download="gosphoto-10x15.jpg"
-                hidden
-                data-metrika-goal="download_print"
-                >Скачать 10×15</a
-              >
-            </article>
-          </div>
-
-          <div class="result-specs">
-            <h3>Соответствие требованиям</h3>
-            <p class="result-specs-lead" id="result-specs-lead">
-              Параметры, под которые подготовлен файл
-            </p>
-            <div class="result-specs-table-wrap">
-              <table class="result-specs-table" id="result-specs-table">
-                <thead>
-                  <tr>
-                    <th>Параметр</th>
-                    <th>Норма</th>
-                    <th>Ваше фото</th>
-                  </tr>
-                </thead>
-                <tbody id="result-specs-body"></tbody>
-              </table>
-            </div>
-            <p class="result-specs-links">
-              Источники:
-              <a
-                href="https://rg.ru/documents/2011/08/22/pasport-dok.html"
-                target="_blank"
-                rel="noopener noreferrer"
-                >rg.ru · п.34.3</a
-              >,
-              <a href="https://www.gosuslugi.ru" target="_blank" rel="noopener noreferrer"
-                >gosuslugi.ru</a
-              >
-            </p>
-          </div>
-
-          <div class="result-screen-actions">
-            <button
-              class="btn btn-primary"
-              type="button"
-              id="result-again"
-              data-metrika-goal="click_result_again"
-            >
-              Сделать ещё фото
-            </button>
-            <button
-              class="btn btn-ghost"
-              type="button"
-              id="result-close-screen"
-              data-metrika-goal="click_result_close"
-            >
-              Закрыть результат
-            </button>
-          </div>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
@@ -511,7 +409,6 @@
       const cameraDialog = document.getElementById("camera-dialog");
       const updateDialog = document.getElementById("update-dialog");
       const resultDialog = document.getElementById("result-dialog");
-      const resultScreen = document.getElementById("result-screen");
       const resultStatus = document.getElementById("result-status");
       const resultStage = document.getElementById("result-stage");
       const resultImage = document.getElementById("result-image");
@@ -520,16 +417,7 @@
       const resultProgressStep = document.getElementById("result-progress-step");
       const resultProgressList = document.getElementById("result-progress-list");
       const resultError = document.getElementById("result-error");
-      const resultDownload = document.getElementById("result-download");
-      const resultDownloadPrint = document.getElementById("result-download-print");
-      const resultDigitalImage = document.getElementById("result-digital-image");
-      const resultPrintImage = document.getElementById("result-print-image");
-      const resultBadge = document.getElementById("result-badge");
-      const resultSpecsBody = document.getElementById("result-specs-body");
-      const resultSpecsLead = document.getElementById("result-specs-lead");
       const resultClose = document.getElementById("result-close");
-      const resultCloseScreen = document.getElementById("result-close-screen");
-      const resultAgain = document.getElementById("result-again");
       let resultPreviewUrl = null;
       let progressTimer = null;
       let progressStepIndex = 0;
@@ -717,153 +605,11 @@
         processPhoto(file);
       }
 
-      function hideResultScreen() {
-        if (resultScreen) resultScreen.hidden = true;
-      }
-
-      function showResultScreen() {
-        if (!resultScreen) return;
-        resultScreen.hidden = false;
-        resultScreen.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-
-      function formatKb(bytes) {
-        if (bytes == null || Number.isNaN(Number(bytes))) return "—";
-        return `${Math.round(Number(bytes) / 1024)} КБ`;
-      }
-
-      function fillSpecsTable(data) {
-        if (!resultSpecsBody) return;
-        const c = data.compliance || {};
-        const checks = c.checks || {};
-        const w = data.width || c.width;
-        const h = data.height || c.height;
-        const dpi = data.dpi || c.dpi_target || 600;
-        const facePct =
-          c.face_ratio != null ? `${Math.round(c.face_ratio * 100)}%` : "—";
-        const headMm =
-          c.head_height_mm != null ? `${c.head_height_mm} мм` : "—";
-        const topMm =
-          c.top_margin != null
-            ? `${(c.top_margin * 45).toFixed(1)} мм`
-            : "—";
-        const bgOk = checks.bg_white_ok;
-        const bgText =
-          bgOk === true ? "белый" : bgOk === false ? "проверьте фон" : "белый";
-        const sheet = data.print_sheet;
-        const rows = [
-          {
-            param: "Размер",
-            norm: "35×45 мм",
-            value: w && h ? `35×45 мм (${w}×${h} px)` : "35×45 мм",
-            ok: checks.size_ok !== false,
-          },
-          {
-            param: "Разрешение",
-            norm: "≥ 600 dpi",
-            value: `${dpi} dpi`,
-            ok: Number(dpi) >= 600,
-          },
-          {
-            param: "Овал / высота головы",
-            norm: "≥ 80% · 32–36 мм",
-            value: `${facePct} · ${headMm}`,
-            ok: checks.face_oval_ok !== false && checks.head_height_mm_ok !== false,
-          },
-          {
-            param: "Отступ сверху",
-            norm: "~4,5 мм",
-            value: topMm,
-            ok: checks.top_margin_ok !== false,
-          },
-          {
-            param: "Файл",
-            norm: "JPEG ≤ 300 КБ",
-            value: formatKb(c.jpeg_bytes),
-            ok: c.jpeg_size_ok !== false,
-          },
-          {
-            param: "Фон",
-            norm: "белый, ровный",
-            value: bgText,
-            ok: bgOk !== false,
-          },
-          {
-            param: "Онлайн / печать",
-            norm: "да / да",
-            value: sheet
-              ? "да / лист 10×15 (4 фото)"
-              : "да / —",
-            ok: true,
-          },
-        ];
-        resultSpecsBody.innerHTML = rows
-          .map(
-            (row) => `<tr class="${row.ok ? "is-ok" : "is-warn"}">
-              <td>${row.param}</td>
-              <td>${row.norm}</td>
-              <td>${row.value}</td>
-            </tr>`
-          )
-          .join("");
-      }
-
-      function renderResultScreen(data) {
-        const mime = data.mime || "image/jpeg";
-        const url = `data:${mime};base64,${data.image_base64}`;
-        if (resultDigitalImage) {
-          resultDigitalImage.src = url;
-          resultDigitalImage.alt = "Фото 35×45 для Госуслуг";
-        }
-        if (resultDownload) {
-          resultDownload.href = url;
-          resultDownload.hidden = false;
-        }
-
-        const sheet = data.print_sheet;
-        if (sheet?.image_base64 && resultPrintImage && resultDownloadPrint) {
-          const printUrl = `data:${sheet.mime || "image/jpeg"};base64,${sheet.image_base64}`;
-          resultPrintImage.src = printUrl;
-          resultPrintImage.hidden = false;
-          resultDownloadPrint.href = printUrl;
-          resultDownloadPrint.hidden = false;
-        } else if (resultDownloadPrint) {
-          resultDownloadPrint.hidden = true;
-          if (resultPrintImage) resultPrintImage.hidden = true;
-        }
-
-        const ok = !!(data.compliance && data.compliance.pass);
-        if (resultBadge) {
-          resultBadge.hidden = false;
-          resultBadge.textContent = ok
-            ? "Соответствует требованиям"
-            : "Готово — проверьте кадр перед загрузкой";
-          resultBadge.classList.toggle("is-pass", ok);
-          resultBadge.classList.toggle("is-soft", !ok);
-        }
-        if (resultSpecsLead) {
-          resultSpecsLead.textContent = ok
-            ? "Файл подготовлен под нормы п.34.3 и загрузку на Госуслуги"
-            : "Основные параметры выставлены — сверьте кадр перед отправкой";
-        }
-        fillSpecsTable(data);
-        showResultScreen();
-      }
-
       async function processPhoto(file) {
         stopCamera();
         closeDialog(cameraDialog);
         closeDialog(chooserDialog);
-        hideResultScreen();
         setError(resultError, "");
-        if (resultDownload) {
-          resultDownload.hidden = true;
-          resultDownload.removeAttribute("href");
-        }
-        if (resultDownloadPrint) {
-          resultDownloadPrint.hidden = true;
-          resultDownloadPrint.removeAttribute("href");
-        }
 
         revokeResultPreview();
         resultPreviewUrl = URL.createObjectURL(file);
@@ -890,16 +636,16 @@
           if (!data.ok) {
             throw new Error(data.message || "Фото не прошло проверку.");
           }
-          if (!data.image_base64) {
-            throw new Error("Сервер не вернул готовое фото.");
+          if (!data.result_id) {
+            throw new Error("Сервер не вернул ссылку на результат.");
           }
           stopProgress(true);
-          closeDialog(resultDialog);
-          renderResultScreen(data);
           reachGoal("photo_processed", {
             compliance: data.compliance?.pass ? "pass" : "soft",
             print_sheet: data.print_sheet ? "yes" : "no",
           });
+          const t = Date.now();
+          location.assign(`/result/${data.result_id}?t=${t}`);
         } catch (err) {
           stopProgress(false);
           if (resultStatus) resultStatus.textContent = "Не удалось обработать";
@@ -1002,14 +748,6 @@
       resultClose?.addEventListener("click", () => {
         stopProgress(false);
         closeDialog(resultDialog);
-      });
-      resultCloseScreen?.addEventListener("click", () => {
-        hideResultScreen();
-      });
-      resultAgain?.addEventListener("click", () => {
-        hideResultScreen();
-        setError(chooserError, "");
-        showDialog(chooserDialog);
       });
       resultDialog?.addEventListener("click", (event) => {
         if (event.target === resultDialog) {

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ваш результат — Госфото</title>
+    <meta
+      name="description"
+      content="Готовое фото 35×45 для Госуслуг и лист 10×15 для печати."
+    />
+    <meta name="theme-color" content="#fdcb58" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        (k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a);
+      })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=111303098", "ym");
+
+      ym(111303098, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/111303098"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+  </head>
+  <body class="result-page">
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Госфото">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="16" cy="16" r="6.5" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="22.5" cy="9.5" r="1.6" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="logo-text">Госфото</span>
+      </a>
+
+      <nav class="nav" aria-label="Основное меню">
+        <a href="/#docs" data-metrika-goal="click_nav" data-metrika-param="result_docs">Документы</a>
+        <a href="/#how" data-metrika-goal="click_nav" data-metrika-param="result_how">Как это работает</a>
+        <a href="/#guarantee" data-metrika-goal="click_nav" data-metrika-param="result_guarantee">Гарантия</a>
+        <a href="/#about" data-metrika-goal="click_nav" data-metrika-param="result_about">О сервисе</a>
+      </nav>
+
+      <div class="header-contact">
+        <a class="phone" href="mailto:hello@gosphoto.ru" data-metrika-goal="click_contact_email">
+          <span class="phone-icon" aria-hidden="true">✉</span>
+          <span>
+            <strong>hello@gosphoto.ru</strong>
+            <small>Ответим в течение дня</small>
+          </span>
+        </a>
+      </div>
+    </header>
+
+    <main class="result-page-main">
+      <div class="result-page-status" id="result-status" aria-live="polite">Загружаем результат…</div>
+
+      <section class="section result-screen" id="result-screen" hidden>
+        <div class="result-screen-inner">
+          <div class="result-screen-head">
+            <p class="result-kicker">Ваш результат</p>
+            <h1 id="result-screen-title">РФ паспорт · 35×45 мм</h1>
+            <p class="result-lead" id="result-screen-lead">
+              Фото приведено к требованиям Госуслуг / МВД (п.&nbsp;34.3)
+            </p>
+            <p class="result-badge" id="result-badge" hidden></p>
+          </div>
+
+          <div class="result-products">
+            <article class="result-product">
+              <h2>Для Госуслуг</h2>
+              <p class="result-product-note">Цифровой JPEG для электронного заявления</p>
+              <img
+                id="result-digital-image"
+                class="result-product-image is-passport"
+                alt="Фото 35×45 для Госуслуг"
+              />
+              <a
+                class="btn btn-primary"
+                id="result-download"
+                href="#"
+                download="gosphoto-passport.jpg"
+                hidden
+                data-metrika-goal="download_digital"
+                >Скачать JPEG</a
+              >
+            </article>
+            <article class="result-product">
+              <h2>Для печати</h2>
+              <p class="result-product-note">Лист 10×15 см · 4 фото 35×45</p>
+              <img
+                id="result-print-image"
+                class="result-product-image is-print"
+                alt="Лист 10×15 для печати"
+                hidden
+              />
+              <a
+                class="btn btn-dark"
+                id="result-download-print"
+                href="#"
+                download="gosphoto-10x15.jpg"
+                hidden
+                data-metrika-goal="download_print"
+                >Скачать 10×15</a
+              >
+            </article>
+          </div>
+
+          <div class="result-specs">
+            <h2>Соответствие требованиям</h2>
+            <p class="result-specs-lead" id="result-specs-lead">
+              Параметры, под которые подготовлен файл
+            </p>
+            <div class="result-specs-table-wrap">
+              <table class="result-specs-table" id="result-specs-table">
+                <thead>
+                  <tr>
+                    <th>Параметр</th>
+                    <th>Норма</th>
+                    <th>Ваше фото</th>
+                  </tr>
+                </thead>
+                <tbody id="result-specs-body"></tbody>
+              </table>
+            </div>
+            <p class="result-specs-links">
+              Источники:
+              <a
+                href="https://rg.ru/documents/2011/08/22/pasport-dok.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                >rg.ru · п.34.3</a
+              >,
+              <a href="https://www.gosuslugi.ru" target="_blank" rel="noopener noreferrer"
+                >gosuslugi.ru</a
+              >
+            </p>
+          </div>
+
+          <div class="result-screen-actions">
+            <a
+              class="btn btn-primary"
+              href="/#start"
+              id="result-again"
+              data-metrika-goal="click_result_again"
+              >Сделать ещё фото</a
+            >
+            <a
+              class="btn btn-ghost"
+              href="/"
+              id="result-home"
+              data-metrika-goal="click_result_home"
+              >На главную</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section class="section result-missing" id="result-missing" hidden>
+        <div class="result-screen-inner">
+          <h1>Результат не найден</h1>
+          <p class="result-lead">
+            Ссылка устарела или открыта неверно. Сделайте новое фото на главной.
+          </p>
+          <div class="result-screen-actions">
+            <a class="btn btn-primary" href="/#start">Сделать фото</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="logo-text">Госфото</span>
+        <p>Фото для Госуслуг · gosphoto.ru</p>
+      </div>
+      <div class="footer-links">
+        <a href="/#docs">Документы</a>
+        <a href="/#how">Как это работает</a>
+        <a href="/#guarantee">Гарантия</a>
+        <a href="mailto:hello@gosphoto.ru">Контакты</a>
+      </div>
+      <p class="footer-copy">© Госфото</p>
+    </footer>
+
+    <script>
+      (function () {
+        const RESULT_ID_RE = /^[a-f0-9]{32}$/;
+        const statusEl = document.getElementById("result-status");
+        const resultScreen = document.getElementById("result-screen");
+        const resultMissing = document.getElementById("result-missing");
+        const resultBadge = document.getElementById("result-badge");
+        const resultSpecsLead = document.getElementById("result-specs-lead");
+        const resultSpecsBody = document.getElementById("result-specs-body");
+        const resultDigitalImage = document.getElementById("result-digital-image");
+        const resultPrintImage = document.getElementById("result-print-image");
+        const resultDownload = document.getElementById("result-download");
+        const resultDownloadPrint = document.getElementById("result-download-print");
+
+        function reachGoal(name, params) {
+          try {
+            if (typeof ym === "function") ym(111303098, "reachGoal", name, params || {});
+          } catch (_) {}
+        }
+
+        function parseResultId() {
+          const m = location.pathname.match(/^\/result\/([a-f0-9]{32})\/?$/i);
+          return m ? m[1].toLowerCase() : null;
+        }
+
+        function formatKb(bytes) {
+          if (bytes == null || Number.isNaN(Number(bytes))) return "—";
+          return `${Math.round(Number(bytes) / 1024)} КБ`;
+        }
+
+        function fillSpecsTable(data) {
+          if (!resultSpecsBody) return;
+          const c = data.compliance || {};
+          const checks = c.checks || {};
+          const w = data.width || c.width;
+          const h = data.height || c.height;
+          const dpi = data.dpi || c.dpi_target || 600;
+          const facePct =
+            c.face_ratio != null ? `${Math.round(c.face_ratio * 100)}%` : "—";
+          const headMm =
+            c.head_height_mm != null ? `${c.head_height_mm} мм` : "—";
+          const topMm =
+            c.top_margin != null
+              ? `${(c.top_margin * 45).toFixed(1)} мм`
+              : "—";
+          const bgOk = checks.bg_white_ok;
+          const bgText =
+            bgOk === true ? "белый" : bgOk === false ? "проверьте фон" : "белый";
+          const sheet = data.print_sheet;
+          const rows = [
+            {
+              param: "Размер",
+              norm: "35×45 мм",
+              value: w && h ? `35×45 мм (${w}×${h} px)` : "35×45 мм",
+              ok: checks.size_ok !== false,
+            },
+            {
+              param: "Разрешение",
+              norm: "≥ 600 dpi",
+              value: `${dpi} dpi`,
+              ok: Number(dpi) >= 600,
+            },
+            {
+              param: "Овал / высота головы",
+              norm: "≥ 80% · 32–36 мм",
+              value: `${facePct} · ${headMm}`,
+              ok: checks.face_oval_ok !== false && checks.head_height_mm_ok !== false,
+            },
+            {
+              param: "Отступ сверху",
+              norm: "~4,5 мм",
+              value: topMm,
+              ok: checks.top_margin_ok !== false,
+            },
+            {
+              param: "Файл",
+              norm: "JPEG ≤ 300 КБ",
+              value: formatKb(c.jpeg_bytes),
+              ok: c.jpeg_size_ok !== false,
+            },
+            {
+              param: "Фон",
+              norm: "белый, ровный",
+              value: bgText,
+              ok: bgOk !== false,
+            },
+            {
+              param: "Онлайн / печать",
+              norm: "да / да",
+              value: sheet && (sheet.copies || sheet.width)
+                ? "да / лист 10×15 (4 фото)"
+                : "да / —",
+              ok: true,
+            },
+          ];
+          resultSpecsBody.innerHTML = rows
+            .map(
+              (row) => `<tr class="${row.ok ? "is-ok" : "is-warn"}">
+              <td>${row.param}</td>
+              <td>${row.norm}</td>
+              <td>${row.value}</td>
+            </tr>`
+            )
+            .join("");
+        }
+
+        function showMissing(message) {
+          if (statusEl) statusEl.hidden = true;
+          if (resultScreen) resultScreen.hidden = true;
+          if (resultMissing) {
+            resultMissing.hidden = false;
+            const lead = resultMissing.querySelector(".result-lead");
+            if (lead && message) lead.textContent = message;
+          }
+        }
+
+        function renderResult(data) {
+          const digitalUrl = data.digital_url;
+          const printUrl = data.print_url;
+          if (resultDigitalImage && digitalUrl) {
+            resultDigitalImage.src = digitalUrl;
+          }
+          if (resultDownload && digitalUrl) {
+            resultDownload.href = digitalUrl;
+            resultDownload.hidden = false;
+          }
+          if (printUrl && resultPrintImage && resultDownloadPrint) {
+            resultPrintImage.src = printUrl;
+            resultPrintImage.hidden = false;
+            resultDownloadPrint.href = printUrl;
+            resultDownloadPrint.hidden = false;
+          }
+
+          const ok = !!(data.compliance && data.compliance.pass);
+          if (resultBadge) {
+            resultBadge.hidden = false;
+            resultBadge.textContent = ok
+              ? "Соответствует требованиям"
+              : "Готово — проверьте кадр перед загрузкой";
+            resultBadge.classList.toggle("is-pass", ok);
+            resultBadge.classList.toggle("is-soft", !ok);
+          }
+          if (resultSpecsLead) {
+            resultSpecsLead.textContent = ok
+              ? "Файл подготовлен под нормы п.34.3 и загрузку на Госуслуги"
+              : "Основные параметры выставлены — сверьте кадр перед отправкой";
+          }
+          fillSpecsTable(data);
+          if (statusEl) statusEl.hidden = true;
+          if (resultScreen) resultScreen.hidden = false;
+          reachGoal("result_page_view", {
+            compliance: ok ? "pass" : "soft",
+          });
+        }
+
+        async function boot() {
+          const id = parseResultId();
+          if (!id || !RESULT_ID_RE.test(id)) {
+            showMissing("Ссылка на результат неполная или повреждена.");
+            reachGoal("result_page_missing", { reason: "bad_id" });
+            return;
+          }
+          try {
+            const res = await fetch(`/api/result/${id}`);
+            if (res.status === 404) {
+              showMissing("Результат не найден. Возможно, ссылка устарела.");
+              reachGoal("result_page_missing", { reason: "404" });
+              return;
+            }
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) {
+              throw new Error(data.detail || "Не удалось загрузить результат.");
+            }
+            renderResult(data);
+          } catch (err) {
+            showMissing(
+              (err && err.message) || "Не удалось загрузить результат. Попробуйте позже."
+            );
+            reachGoal("result_page_missing", { reason: "error" });
+          }
+        }
+
+        boot();
+      })();
+    </script>
+  </body>
+</html>

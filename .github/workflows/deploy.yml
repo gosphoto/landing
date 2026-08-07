@@ -25,6 +25,7 @@ jobs:
       - name: Verify landing
         run: |
           test -f index.html
+          test -f result.html
           test -f css/styles.css
           test -d assets
           test -f deploy/gosphoto.ru.nginx.conf

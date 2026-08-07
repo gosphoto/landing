@@ -726,6 +726,33 @@ a {
 }
 
 /* Full result screen (Visafoto-like, no payment) */
+body.result-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(253, 203, 88, 0.28), transparent 55%),
+    var(--bg, #f4f4f1);
+}
+
+.result-page-main {
+  flex: 1;
+  width: min(56rem, calc(100% - 2rem));
+  margin: 1.25rem auto 2.5rem;
+}
+
+.result-page-status {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.result-page-status[hidden],
+.result-missing[hidden] {
+  display: none !important;
+}
+
 .result-screen {
   scroll-margin-top: 1rem;
 }
@@ -761,10 +788,32 @@ a {
   color: var(--muted);
 }
 
+.result-screen-head h1,
 .result-screen-head h2 {
   margin: 0;
   font-size: clamp(1.45rem, 3vw, 1.9rem);
   letter-spacing: -0.03em;
+}
+
+.result-product h2,
+.result-specs h2,
+.result-missing h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+
+.result-specs h2 {
+  font-size: 1.1rem;
+}
+
+.result-missing h1 {
+  font-size: clamp(1.45rem, 3vw, 1.9rem);
+  text-align: center;
+}
+
+.result-missing .result-lead {
+  text-align: center;
 }
 
 .result-lead {
@@ -807,6 +856,7 @@ a {
   background: #fbfbfa;
 }
 
+.result-product h2,
 .result-product h3 {
   margin: 0;
   font-size: 1.05rem;
