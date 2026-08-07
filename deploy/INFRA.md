@@ -2,7 +2,7 @@
 
 Схема как у **fixaverse.ru** (`masterdoc-toir`): статика на VPS `91.207.75.72`, nginx + certbot, GitHub Actions rsync.
 
-Бэкенд — отдельный репо **[gosphoto/api](https://github.com/gosphoto/api)** → `/opt/gosphoto-api`. Nginx лендинга проксирует `/api/` и `/health`.
+Бэкенд — **80.87.196.33:8111** (`/opt/gosphoto-api`, cutout u2net). Nginx лендинга на `91.207.75.72` проксирует `/api/` и `/health` туда.
 
 ## DNS (reg.ru)
 

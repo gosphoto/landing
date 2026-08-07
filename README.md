@@ -24,5 +24,5 @@ http://localhost:5173
 - `index.html` — страница
 - `css/styles.css` — стили
 - `assets/` — hero и карточки до/после
-- `deploy/` — nginx + install script (`/api/` → `127.0.0.1:8091`)
+- `deploy/` — nginx + install script (`/api/` → `80.87.196.33:8111`)
 - `.github/workflows/deploy.yml` — CI/CD статики
