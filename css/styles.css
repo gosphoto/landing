@@ -716,7 +716,41 @@ a {
 }
 
 .result-dialog-inner {
-  max-width: min(22rem, calc(100vw - 2rem));
+  max-width: min(26rem, calc(100vw - 2rem));
+}
+
+.result-print {
+  width: 100%;
+  display: grid;
+  gap: 0.4rem;
+  justify-items: center;
+}
+
+.result-print[hidden] {
+  display: none !important;
+}
+
+.result-print-label {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.result-print-image {
+  width: min(100%, 11rem);
+  height: auto;
+  aspect-ratio: 10 / 15;
+  object-fit: contain;
+  display: block;
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid rgba(15, 23, 42, 0.14);
 }
 
 .result-stage {

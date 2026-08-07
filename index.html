@@ -367,11 +367,16 @@
             </ol>
           </div>
         </div>
+        <div class="result-print" id="result-print" hidden>
+          <p class="result-print-label">Для печати · 10×15 см · 4 фото</p>
+          <img id="result-print-image" class="result-print-image" alt="Лист 10×15 для печати" />
+        </div>
         <p id="result-status" class="result-status">Обрабатываем снимок…</p>
         <p class="chooser-error" id="result-error" hidden></p>
         <div class="result-actions">
-          <a class="btn btn-primary" id="result-download" href="#" download="gosphoto-passport.jpg" hidden>Скачать JPEG</a>
-          <button class="btn btn-dark" type="button" id="result-close" data-metrika-goal="click_result_close">Закрыть</button>
+          <a class="btn btn-primary" id="result-download" href="#" download="gosphoto-passport.jpg" hidden>Скачать для Госуслуг</a>
+          <a class="btn btn-dark" id="result-download-print" href="#" download="gosphoto-10x15.jpg" hidden>Скачать 10×15 (4 фото)</a>
+          <button class="btn btn-ghost" type="button" id="result-close" data-metrika-goal="click_result_close">Закрыть</button>
         </div>
       </div>
     </dialog>
@@ -415,6 +420,9 @@
       const resultProgressList = document.getElementById("result-progress-list");
       const resultError = document.getElementById("result-error");
       const resultDownload = document.getElementById("result-download");
+      const resultDownloadPrint = document.getElementById("result-download-print");
+      const resultPrint = document.getElementById("result-print");
+      const resultPrintImage = document.getElementById("result-print-image");
       const resultClose = document.getElementById("result-close");
       let resultPreviewUrl = null;
       let progressTimer = null;
@@ -610,6 +618,11 @@
         setError(resultError, "");
         resultDownload.hidden = true;
         resultDownload.removeAttribute("href");
+        if (resultDownloadPrint) {
+          resultDownloadPrint.hidden = true;
+          resultDownloadPrint.removeAttribute("href");
+        }
+        if (resultPrint) resultPrint.hidden = true;
 
         revokeResultPreview();
         resultPreviewUrl = URL.createObjectURL(file);
@@ -638,23 +651,39 @@
           const url = `data:${mime};base64,${data.image_base64}`;
           revokeResultPreview();
           resultImage.src = url;
-          resultImage.alt = "Готовое фото";
+          resultImage.alt = "Готовое фото 35×45";
           resultImage.classList.add("is-passport");
           stopProgress(true);
           resultDownload.href = url;
           resultDownload.hidden = false;
+
+          const sheet = data.print_sheet;
+          if (sheet && sheet.image_base64 && resultDownloadPrint && resultPrintImage) {
+            const printUrl = `data:${sheet.mime || "image/jpeg"};base64,${sheet.image_base64}`;
+            resultPrintImage.src = printUrl;
+            resultDownloadPrint.href = printUrl;
+            resultDownloadPrint.hidden = false;
+            if (resultPrint) resultPrint.hidden = false;
+          }
+
           const ok = data.compliance && data.compliance.pass;
           resultStatus.textContent = ok
-            ? "Готово — 35×45 мм, белый фон, под требования Госуслуг."
+            ? "Готово — файл для Госуслуг и лист 10×15 (4 фото)."
             : "Готово. Проверьте кадр перед загрузкой на Госуслуги.";
           reachGoal("photo_processed", {
             compliance: ok ? "pass" : "soft",
+            print_sheet: sheet ? "yes" : "no",
           });
         } catch (err) {
           stopProgress(false);
           resultStatus.textContent = "Не удалось обработать";
           resultDownload.hidden = true;
           resultDownload.removeAttribute("href");
+          if (resultDownloadPrint) {
+            resultDownloadPrint.hidden = true;
+            resultDownloadPrint.removeAttribute("href");
+          }
+          if (resultPrint) resultPrint.hidden = true;
           setError(
             resultError,
             (err && err.message) || "Попробуйте другое фото или позже."
