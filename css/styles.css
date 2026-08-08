@@ -908,6 +908,10 @@ body.result-page {
   text-align: center;
 }
 
+.result-pay[hidden] {
+  display: none !important;
+}
+
 .result-pay-btn {
   min-width: min(100%, 280px);
   font-size: 1.05rem;
