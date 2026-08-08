@@ -164,6 +164,41 @@
             <p class="result-pay-status" id="result-pay-status" hidden aria-live="polite"></p>
           </div>
 
+          <div class="result-email" id="result-email" hidden>
+            <label class="result-email-label" for="result-email-input"
+              >Отправить на email</label
+            >
+            <div class="result-email-row">
+              <input
+                id="result-email-input"
+                class="result-email-input"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                maxlength="254"
+                inputmode="email"
+              />
+              <button
+                type="button"
+                class="btn btn-dark result-email-btn"
+                id="result-email-btn"
+                data-metrika-goal="email_send"
+              >
+                Отправить
+              </button>
+            </div>
+            <p class="result-email-note">
+              Пришлём оба файла: JPEG для Госуслуг и лист 10×15.
+            </p>
+            <p
+              class="result-email-status"
+              id="result-email-status"
+              hidden
+              aria-live="polite"
+            ></p>
+          </div>
+
           <div class="result-specs">
             <h2>Соответствие требованиям</h2>
             <p class="result-specs-lead" id="result-specs-lead">
@@ -260,9 +295,14 @@
         const resultPayBtn = document.getElementById("result-pay-btn");
         const resultPayNote = document.getElementById("result-pay-note");
         const resultPayStatus = document.getElementById("result-pay-status");
+        const resultEmail = document.getElementById("result-email");
+        const resultEmailInput = document.getElementById("result-email-input");
+        const resultEmailBtn = document.getElementById("result-email-btn");
+        const resultEmailStatus = document.getElementById("result-email-status");
         let pollTimer = null;
         let pollLeft = 0;
         let paying = false;
+        let emailing = false;
 
         function reachGoal(name, params) {
           try {
@@ -283,7 +323,14 @@
             const param = target.getAttribute("data-metrika-param");
             const params = param ? { item: param } : {};
             const id = parseResultId();
-            if (id && (goal === "download_digital" || goal === "download_print" || goal === "pay_start" || goal === "pay_success")) {
+            if (
+              id &&
+              (goal === "download_digital" ||
+                goal === "download_print" ||
+                goal === "pay_start" ||
+                goal === "pay_success" ||
+                goal === "email_send")
+            ) {
               params.result_id = id;
               if (goal === "download_digital" || goal === "download_print") {
                 params.kind = goal === "download_digital" ? "digital" : "print";
@@ -308,6 +355,20 @@
           }
           resultPayStatus.hidden = false;
           resultPayStatus.textContent = text || "";
+        }
+
+        function setEmailStatus(text, show, kind) {
+          if (!resultEmailStatus) return;
+          if (!show) {
+            resultEmailStatus.hidden = true;
+            resultEmailStatus.textContent = "";
+            resultEmailStatus.classList.remove("is-ok", "is-err");
+            return;
+          }
+          resultEmailStatus.hidden = false;
+          resultEmailStatus.textContent = text || "";
+          resultEmailStatus.classList.toggle("is-ok", kind === "ok");
+          resultEmailStatus.classList.toggle("is-err", kind === "err");
         }
 
         function stopPoll() {
@@ -484,6 +545,9 @@
           if (resultPay) {
             resultPay.hidden = paid;
           }
+          if (resultEmail) {
+            resultEmail.hidden = !paid;
+          }
           if (resultPayBtn) {
             resultPayBtn.textContent = `Скачать за ${priceRub} ₽`;
             resultPayBtn.disabled = false;
@@ -496,6 +560,8 @@
           if (paid) {
             stopPoll();
             setPayStatus("", false);
+          } else {
+            setEmailStatus("", false);
           }
 
           const ok = !!(data.compliance && data.compliance.pass);
@@ -568,6 +634,66 @@
           resultPayBtn.addEventListener("click", (event) => {
             event.preventDefault();
             startPayment();
+          });
+        }
+
+        async function sendResultEmail() {
+          const id = parseResultId();
+          if (!id || emailing) return;
+          const email = (resultEmailInput && resultEmailInput.value.trim()) || "";
+          if (!email || !email.includes("@")) {
+            setEmailStatus("Укажите корректный email.", true, "err");
+            if (resultEmailInput) resultEmailInput.focus();
+            return;
+          }
+          emailing = true;
+          if (resultEmailBtn) resultEmailBtn.disabled = true;
+          setEmailStatus("Отправляем…", true, null);
+          try {
+            const res = await fetch(`/api/result/${id}/email`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              const detail =
+                (data.detail && (data.detail.message || data.detail)) ||
+                "Не удалось отправить письмо.";
+              throw new Error(
+                typeof detail === "string" ? detail : JSON.stringify(detail)
+              );
+            }
+            setEmailStatus(
+              `Отправлено на ${data.email || email}. Проверьте входящие и спам.`,
+              true,
+              "ok"
+            );
+            reachGoal("email_sent", { result_id: id });
+          } catch (err) {
+            setEmailStatus(
+              (err && err.message) || "Ошибка отправки. Попробуйте ещё раз.",
+              true,
+              "err"
+            );
+          } finally {
+            emailing = false;
+            if (resultEmailBtn) resultEmailBtn.disabled = false;
+          }
+        }
+
+        if (resultEmailBtn) {
+          resultEmailBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            sendResultEmail();
+          });
+        }
+        if (resultEmailInput) {
+          resultEmailInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              sendResultEmail();
+            }
           });
         }
 

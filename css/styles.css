@@ -930,6 +930,84 @@ body.result-page {
   font-weight: 600;
 }
 
+.result-email {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: stretch;
+  margin-top: 0.25rem;
+  padding: 1.1rem 1rem 0.35rem;
+  max-width: 36rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.result-email[hidden] {
+  display: none !important;
+}
+
+.result-email-label {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-align: center;
+}
+
+.result-email-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.55rem;
+  align-items: stretch;
+}
+
+.result-email-input {
+  min-width: 0;
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  border-radius: var(--radius-md, 10px);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+
+.result-email-input:focus {
+  outline: 2px solid rgba(15, 23, 42, 0.28);
+  outline-offset: 1px;
+}
+
+.result-email-btn {
+  white-space: nowrap;
+}
+
+.result-email-note,
+.result-email-status {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.result-email-status {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.result-email-status.is-ok {
+  color: #17653a;
+}
+
+.result-email-status.is-err {
+  color: #9b1c1c;
+}
+
+@media (max-width: 560px) {
+  .result-email-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .result-specs {
   display: grid;
   gap: 0.65rem;
