@@ -113,7 +113,7 @@
               <img
                 id="result-digital-image"
                 class="result-product-image is-passport"
-                alt="Фото 35×45 для Госуслуг"
+                alt="Превью фото 35×45 для Госуслуг"
               />
               <a
                 class="btn btn-primary"
@@ -121,6 +121,7 @@
                 href="#"
                 download="gosphoto-passport.jpg"
                 hidden
+                aria-disabled="true"
                 data-metrika-goal="download_digital"
                 >Скачать JPEG</a
               >
@@ -131,7 +132,7 @@
               <img
                 id="result-print-image"
                 class="result-product-image is-print"
-                alt="Лист 10×15 для печати"
+                alt="Превью листа 10×15 для печати"
                 hidden
               />
               <a
@@ -140,10 +141,27 @@
                 href="#"
                 download="gosphoto-10x15.jpg"
                 hidden
+                aria-disabled="true"
                 data-metrika-goal="download_print"
                 >Скачать 10×15</a
               >
             </article>
+          </div>
+
+          <div class="result-pay" id="result-pay" hidden>
+            <button
+              type="button"
+              class="btn btn-primary result-pay-btn"
+              id="result-pay-btn"
+              data-metrika-goal="pay_start"
+            >
+              Скачать за 100 ₽
+            </button>
+            <p class="result-pay-note" id="result-pay-note">
+              Одна оплата открывает оба файла: JPEG для Госуслуг и лист 10×15.
+              Карта или СБП через Точку.
+            </p>
+            <p class="result-pay-status" id="result-pay-status" hidden aria-live="polite"></p>
           </div>
 
           <div class="result-specs">
@@ -226,6 +244,8 @@
     <script>
       (function () {
         const RESULT_ID_RE = /^[a-f0-9]{32}$/;
+        const POLL_MS = 3000;
+        const POLL_MAX = 20;
         const statusEl = document.getElementById("result-status");
         const resultScreen = document.getElementById("result-screen");
         const resultMissing = document.getElementById("result-missing");
@@ -236,6 +256,13 @@
         const resultPrintImage = document.getElementById("result-print-image");
         const resultDownload = document.getElementById("result-download");
         const resultDownloadPrint = document.getElementById("result-download-print");
+        const resultPay = document.getElementById("result-pay");
+        const resultPayBtn = document.getElementById("result-pay-btn");
+        const resultPayNote = document.getElementById("result-pay-note");
+        const resultPayStatus = document.getElementById("result-pay-status");
+        let pollTimer = null;
+        let pollLeft = 0;
+        let paying = false;
 
         function reachGoal(name, params) {
           try {
@@ -256,9 +283,11 @@
             const param = target.getAttribute("data-metrika-param");
             const params = param ? { item: param } : {};
             const id = parseResultId();
-            if (id && (goal === "download_digital" || goal === "download_print")) {
+            if (id && (goal === "download_digital" || goal === "download_print" || goal === "pay_start" || goal === "pay_success")) {
               params.result_id = id;
-              params.kind = goal === "download_digital" ? "digital" : "print";
+              if (goal === "download_digital" || goal === "download_print") {
+                params.kind = goal === "download_digital" ? "digital" : "print";
+              }
             }
             reachGoal(goal, Object.keys(params).length ? params : undefined);
           },
@@ -268,6 +297,54 @@
         function parseResultId() {
           const m = location.pathname.match(/^\/result\/([a-f0-9]{32})\/?$/i);
           return m ? m[1].toLowerCase() : null;
+        }
+
+        function setPayStatus(text, show) {
+          if (!resultPayStatus) return;
+          if (!show) {
+            resultPayStatus.hidden = true;
+            resultPayStatus.textContent = "";
+            return;
+          }
+          resultPayStatus.hidden = false;
+          resultPayStatus.textContent = text || "";
+        }
+
+        function stopPoll() {
+          if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+          }
+          pollLeft = 0;
+        }
+
+        function startPoll() {
+          stopPoll();
+          pollLeft = POLL_MAX;
+          setPayStatus("Ждём подтверждение оплаты…", true);
+          pollTimer = setInterval(async () => {
+            pollLeft -= 1;
+            const id = parseResultId();
+            if (!id || pollLeft <= 0) {
+              stopPoll();
+              if (!id) return;
+              setPayStatus(
+                "Если вы уже оплатили — обновите страницу через минуту.",
+                true
+              );
+              return;
+            }
+            try {
+              const res = await fetch(`/api/result/${id}/payment-status`);
+              const data = await res.json().catch(() => ({}));
+              if (res.ok && data.ok && data.paid) {
+                stopPoll();
+                renderResult(data);
+                reachGoal("pay_success", { result_id: id });
+                setPayStatus("Оплата прошла — скачивание доступно.", true);
+              }
+            } catch (_) {}
+          }, POLL_MS);
         }
 
         function formatKb(bytes) {
@@ -362,20 +439,63 @@
         }
 
         function renderResult(data) {
+          const paid = !!data.paid;
+          const previewDigital =
+            data.preview_digital_url || data.digital_url || "";
+          const previewPrint = data.preview_print_url || data.print_url || "";
           const digitalUrl = data.digital_url;
           const printUrl = data.print_url;
-          if (resultDigitalImage && digitalUrl) {
-            resultDigitalImage.src = digitalUrl;
+          const priceRub =
+            data.price_rub != null && !Number.isNaN(Number(data.price_rub))
+              ? Number(data.price_rub)
+              : 100;
+
+          if (resultDigitalImage && previewDigital) {
+            resultDigitalImage.src = previewDigital;
           }
-          if (resultDownload && digitalUrl) {
-            resultDownload.href = digitalUrl;
-            resultDownload.hidden = false;
-          }
-          if (printUrl && resultPrintImage && resultDownloadPrint) {
-            resultPrintImage.src = printUrl;
+          if (previewPrint && resultPrintImage) {
+            resultPrintImage.src = previewPrint;
             resultPrintImage.hidden = false;
-            resultDownloadPrint.href = printUrl;
-            resultDownloadPrint.hidden = false;
+          }
+
+          if (resultDownload) {
+            if (paid && digitalUrl) {
+              resultDownload.href = digitalUrl;
+              resultDownload.hidden = false;
+              resultDownload.removeAttribute("aria-disabled");
+            } else {
+              resultDownload.hidden = true;
+              resultDownload.removeAttribute("href");
+              resultDownload.setAttribute("aria-disabled", "true");
+            }
+          }
+          if (resultDownloadPrint) {
+            if (paid && printUrl) {
+              resultDownloadPrint.href = printUrl;
+              resultDownloadPrint.hidden = false;
+              resultDownloadPrint.removeAttribute("aria-disabled");
+            } else {
+              resultDownloadPrint.hidden = true;
+              resultDownloadPrint.removeAttribute("href");
+              resultDownloadPrint.setAttribute("aria-disabled", "true");
+            }
+          }
+
+          if (resultPay) {
+            resultPay.hidden = paid;
+          }
+          if (resultPayBtn) {
+            resultPayBtn.textContent = `Скачать за ${priceRub} ₽`;
+            resultPayBtn.disabled = false;
+          }
+          if (resultPayNote) {
+            resultPayNote.textContent = paid
+              ? ""
+              : `Одна оплата (${priceRub} ₽) открывает оба файла: JPEG для Госуслуг и лист 10×15. Карта или СБП через Точку.`;
+          }
+          if (paid) {
+            stopPoll();
+            setPayStatus("", false);
           }
 
           const ok = !!(data.compliance && data.compliance.pass);
@@ -395,8 +515,59 @@
           fillSpecsTable(data);
           if (statusEl) statusEl.hidden = true;
           if (resultScreen) resultScreen.hidden = false;
-          reachGoal("result_page_view", {
-            compliance: ok ? "pass" : "soft",
+        }
+
+        async function startPayment() {
+          const id = parseResultId();
+          if (!id || paying) return;
+          paying = true;
+          if (resultPayBtn) resultPayBtn.disabled = true;
+          setPayStatus("Создаём оплату…", true);
+          try {
+            const res = await fetch(`/api/result/${id}/pay`, { method: "POST" });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              const detail =
+                (data.detail && (data.detail.message || data.detail)) ||
+                "Не удалось создать оплату.";
+              throw new Error(
+                typeof detail === "string" ? detail : JSON.stringify(detail)
+              );
+            }
+            if (data.paid && !data.payment_required) {
+              const statusRes = await fetch(`/api/result/${id}`);
+              const statusData = await statusRes.json().catch(() => ({}));
+              if (statusRes.ok && statusData.ok) {
+                renderResult(statusData);
+                reachGoal("pay_success", { result_id: id, mode: "instant" });
+              }
+              setPayStatus("Скачивание доступно.", true);
+              return;
+            }
+            if (!data.payment_url) {
+              throw new Error("Сервер не вернул ссылку на оплату.");
+            }
+            window.open(data.payment_url, "_blank", "noopener,noreferrer");
+            setPayStatus(
+              "Оплатите в открывшейся вкладке — скачивание откроется автоматически.",
+              true
+            );
+            startPoll();
+          } catch (err) {
+            setPayStatus(
+              (err && err.message) || "Ошибка оплаты. Попробуйте ещё раз.",
+              true
+            );
+          } finally {
+            paying = false;
+            if (resultPayBtn) resultPayBtn.disabled = false;
+          }
+        }
+
+        if (resultPayBtn) {
+          resultPayBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            startPayment();
           });
         }
 
@@ -419,6 +590,14 @@
               throw new Error(data.detail || "Не удалось загрузить результат.");
             }
             renderResult(data);
+            reachGoal("result_page_view", {
+              compliance: data.compliance?.pass ? "pass" : "soft",
+              paid: data.paid ? "yes" : "no",
+            });
+            const params = new URLSearchParams(location.search);
+            if (params.get("paid") === "1" && !data.paid) {
+              startPoll();
+            }
           } catch (err) {
             showMissing(
               (err && err.message) || "Не удалось загрузить результат. Попробуйте позже."
