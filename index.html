@@ -390,7 +390,7 @@
       const METRIKA_ID = 111303098;
       const MAX_BYTES = 20 * 1024 * 1024;
       const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
-      const PROCESS_API = "/api/process";
+      const PROCESS_API = "/api/process/stream";
 
       const toggle = document.querySelector(".nav-toggle");
       const nav = document.querySelector(".nav");
@@ -414,21 +414,19 @@
       const resultError = document.getElementById("result-error");
       const resultClose = document.getElementById("result-close");
       let resultPreviewUrl = null;
-      let progressTimer = null;
-      let progressStepIndex = 0;
-
-      const PROGRESS_STEPS = [
-        { label: "Проверяем лицо и качество…", pct: 18 },
-        { label: "Убираем фон, делаем белый…", pct: 42 },
-        { label: "Кадрируем под 35×45 мм…", pct: 68 },
-        { label: "Готовим JPEG для Госуслуг…", pct: 88 },
-      ];
 
       function revokeResultPreview() {
         if (resultPreviewUrl) {
           URL.revokeObjectURL(resultPreviewUrl);
           resultPreviewUrl = null;
         }
+      }
+
+      function phaseFromPct(pct) {
+        if (pct < 30) return 0;
+        if (pct < 55) return 1;
+        if (pct < 80) return 2;
+        return 3;
       }
 
       function syncProgressList(activeIndex) {
@@ -440,13 +438,16 @@
         });
       }
 
-      function applyProgressStep(index) {
-        const step = PROGRESS_STEPS[Math.min(index, PROGRESS_STEPS.length - 1)];
-        progressStepIndex = index;
-        if (resultProgressStep) resultProgressStep.textContent = step.label;
-        if (resultStatus) resultStatus.textContent = step.label;
-        if (resultProgressBar) resultProgressBar.style.width = `${step.pct}%`;
-        syncProgressList(Math.min(index, PROGRESS_STEPS.length - 1));
+      function applyServerProgress(text, pct) {
+        const label = text || "Обрабатываем снимок…";
+        const p = Math.max(1, Math.min(99, Number(pct) || 1));
+        if (resultProgressStep) resultProgressStep.textContent = label;
+        if (resultStatus) resultStatus.textContent = label;
+        if (resultProgressBar) {
+          resultProgressBar.style.width = `${p}%`;
+          resultProgressBar.classList.add("is-waiting");
+        }
+        syncProgressList(phaseFromPct(p));
       }
 
       function startProgress() {
@@ -456,26 +457,10 @@
           resultProgress.hidden = false;
           resultProgress.classList.add("is-active");
         }
-        applyProgressStep(0);
-        let i = 0;
-        progressTimer = window.setInterval(() => {
-          i = Math.min(i + 1, PROGRESS_STEPS.length - 1);
-          applyProgressStep(i);
-          if (i >= PROGRESS_STEPS.length - 1 && progressTimer) {
-            window.clearInterval(progressTimer);
-            progressTimer = null;
-            if (resultProgressBar) {
-              resultProgressBar.classList.add("is-waiting");
-            }
-          }
-        }, 2200);
+        applyServerProgress("Проверяем лицо и качество снимка…", 5);
       }
 
       function stopProgress(success) {
-        if (progressTimer) {
-          window.clearInterval(progressTimer);
-          progressTimer = null;
-        }
         if (resultProgressBar) {
           resultProgressBar.classList.remove("is-waiting");
           if (success) resultProgressBar.style.width = "100%";
@@ -485,6 +470,50 @@
           resultProgress.hidden = true;
           resultProgress.classList.remove("is-active");
         }
+      }
+
+      async function readProcessSse(response) {
+        if (!response.body || !response.body.getReader) {
+          throw new Error("Браузер не поддерживает поток ответа.");
+        }
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let finalEvent = null;
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          let sep;
+          while ((sep = buffer.indexOf("\n\n")) >= 0) {
+            const raw = buffer.slice(0, sep);
+            buffer = buffer.slice(sep + 2);
+            const lines = raw.split("\n");
+            let eventName = "message";
+            const dataLines = [];
+            for (const line of lines) {
+              if (line.startsWith("event:")) {
+                eventName = line.slice(6).trim();
+              } else if (line.startsWith("data:")) {
+                dataLines.push(line.slice(5).trim());
+              }
+            }
+            if (!dataLines.length) continue;
+            let data = {};
+            try {
+              data = JSON.parse(dataLines.join("\n"));
+            } catch (_) {
+              continue;
+            }
+            if (eventName === "progress") {
+              applyServerProgress(data.text, data.pct);
+            } else if (eventName === "done" || eventName === "error") {
+              finalEvent = { event: eventName, data };
+            }
+          }
+        }
+        return finalEvent;
       }
       const chooserClose = document.getElementById("chooser-close");
       const cameraClose = document.getElementById("camera-close");
@@ -519,15 +548,34 @@
         }
       }
 
-      function reachGoal(name, params) {
-        if (!TRACK_CONVERSIONS || !name) return;
-        if (typeof ym === "function") {
-          if (params) {
-            ym(METRIKA_ID, "reachGoal", name, params);
-          } else {
-            ym(METRIKA_ID, "reachGoal", name);
-          }
+      function reachGoal(name, params, done) {
+        if (!TRACK_CONVERSIONS || !name) {
+          if (typeof done === "function") done();
+          return;
         }
+        let finished = false;
+        const finish = () => {
+          if (finished) return;
+          finished = true;
+          if (typeof done === "function") done();
+        };
+        // Fallback: даже если callback Metrika не вызовется — не зависаем.
+        const timer =
+          typeof done === "function" ? window.setTimeout(finish, 400) : null;
+        try {
+          if (typeof ym === "function") {
+            if (typeof done === "function") {
+              ym(METRIKA_ID, "reachGoal", name, params || {}, finish);
+            } else if (params) {
+              ym(METRIKA_ID, "reachGoal", name, params);
+            } else {
+              ym(METRIKA_ID, "reachGoal", name);
+            }
+            return;
+          }
+        } catch (_) {}
+        if (timer) window.clearTimeout(timer);
+        finish();
       }
 
       function trackFormspreeClick() {
@@ -651,9 +699,13 @@
         let res = null;
         let data = {};
         try {
-          res = await fetch(PROCESS_API, { method: "POST", body });
-          data = await res.json().catch(() => ({}));
+          res = await fetch(PROCESS_API, {
+            method: "POST",
+            body,
+            headers: { Accept: "text/event-stream" },
+          });
           if (!res.ok) {
+            data = await res.json().catch(() => ({}));
             const msg =
               (data.detail && (data.detail.message || data.detail)) ||
               "Ошибка сервера. Попробуйте другое фото.";
@@ -663,7 +715,14 @@
             err._reason = failReasonFromProcess(err, res, data);
             throw err;
           }
-          if (!data.ok) {
+          const finalEvent = await readProcessSse(res);
+          if (!finalEvent) {
+            const err = new Error("Сервер закрыл поток без результата.");
+            err._reason = "no_sse_final";
+            throw err;
+          }
+          data = finalEvent.data || {};
+          if (finalEvent.event === "error" || !data.ok) {
             const err = new Error(data.message || "Фото не прошло проверку.");
             err._reason = failReasonFromProcess(err, res, data);
             throw err;
@@ -674,14 +733,19 @@
             throw err;
           }
           stopProgress(true);
-          reachGoal("photo_processed", {
-            result_id: data.result_id,
-            source: source || "unknown",
-            compliance: data.compliance?.pass ? "pass" : "soft",
-            print_sheet: data.print_sheet ? "yes" : "no",
-          });
+          const resultId = data.result_id;
           const t = Date.now();
-          location.assign(`/result/${data.result_id}?t=${t}`);
+          // Ждём отправку цели: иначе location.assign часто убивает hit.
+          reachGoal(
+            "photo_processed",
+            {
+              result_id: resultId,
+              source: source || "unknown",
+              compliance: data.compliance?.pass ? "pass" : "soft",
+              print_sheet: data.print_sheet ? "yes" : "no",
+            },
+            () => location.assign(`/result/${resultId}?t=${t}`)
+          );
         } catch (err) {
           stopProgress(false);
           if (resultStatus) resultStatus.textContent = "Не удалось обработать";
@@ -796,6 +860,7 @@
       });
       resultDialog?.addEventListener("click", (event) => {
         if (event.target === resultDialog) {
+          reachGoal("click_result_close", { item: "backdrop" });
           stopProgress(false);
           closeDialog(resultDialog);
         }
