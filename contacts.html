@@ -170,6 +170,28 @@
           });
         }
 
+        function reachGoal(name, params) {
+          try {
+            if (typeof ym !== "function" || !name) return;
+            if (params) ym(METRIKA_ID, "reachGoal", name, params);
+            else ym(METRIKA_ID, "reachGoal", name);
+          } catch (_) {}
+        }
+
+        document.addEventListener(
+          "click",
+          function (event) {
+            const target = event.target.closest("[data-metrika-goal]");
+            if (!target) return;
+            const goal = target.getAttribute("data-metrika-goal");
+            const param = target.getAttribute("data-metrika-param");
+            reachGoal(goal, param ? { item: param } : undefined);
+          },
+          true
+        );
+
+        reachGoal("contacts_page_view");
+
         const form = document.getElementById("feedback-form");
         const email = document.getElementById("feedback-email");
         const message = document.getElementById("feedback-message");
@@ -189,11 +211,13 @@
           const f = photo.files && photo.files[0];
           photoName.textContent = f ? f.name : "";
           photoClear.hidden = !f;
+          if (f) reachGoal("feedback_photo_attach");
         });
         photoClear.addEventListener("click", function () {
           photo.value = "";
           photoName.textContent = "";
           photoClear.hidden = true;
+          reachGoal("feedback_photo_clear");
         });
 
         form.addEventListener("submit", async function (e) {
@@ -202,8 +226,10 @@
           const body = new FormData();
           body.append("email", email.value.trim());
           body.append("message", message.value.trim());
-          if (photo.files && photo.files[0]) body.append("photo", photo.files[0]);
+          const hasPhoto = !!(photo.files && photo.files[0]);
+          if (hasPhoto) body.append("photo", photo.files[0]);
           submit.disabled = true;
+          reachGoal("feedback_submit", { has_photo: hasPhoto ? "yes" : "no" });
           try {
             const res = await fetch("/api/feedback", { method: "POST", body: body });
             if (!res.ok) {
@@ -215,17 +241,23 @@
                 }
               } catch (_) {}
               setStatus(detail, "is-error");
-              if (typeof ym === "function") ym(METRIKA_ID, "reachGoal", "feedback_fail");
+              reachGoal("feedback_fail", {
+                reason: "http_" + res.status,
+                has_photo: hasPhoto ? "yes" : "no",
+              });
               return;
             }
             form.reset();
             photoName.textContent = "";
             photoClear.hidden = true;
             setStatus("Сообщение отправлено. Мы ответим на ваш email.", "is-ok");
-            if (typeof ym === "function") ym(METRIKA_ID, "reachGoal", "feedback_ok");
+            reachGoal("feedback_ok", { has_photo: hasPhoto ? "yes" : "no" });
           } catch (_) {
             setStatus("Сеть недоступна. Попробуйте позже.", "is-error");
-            if (typeof ym === "function") ym(METRIKA_ID, "reachGoal", "feedback_fail");
+            reachGoal("feedback_fail", {
+              reason: "network",
+              has_photo: hasPhoto ? "yes" : "no",
+            });
           } finally {
             submit.disabled = false;
           }

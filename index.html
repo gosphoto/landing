@@ -589,19 +589,46 @@
         return null;
       }
 
-      function finishWithFile(file, { goal, previewEl, slotEl, errorEl }) {
+      function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
         const error = validateImage(file);
         if (error) {
           setError(errorEl, error);
+          const reason =
+            !file
+              ? "empty"
+              : file.size > MAX_BYTES
+                ? "too_large"
+                : "bad_type";
+          reachGoal("photo_file_reject", { reason, source: source || "unknown" });
           return;
         }
         setError(errorEl, "");
         setPreview(previewEl, slotEl, file);
         if (goal) reachGoal(goal);
-        processPhoto(file);
+        processPhoto(file, source || "unknown");
       }
 
-      async function processPhoto(file) {
+      function failReasonFromProcess(err, res, data) {
+        if (err && err.name === "TypeError") return "network";
+        if (res && res.status >= 500) return "server_" + res.status;
+        if (res && res.status === 413) return "too_large";
+        if (res && res.status === 415) return "bad_type";
+        if (res && res.status === 422) return "validation";
+        if (data && data.ok === false) {
+          const code =
+            data.code ||
+            (data.detail && data.detail.code) ||
+            data.gate ||
+            "";
+          if (code) return String(code).slice(0, 64);
+          return "gate_reject";
+        }
+        if (res && res.status === 400) return "bad_request";
+        if (res && !res.ok) return "http_" + res.status;
+        return "unknown";
+      }
+
+      async function processPhoto(file, source) {
         stopCamera();
         closeDialog(cameraDialog);
         closeDialog(chooserDialog);
@@ -617,26 +644,39 @@
         if (resultStage) resultStage.hidden = false;
         startProgress();
         showDialog(resultDialog);
+        reachGoal("photo_process_start", { source: source || "unknown" });
 
         const body = new FormData();
         body.append("file", file, file.name || "selfie.jpg");
+        let res = null;
+        let data = {};
         try {
-          const res = await fetch(PROCESS_API, { method: "POST", body });
-          const data = await res.json().catch(() => ({}));
+          res = await fetch(PROCESS_API, { method: "POST", body });
+          data = await res.json().catch(() => ({}));
           if (!res.ok) {
             const msg =
               (data.detail && (data.detail.message || data.detail)) ||
               "Ошибка сервера. Попробуйте другое фото.";
-            throw new Error(typeof msg === "string" ? msg : JSON.stringify(msg));
+            const err = new Error(
+              typeof msg === "string" ? msg : JSON.stringify(msg)
+            );
+            err._reason = failReasonFromProcess(err, res, data);
+            throw err;
           }
           if (!data.ok) {
-            throw new Error(data.message || "Фото не прошло проверку.");
+            const err = new Error(data.message || "Фото не прошло проверку.");
+            err._reason = failReasonFromProcess(err, res, data);
+            throw err;
           }
           if (!data.result_id) {
-            throw new Error("Сервер не вернул ссылку на результат.");
+            const err = new Error("Сервер не вернул ссылку на результат.");
+            err._reason = "no_result_id";
+            throw err;
           }
           stopProgress(true);
           reachGoal("photo_processed", {
+            result_id: data.result_id,
+            source: source || "unknown",
             compliance: data.compliance?.pass ? "pass" : "soft",
             print_sheet: data.print_sheet ? "yes" : "no",
           });
@@ -649,7 +689,11 @@
             resultError,
             (err && err.message) || "Попробуйте другое фото или позже."
           );
-          reachGoal("photo_process_fail");
+          reachGoal("photo_process_fail", {
+            reason: (err && err._reason) || failReasonFromProcess(err, res, data),
+            source: source || "unknown",
+            http: res ? String(res.status) : "0",
+          });
         }
       }
 
@@ -666,6 +710,7 @@
         if (!navigator.mediaDevices?.getUserMedia) {
           setError(cameraError, "Камера недоступна в этом браузере.");
           showDialog(cameraDialog);
+          reachGoal("camera_denied", { reason: "unsupported" });
           return;
         }
         closeDialog(chooserDialog);
@@ -693,6 +738,9 @@
               ? "Разрешите доступ к камере в браузере."
               : "Не удалось открыть фронтальную камеру."
           );
+          reachGoal("camera_denied", {
+            reason: denied ? "permission" : (err && err.name) || "error",
+          });
         }
       }
 
@@ -718,6 +766,7 @@
             const file = new File([blob], "selfie.jpg", { type: "image/jpeg" });
             finishWithFile(file, {
               goal: null,
+              source: "camera",
               previewEl: previewCamera,
               slotEl: slotCamera,
               errorEl: cameraError,
@@ -790,6 +839,7 @@
         inputChoose.value = "";
         finishWithFile(file, {
           goal: "photo_choose",
+          source: "gallery",
           previewEl: previewChoose,
           slotEl: slotChoose,
           errorEl: chooserError,
