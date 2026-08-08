@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Обратная связь — Госфото</title>
+    <meta
+      name="description"
+      content="Напишите в поддержку Госфото — ответим на ваш email. Можно приложить фото."
+    />
+    <meta name="theme-color" content="#fdcb58" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://gosphoto.ru/contacts" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/assets/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/styles.css" />
+    <script type="text/javascript">
+      (function (m, e, t, r, i, k, a) {
+        m[i] =
+          m[i] ||
+          function () {
+            (m[i].a = m[i].a || []).push(arguments);
+          };
+        m[i].l = 1 * new Date();
+        for (var j = 0; j < document.scripts.length; j++) {
+          if (document.scripts[j].src === r) {
+            return;
+          }
+        }
+        (k = e.createElement(t)),
+          (a = e.getElementsByTagName(t)[0]),
+          (k.async = 1),
+          (k.src = r),
+          a.parentNode.insertBefore(k, a);
+      })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=111303098", "ym");
+
+      ym(111303098, "init", {
+        ssr: true,
+        webvisor: true,
+        clickmap: true,
+        ecommerce: "dataLayer",
+        referrer: document.referrer,
+        url: location.href,
+        accurateTrackBounce: true,
+        trackLinks: true,
+      });
+    </script>
+    <noscript
+      ><div>
+        <img
+          src="https://mc.yandex.ru/watch/111303098"
+          style="position: absolute; left: -9999px"
+          alt=""
+        /></div
+    ></noscript>
+  </head>
+  <body class="contacts-page">
+    <header class="site-header">
+      <a class="logo" href="/" aria-label="Госфото">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="16" cy="16" r="6.5" stroke="currentColor" stroke-width="2.2" />
+            <circle cx="22.5" cy="9.5" r="1.6" fill="currentColor" />
+          </svg>
+        </span>
+        <span class="logo-text">Госфото</span>
+      </a>
+
+      <nav class="nav" aria-label="Основное меню">
+        <a href="/#docs" data-metrika-goal="click_nav" data-metrika-param="contacts_docs">Документы</a>
+        <a href="/#how" data-metrika-goal="click_nav" data-metrika-param="contacts_how">Как это работает</a>
+        <a href="/#guarantee" data-metrika-goal="click_nav" data-metrika-param="contacts_guarantee">Гарантия</a>
+        <a href="/#about" data-metrika-goal="click_nav" data-metrika-param="contacts_about">О сервисе</a>
+      </nav>
+
+      <div class="header-contact">
+        <a class="phone" href="/contacts" data-metrika-goal="click_contact_email">
+          <span class="phone-icon" aria-hidden="true">✉</span>
+          <span>
+            <strong>hello@gosphoto.ru</strong>
+            <small>Ответим в течение дня</small>
+          </span>
+        </a>
+      </div>
+
+      <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false" data-metrika-goal="click_nav_toggle">
+        <span></span><span></span>
+      </button>
+    </header>
+
+    <main class="contacts-page-main">
+      <section class="contacts-panel">
+        <h1>Обратная связь</h1>
+        <p class="contacts-lead">Напишите нам — ответим на ваш email в течение дня.</p>
+        <form class="contacts-form" id="feedback-form" novalidate>
+          <div class="contacts-field">
+            <label for="feedback-email">Email для ответа</label>
+            <input
+              id="feedback-email"
+              name="email"
+              type="email"
+              required
+              maxlength="254"
+              autocomplete="email"
+            />
+          </div>
+          <div class="contacts-field">
+            <label for="feedback-message">Сообщение</label>
+            <textarea
+              id="feedback-message"
+              name="message"
+              required
+              minlength="10"
+              maxlength="4000"
+            ></textarea>
+          </div>
+          <div class="contacts-field">
+            <label for="feedback-photo">Фото (необязательно)</label>
+            <div class="contacts-photo-row">
+              <input
+                id="feedback-photo"
+                name="photo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+              />
+              <button type="button" class="btn btn-dark" id="feedback-photo-clear" hidden>
+                Убрать фото
+              </button>
+            </div>
+            <span class="contacts-photo-name" id="feedback-photo-name"></span>
+          </div>
+          <button class="btn btn-primary" type="submit" id="feedback-submit">Отправить</button>
+          <p class="contacts-status" id="feedback-status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <span class="logo-text">Госфото</span>
+        <p>Фото для Госуслуг · gosphoto.ru</p>
+      </div>
+      <div class="footer-links">
+        <a href="/#docs">Документы</a>
+        <a href="/#how">Как это работает</a>
+        <a href="/#guarantee">Гарантия</a>
+        <a href="/contacts" data-metrika-goal="click_contact_email" data-metrika-param="footer">Контакты</a>
+      </div>
+      <p class="footer-copy">© Госфото</p>
+    </footer>
+
+    <script>
+      (function () {
+        const METRIKA_ID = 111303098;
+        const toggle = document.querySelector(".nav-toggle");
+        const nav = document.querySelector(".nav");
+        if (toggle && nav) {
+          toggle.addEventListener("click", function () {
+            const open = nav.classList.toggle("is-open");
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+          });
+        }
+
+        const form = document.getElementById("feedback-form");
+        const email = document.getElementById("feedback-email");
+        const message = document.getElementById("feedback-message");
+        const photo = document.getElementById("feedback-photo");
+        const photoName = document.getElementById("feedback-photo-name");
+        const photoClear = document.getElementById("feedback-photo-clear");
+        const submit = document.getElementById("feedback-submit");
+        const status = document.getElementById("feedback-status");
+
+        function setStatus(text, kind) {
+          status.textContent = text || "";
+          status.classList.remove("is-error", "is-ok");
+          if (kind) status.classList.add(kind);
+        }
+
+        photo.addEventListener("change", function () {
+          const f = photo.files && photo.files[0];
+          photoName.textContent = f ? f.name : "";
+          photoClear.hidden = !f;
+        });
+        photoClear.addEventListener("click", function () {
+          photo.value = "";
+          photoName.textContent = "";
+          photoClear.hidden = true;
+        });
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+          setStatus("");
+          const body = new FormData();
+          body.append("email", email.value.trim());
+          body.append("message", message.value.trim());
+          if (photo.files && photo.files[0]) body.append("photo", photo.files[0]);
+          submit.disabled = true;
+          try {
+            const res = await fetch("/api/feedback", { method: "POST", body: body });
+            if (!res.ok) {
+              let detail = "Не удалось отправить. Попробуйте позже.";
+              try {
+                const j = await res.json();
+                if (j && j.detail) {
+                  detail = typeof j.detail === "string" ? j.detail : detail;
+                }
+              } catch (_) {}
+              setStatus(detail, "is-error");
+              if (typeof ym === "function") ym(METRIKA_ID, "reachGoal", "feedback_fail");
+              return;
+            }
+            form.reset();
+            photoName.textContent = "";
+            photoClear.hidden = true;
+            setStatus("Сообщение отправлено. Мы ответим на ваш email.", "is-ok");
+            if (typeof ym === "function") ym(METRIKA_ID, "reachGoal", "feedback_ok");
+          } catch (_) {
+            setStatus("Сеть недоступна. Попробуйте позже.", "is-error");
+            if (typeof ym === "function") ym(METRIKA_ID, "reachGoal", "feedback_fail");
+          } finally {
+            submit.disabled = false;
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
