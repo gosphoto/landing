@@ -1261,13 +1261,17 @@ body.result-page {
 }
 
 .contacts-page-main {
+  width: min(var(--max), 100%);
   max-width: var(--max);
   margin: 0 auto;
   padding: 2rem 1.5rem 4rem;
+  box-sizing: border-box;
 }
 
 .contacts-panel {
+  width: min(36rem, 100%);
   max-width: 36rem;
+  margin: 0 auto;
 }
 
 .contacts-panel h1 {
