@@ -95,37 +95,6 @@ a {
   opacity: 0.55;
 }
 
-.header-contact .phone {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  text-align: left;
-}
-
-.phone-icon {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 999px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  display: grid;
-  place-items: center;
-  font-size: 0.85rem;
-}
-
-.phone strong {
-  display: block;
-  font-size: 0.92rem;
-  letter-spacing: -0.02em;
-}
-
-.phone small {
-  display: block;
-  color: var(--muted);
-  font-size: 0.72rem;
-  font-weight: 500;
-}
-
 .nav-toggle {
   display: none;
   width: 2.5rem;
@@ -1270,8 +1239,7 @@ body.result-page {
     grid-template-columns: 1fr auto;
   }
 
-  .nav,
-  .header-contact {
+  .nav {
     display: none;
   }
 
