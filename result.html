@@ -269,8 +269,8 @@
     <script>
       (function () {
         const RESULT_ID_RE = /^[a-f0-9]{32}$/;
-        const POLL_MS = 3000;
-        const POLL_MAX = 20;
+        const POLL_MS = 2500;
+        const POLL_MAX = 48; // ~2 мин после возврата с оплаты
         const statusEl = document.getElementById("result-status");
         const resultScreen = document.getElementById("result-screen");
         const resultMissing = document.getElementById("result-missing");
@@ -391,6 +391,9 @@
               const data = await res.json().catch(() => ({}));
               if (res.ok && data.ok && data.paid) {
                 stopPoll();
+                try {
+                  sessionStorage.removeItem("gosphoto_pay_pending");
+                } catch (_) {}
                 renderResult(data);
                 reachGoal("pay_success", { result_id: id, mode: "poll" });
                 setPayStatus("Оплата прошла — скачивание доступно.", true);
@@ -599,18 +602,21 @@
                 reachGoal("pay_success", { result_id: id, mode: "instant" });
               }
               setPayStatus("Скачивание доступно.", true);
+              paying = false;
+              if (resultPayBtn) resultPayBtn.disabled = false;
               return;
             }
             if (!data.payment_url) {
               throw new Error("Сервер не вернул ссылку на оплату.");
             }
-            window.open(data.payment_url, "_blank", "noopener,noreferrer");
-            reachGoal("pay_redirect", { result_id: id });
-            setPayStatus(
-              "Оплатите в открывшейся вкладке — скачивание откроется автоматически.",
-              true
-            );
-            startPoll();
+            // Same-tab: window.open(_blank) часто режется на mobile.
+            try {
+              sessionStorage.setItem("gosphoto_pay_pending", id);
+            } catch (_) {}
+            reachGoal("pay_redirect", { result_id: id, mode: "same_tab" });
+            setPayStatus("Переходим к оплате…", true);
+            window.location.assign(data.payment_url);
+            return;
           } catch (err) {
             setPayStatus(
               (err && err.message) || "Ошибка оплаты. Попробуйте ещё раз.",
@@ -620,7 +626,6 @@
               result_id: id,
               reason: String((err && err.message) || "unknown").slice(0, 80),
             });
-          } finally {
             paying = false;
             if (resultPayBtn) resultPayBtn.disabled = false;
           }
@@ -723,8 +728,26 @@
               paid: data.paid ? "yes" : "no",
             });
             const params = new URLSearchParams(location.search);
-            if (params.get("paid") === "1" && !data.paid) {
+            let pendingPay = false;
+            try {
+              pendingPay = sessionStorage.getItem("gosphoto_pay_pending") === id;
+            } catch (_) {}
+            if (params.get("paid") === "0") {
+              try {
+                sessionStorage.removeItem("gosphoto_pay_pending");
+              } catch (_) {}
+              setPayStatus(
+                "Оплата не завершена. Нажмите «Скачать за …», чтобы попробовать снова.",
+                true
+              );
+            } else if (!data.paid && (params.get("paid") === "1" || pendingPay)) {
+              setPayStatus("Проверяем оплату…", true);
               startPoll();
+            }
+            if (data.paid) {
+              try {
+                sessionStorage.removeItem("gosphoto_pay_pending");
+              } catch (_) {}
             }
           } catch (err) {
             showMissing(
