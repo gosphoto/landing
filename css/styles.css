@@ -858,6 +858,39 @@ body.result-page {
   max-width: 11rem;
 }
 
+.result-product-image.is-resume {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  max-width: 14rem;
+}
+
+.result-resume {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.result-resume[hidden] {
+  display: none !important;
+}
+
+.result-resume-product {
+  max-width: 22rem;
+  margin-inline: auto;
+  justify-items: center;
+  text-align: center;
+}
+
+.result-resume-product .result-product-note,
+.result-resume-product .result-pay-note {
+  text-align: center;
+}
+
+.result-resume-product .btn {
+  width: 100%;
+  max-width: 16rem;
+}
+
 .result-product .btn {
   justify-self: stretch;
   text-align: center;

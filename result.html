@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260808-contacts" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260812-resume" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -154,6 +154,47 @@
             <p class="result-pay-status" id="result-pay-status" hidden aria-live="polite"></p>
           </div>
 
+          <div class="result-resume" id="result-resume" hidden>
+            <article class="result-product result-resume-product">
+              <h2>Фото для резюме</h2>
+              <p class="result-product-note">
+                Деловой костюм и лёгкая ретушь — для hh, LinkedIn и портфолио
+              </p>
+              <img
+                id="result-resume-image"
+                class="result-product-image is-resume"
+                alt="Превью фото для резюме в деловом костюме"
+              />
+              <a
+                class="btn btn-dark"
+                id="result-download-resume"
+                href="#"
+                download="gosphoto-resume.jpg"
+                hidden
+                aria-disabled="true"
+                data-metrika-goal="download_resume"
+                >Скачать фото для резюме</a
+              >
+              <button
+                type="button"
+                class="btn btn-primary result-pay-btn"
+                id="result-pay-resume-btn"
+                data-metrika-goal="pay_resume_start"
+              >
+                Скачать за 500 ₽
+              </button>
+              <p class="result-pay-note" id="result-pay-resume-note">
+                Отдельная оплата — только фото для резюме.
+              </p>
+              <p
+                class="result-pay-status"
+                id="result-pay-resume-status"
+                hidden
+                aria-live="polite"
+              ></p>
+            </article>
+          </div>
+
           <div class="result-email" id="result-email" hidden>
             <label class="result-email-label" for="result-email-input"
               >Отправить на email</label
@@ -285,6 +326,14 @@
         const resultPayBtn = document.getElementById("result-pay-btn");
         const resultPayNote = document.getElementById("result-pay-note");
         const resultPayStatus = document.getElementById("result-pay-status");
+        const resultResume = document.getElementById("result-resume");
+        const resultResumeImage = document.getElementById("result-resume-image");
+        const resultDownloadResume = document.getElementById("result-download-resume");
+        const resultPayResumeBtn = document.getElementById("result-pay-resume-btn");
+        const resultPayResumeNote = document.getElementById("result-pay-resume-note");
+        const resultPayResumeStatus = document.getElementById(
+          "result-pay-resume-status"
+        );
         const resultEmail = document.getElementById("result-email");
         const resultEmailInput = document.getElementById("result-email-input");
         const resultEmailBtn = document.getElementById("result-email-btn");
@@ -292,7 +341,10 @@
         let pollTimer = null;
         let pollLeft = 0;
         let paying = false;
+        let payingResume = false;
         let emailing = false;
+        let pollMode = "passport"; // passport | resume
+
 
         function reachGoal(name, params) {
           try {
@@ -347,6 +399,17 @@
           resultPayStatus.textContent = text || "";
         }
 
+        function setResumePayStatus(text, show) {
+          if (!resultPayResumeStatus) return;
+          if (!show) {
+            resultPayResumeStatus.hidden = true;
+            resultPayResumeStatus.textContent = "";
+            return;
+          }
+          resultPayResumeStatus.hidden = false;
+          resultPayResumeStatus.textContent = text || "";
+        }
+
         function setEmailStatus(text, show, kind) {
           if (!resultEmailStatus) return;
           if (!show) {
@@ -369,33 +432,55 @@
           pollLeft = 0;
         }
 
-        function startPoll() {
+        function startPoll(mode) {
           stopPoll();
+          pollMode = mode === "resume" ? "resume" : "passport";
           pollLeft = POLL_MAX;
-          setPayStatus("Ждём подтверждение оплаты…", true);
+          if (pollMode === "resume") {
+            setResumePayStatus("Ждём подтверждение оплаты…", true);
+          } else {
+            setPayStatus("Ждём подтверждение оплаты…", true);
+          }
           pollTimer = setInterval(async () => {
             pollLeft -= 1;
             const id = parseResultId();
             if (!id || pollLeft <= 0) {
               stopPoll();
               if (!id) return;
-              setPayStatus(
-                "Если вы уже оплатили — обновите страницу через минуту.",
-                true
-              );
-              reachGoal("pay_poll_timeout", { result_id: id });
+              const timeoutMsg =
+                "Если вы уже оплатили — обновите страницу через минуту.";
+              if (pollMode === "resume") setResumePayStatus(timeoutMsg, true);
+              else setPayStatus(timeoutMsg, true);
+              reachGoal("pay_poll_timeout", {
+                result_id: id,
+                product: pollMode,
+              });
               return;
             }
             try {
               const res = await fetch(`/api/result/${id}/payment-status`);
               const data = await res.json().catch(() => ({}));
-              if (res.ok && data.ok && data.paid) {
-                stopPoll();
-                try {
+              if (!res.ok || !data.ok) return;
+              const done =
+                pollMode === "resume" ? !!data.paid_resume : !!data.paid;
+              if (!done) return;
+              stopPoll();
+              try {
+                if (pollMode === "resume") {
+                  sessionStorage.removeItem("gosphoto_pay_resume_pending");
+                } else {
                   sessionStorage.removeItem("gosphoto_pay_pending");
-                } catch (_) {}
-                renderResult(data);
-                reachGoal("pay_success", { result_id: id, mode: "poll" });
+                }
+              } catch (_) {}
+              renderResult(data);
+              reachGoal("pay_success", {
+                result_id: id,
+                mode: "poll",
+                product: pollMode,
+              });
+              if (pollMode === "resume") {
+                setResumePayStatus("Оплата прошла — скачивание доступно.", true);
+              } else {
                 setPayStatus("Оплата прошла — скачивание доступно.", true);
               }
             } catch (_) {}
@@ -495,15 +580,24 @@
 
         function renderResult(data) {
           const paid = !!data.paid;
+          const paidResume = !!data.paid_resume;
+          const resumeOffer = !!data.resume_offer;
           const previewDigital =
             data.preview_digital_url || data.digital_url || "";
           const previewPrint = data.preview_print_url || data.print_url || "";
+          const previewResume = data.preview_resume_url || data.resume_url || "";
           const digitalUrl = data.digital_url;
           const printUrl = data.print_url;
+          const resumeUrl = data.resume_url;
           const priceRub =
             data.price_rub != null && !Number.isNaN(Number(data.price_rub))
               ? Number(data.price_rub)
               : 100;
+          const priceResumeRub =
+            data.price_resume_rub != null &&
+            !Number.isNaN(Number(data.price_resume_rub))
+              ? Number(data.price_resume_rub)
+              : 500;
 
           if (resultDigitalImage && previewDigital) {
             resultDigitalImage.src = previewDigital;
@@ -552,10 +646,43 @@
               : `Одна оплата (${priceRub} ₽) открывает оба файла: JPEG для Госуслуг и лист 10×15.`;
           }
           if (paid) {
-            stopPoll();
+            if (pollMode === "passport") stopPoll();
             setPayStatus("", false);
           } else {
             setEmailStatus("", false);
+          }
+
+          if (resultResume) {
+            resultResume.hidden = !resumeOffer;
+          }
+          if (resumeOffer && resultResumeImage && previewResume) {
+            resultResumeImage.src = previewResume;
+          }
+          if (resultDownloadResume) {
+            if (paidResume && resumeUrl) {
+              resultDownloadResume.href = resumeUrl;
+              resultDownloadResume.hidden = false;
+              resultDownloadResume.removeAttribute("aria-disabled");
+            } else {
+              resultDownloadResume.hidden = true;
+              resultDownloadResume.removeAttribute("href");
+              resultDownloadResume.setAttribute("aria-disabled", "true");
+            }
+          }
+          if (resultPayResumeBtn) {
+            resultPayResumeBtn.hidden = !resumeOffer || paidResume;
+            resultPayResumeBtn.textContent = `Скачать за ${priceResumeRub} ₽`;
+            resultPayResumeBtn.disabled = false;
+          }
+          if (resultPayResumeNote) {
+            resultPayResumeNote.hidden = !resumeOffer || paidResume;
+            resultPayResumeNote.textContent = paidResume
+              ? ""
+              : `Отдельная оплата (${priceResumeRub} ₽) — только фото для резюме.`;
+          }
+          if (paidResume) {
+            if (pollMode === "resume") stopPoll();
+            setResumePayStatus("", false);
           }
 
           const ok = !!(data.compliance && data.compliance.pass);
@@ -599,7 +726,11 @@
               const statusData = await statusRes.json().catch(() => ({}));
               if (statusRes.ok && statusData.ok) {
                 renderResult(statusData);
-                reachGoal("pay_success", { result_id: id, mode: "instant" });
+                reachGoal("pay_success", {
+                  result_id: id,
+                  mode: "instant",
+                  product: "passport",
+                });
               }
               setPayStatus("Скачивание доступно.", true);
               paying = false;
@@ -609,11 +740,14 @@
             if (!data.payment_url) {
               throw new Error("Сервер не вернул ссылку на оплату.");
             }
-            // Same-tab: window.open(_blank) часто режется на mobile.
             try {
               sessionStorage.setItem("gosphoto_pay_pending", id);
             } catch (_) {}
-            reachGoal("pay_redirect", { result_id: id, mode: "same_tab" });
+            reachGoal("pay_redirect", {
+              result_id: id,
+              mode: "same_tab",
+              product: "passport",
+            });
             setPayStatus("Переходим к оплате…", true);
             window.location.assign(data.payment_url);
             return;
@@ -624,6 +758,7 @@
             );
             reachGoal("pay_fail", {
               result_id: id,
+              product: "passport",
               reason: String((err && err.message) || "unknown").slice(0, 80),
             });
             paying = false;
@@ -631,10 +766,80 @@
           }
         }
 
+        async function startResumePayment() {
+          const id = parseResultId();
+          if (!id || payingResume) return;
+          payingResume = true;
+          if (resultPayResumeBtn) resultPayResumeBtn.disabled = true;
+          setResumePayStatus("Создаём оплату…", true);
+          try {
+            const res = await fetch(`/api/result/${id}/pay-resume`, {
+              method: "POST",
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              const detail =
+                (data.detail && (data.detail.message || data.detail)) ||
+                "Не удалось создать оплату.";
+              throw new Error(
+                typeof detail === "string" ? detail : JSON.stringify(detail)
+              );
+            }
+            if ((data.paid || data.paid_resume) && !data.payment_required) {
+              const statusRes = await fetch(`/api/result/${id}`);
+              const statusData = await statusRes.json().catch(() => ({}));
+              if (statusRes.ok && statusData.ok) {
+                renderResult(statusData);
+                reachGoal("pay_success", {
+                  result_id: id,
+                  mode: "instant",
+                  product: "resume",
+                });
+              }
+              setResumePayStatus("Скачивание доступно.", true);
+              payingResume = false;
+              if (resultPayResumeBtn) resultPayResumeBtn.disabled = false;
+              return;
+            }
+            if (!data.payment_url) {
+              throw new Error("Сервер не вернул ссылку на оплату.");
+            }
+            try {
+              sessionStorage.setItem("gosphoto_pay_resume_pending", id);
+            } catch (_) {}
+            reachGoal("pay_redirect", {
+              result_id: id,
+              mode: "same_tab",
+              product: "resume",
+            });
+            setResumePayStatus("Переходим к оплате…", true);
+            window.location.assign(data.payment_url);
+            return;
+          } catch (err) {
+            setResumePayStatus(
+              (err && err.message) || "Ошибка оплаты. Попробуйте ещё раз.",
+              true
+            );
+            reachGoal("pay_fail", {
+              result_id: id,
+              product: "resume",
+              reason: String((err && err.message) || "unknown").slice(0, 80),
+            });
+            payingResume = false;
+            if (resultPayResumeBtn) resultPayResumeBtn.disabled = false;
+          }
+        }
+
         if (resultPayBtn) {
           resultPayBtn.addEventListener("click", (event) => {
             event.preventDefault();
             startPayment();
+          });
+        }
+        if (resultPayResumeBtn) {
+          resultPayResumeBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            startResumePayment();
           });
         }
 
@@ -726,11 +931,16 @@
               result_id: id,
               compliance: data.compliance?.pass ? "pass" : "soft",
               paid: data.paid ? "yes" : "no",
+              resume_offer: data.resume_offer ? "yes" : "no",
+              paid_resume: data.paid_resume ? "yes" : "no",
             });
             const params = new URLSearchParams(location.search);
             let pendingPay = false;
+            let pendingResume = false;
             try {
               pendingPay = sessionStorage.getItem("gosphoto_pay_pending") === id;
+              pendingResume =
+                sessionStorage.getItem("gosphoto_pay_resume_pending") === id;
             } catch (_) {}
             if (params.get("paid") === "0") {
               try {
@@ -742,11 +952,32 @@
               );
             } else if (!data.paid && (params.get("paid") === "1" || pendingPay)) {
               setPayStatus("Проверяем оплату…", true);
-              startPoll();
+              startPoll("passport");
+            }
+            if (params.get("paid_resume") === "0") {
+              try {
+                sessionStorage.removeItem("gosphoto_pay_resume_pending");
+              } catch (_) {}
+              setResumePayStatus(
+                "Оплата не завершена. Нажмите «Скачать за …», чтобы попробовать снова.",
+                true
+              );
+            } else if (
+              data.resume_offer &&
+              !data.paid_resume &&
+              (params.get("paid_resume") === "1" || pendingResume)
+            ) {
+              setResumePayStatus("Проверяем оплату…", true);
+              startPoll("resume");
             }
             if (data.paid) {
               try {
                 sessionStorage.removeItem("gosphoto_pay_pending");
+              } catch (_) {}
+            }
+            if (data.paid_resume) {
+              try {
+                sessionStorage.removeItem("gosphoto_pay_resume_pending");
               } catch (_) {}
             }
           } catch (err) {
