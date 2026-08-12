@@ -344,7 +344,9 @@
         let payingResume = false;
         let emailing = false;
         let pollMode = "passport"; // passport | resume
-
+        let resumeOfferTracked = false;
+        let resumePhotoViewTracked = false;
+        let resumeViewObserver = null;
 
         function reachGoal(name, params) {
           try {
@@ -369,7 +371,9 @@
               id &&
               (goal === "download_digital" ||
                 goal === "download_print" ||
+                goal === "download_resume" ||
                 goal === "pay_start" ||
+                goal === "pay_resume_start" ||
                 goal === "pay_success" ||
                 goal === "email_send")
             ) {
@@ -377,6 +381,9 @@
               if (goal === "download_digital" || goal === "download_print") {
                 params.kind = goal === "download_digital" ? "digital" : "print";
               }
+              if (goal === "download_resume") params.kind = "resume";
+              if (goal === "pay_resume_start") params.product = "resume";
+              if (goal === "pay_start") params.product = "passport";
             }
             reachGoal(goal, Object.keys(params).length ? params : undefined);
           },
@@ -578,6 +585,83 @@
           }
         }
 
+        function trackResumeOfferShown(resultId, priceResumeRub) {
+          if (resumeOfferTracked) return;
+          resumeOfferTracked = true;
+          reachGoal("resume_offer_shown", {
+            result_id: resultId,
+            price_rub: String(priceResumeRub),
+          });
+        }
+
+        function trackResumePhotoView(resultId) {
+          if (resumePhotoViewTracked) return;
+          resumePhotoViewTracked = true;
+          reachGoal("resume_photo_view", { result_id: resultId });
+          if (resumeViewObserver) {
+            try {
+              resumeViewObserver.disconnect();
+            } catch (_) {}
+            resumeViewObserver = null;
+          }
+        }
+
+        function bindResumeViewTracking(resultId, priceResumeRub) {
+          if (!resultResume || resultResume.hidden) return;
+          trackResumeOfferShown(resultId, priceResumeRub);
+
+          const tryView = () => {
+            if (!resultResumeImage) return;
+            if (!(resultResumeImage.complete && resultResumeImage.naturalWidth > 0)) {
+              return;
+            }
+            trackResumePhotoView(resultId);
+          };
+
+          if (resultResumeImage) {
+            resultResumeImage.addEventListener(
+              "load",
+              () => {
+                // Image ready — count as view if already on screen, else IO below.
+                if (!resumeViewObserver) tryView();
+              },
+              { once: true }
+            );
+          }
+
+          if (typeof IntersectionObserver === "function") {
+            if (resumeViewObserver) {
+              try {
+                resumeViewObserver.disconnect();
+              } catch (_) {}
+            }
+            resumeViewObserver = new IntersectionObserver(
+              (entries) => {
+                for (const entry of entries) {
+                  if (
+                    entry.isIntersecting &&
+                    entry.intersectionRatio >= 0.35 &&
+                    resultResumeImage &&
+                    resultResumeImage.complete &&
+                    resultResumeImage.naturalWidth > 0
+                  ) {
+                    trackResumePhotoView(resultId);
+                    break;
+                  }
+                }
+              },
+              { threshold: [0.35, 0.5, 0.75] }
+            );
+            resumeViewObserver.observe(resultResume);
+          } else if (resultResumeImage) {
+            if (resultResumeImage.complete && resultResumeImage.naturalWidth > 0) {
+              tryView();
+            } else {
+              resultResumeImage.addEventListener("load", tryView, { once: true });
+            }
+          }
+        }
+
         function renderResult(data) {
           const paid = !!data.paid;
           const paidResume = !!data.paid_resume;
@@ -598,6 +682,7 @@
             !Number.isNaN(Number(data.price_resume_rub))
               ? Number(data.price_resume_rub)
               : 500;
+          const resultId = data.result_id || parseResultId() || "";
 
           if (resultDigitalImage && previewDigital) {
             resultDigitalImage.src = previewDigital;
@@ -683,6 +768,10 @@
           if (paidResume) {
             if (pollMode === "resume") stopPoll();
             setResumePayStatus("", false);
+          }
+
+          if (resumeOffer && resultId) {
+            bindResumeViewTracking(resultId, priceResumeRub);
           }
 
           const ok = !!(data.compliance && data.compliance.pass);
