@@ -181,7 +181,7 @@
                 id="result-pay-resume-btn"
                 data-metrika-goal="pay_resume_start"
               >
-                Скачать за 500 ₽
+                Скачать за 300 ₽
               </button>
               <p class="result-pay-note" id="result-pay-resume-note">
                 Отдельная оплата — только фото для резюме.
@@ -708,7 +708,7 @@
             data.price_resume_rub != null &&
             !Number.isNaN(Number(data.price_resume_rub))
               ? Number(data.price_resume_rub)
-              : 500;
+              : 300;
           const resultId = data.result_id || parseResultId() || "";
 
           if (resultDigitalImage && previewDigital) {
