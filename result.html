@@ -357,6 +357,46 @@
           } catch (_) {}
         }
 
+        function payPendingKey(product) {
+          return product === "resume"
+            ? "gosphoto_pay_resume_pending"
+            : "gosphoto_pay_pending";
+        }
+
+        function paySuccessSentKey(id, product) {
+          return `gosphoto_pay_success_sent_${product}_${id}`;
+        }
+
+        function clearPayPending(product) {
+          try {
+            sessionStorage.removeItem(payPendingKey(product));
+          } catch (_) {}
+        }
+
+        function isPayPending(id, product) {
+          try {
+            return sessionStorage.getItem(payPendingKey(product)) === id;
+          } catch (_) {
+            return false;
+          }
+        }
+
+        // Once per tab/session: webhook often marks paid before /pay/success returns,
+        // so boot() must not skip the goal just because data.paid is already true.
+        function reportPaySuccess(id, product, mode) {
+          const sentKey = paySuccessSentKey(id, product);
+          try {
+            if (sessionStorage.getItem(sentKey) === "1") return false;
+            sessionStorage.setItem(sentKey, "1");
+          } catch (_) {}
+          reachGoal("pay_success", {
+            result_id: id,
+            mode: mode,
+            product: product,
+          });
+          return true;
+        }
+
         // Делегированный трекинг всех data-metrika-goal (кнопки и ссылки).
         document.addEventListener(
           "click",
@@ -472,19 +512,9 @@
                 pollMode === "resume" ? !!data.paid_resume : !!data.paid;
               if (!done) return;
               stopPoll();
-              try {
-                if (pollMode === "resume") {
-                  sessionStorage.removeItem("gosphoto_pay_resume_pending");
-                } else {
-                  sessionStorage.removeItem("gosphoto_pay_pending");
-                }
-              } catch (_) {}
+              clearPayPending(pollMode);
               renderResult(data);
-              reachGoal("pay_success", {
-                result_id: id,
-                mode: "poll",
-                product: pollMode,
-              });
+              reportPaySuccess(id, pollMode, "poll");
               if (pollMode === "resume") {
                 setResumePayStatus("Оплата прошла — скачивание доступно.", true);
               } else {
@@ -610,20 +640,24 @@
           if (!resultResume || resultResume.hidden) return;
           trackResumeOfferShown(resultId, priceResumeRub);
 
-          const tryView = () => {
-            if (!resultResumeImage) return;
-            if (!(resultResumeImage.complete && resultResumeImage.naturalWidth > 0)) {
-              return;
+          let resumeVisible = false;
+          const imageReady = () =>
+            !!(
+              resultResumeImage &&
+              resultResumeImage.complete &&
+              resultResumeImage.naturalWidth > 0
+            );
+          const maybeView = () => {
+            if (resumeVisible && imageReady()) {
+              trackResumePhotoView(resultId);
             }
-            trackResumePhotoView(resultId);
           };
 
           if (resultResumeImage) {
             resultResumeImage.addEventListener(
               "load",
               () => {
-                // Image ready — count as view if already on screen, else IO below.
-                if (!resumeViewObserver) tryView();
+                maybeView();
               },
               { once: true }
             );
@@ -638,14 +672,9 @@
             resumeViewObserver = new IntersectionObserver(
               (entries) => {
                 for (const entry of entries) {
-                  if (
-                    entry.isIntersecting &&
-                    entry.intersectionRatio >= 0.35 &&
-                    resultResumeImage &&
-                    resultResumeImage.complete &&
-                    resultResumeImage.naturalWidth > 0
-                  ) {
-                    trackResumePhotoView(resultId);
+                  if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+                    resumeVisible = true;
+                    maybeView();
                     break;
                   }
                 }
@@ -653,12 +682,10 @@
               { threshold: [0.35, 0.5, 0.75] }
             );
             resumeViewObserver.observe(resultResume);
-          } else if (resultResumeImage) {
-            if (resultResumeImage.complete && resultResumeImage.naturalWidth > 0) {
-              tryView();
-            } else {
-              resultResumeImage.addEventListener("load", tryView, { once: true });
-            }
+          } else {
+            // No IO: count view once the preview image has loaded.
+            resumeVisible = true;
+            if (imageReady()) maybeView();
           }
         }
 
@@ -815,11 +842,7 @@
               const statusData = await statusRes.json().catch(() => ({}));
               if (statusRes.ok && statusData.ok) {
                 renderResult(statusData);
-                reachGoal("pay_success", {
-                  result_id: id,
-                  mode: "instant",
-                  product: "passport",
-                });
+                reportPaySuccess(id, "passport", "instant");
               }
               setPayStatus("Скачивание доступно.", true);
               paying = false;
@@ -879,11 +902,7 @@
               const statusData = await statusRes.json().catch(() => ({}));
               if (statusRes.ok && statusData.ok) {
                 renderResult(statusData);
-                reachGoal("pay_success", {
-                  result_id: id,
-                  mode: "instant",
-                  product: "resume",
-                });
+                reportPaySuccess(id, "resume", "instant");
               }
               setResumePayStatus("Скачивание доступно.", true);
               payingResume = false;
@@ -1024,51 +1043,40 @@
               paid_resume: data.paid_resume ? "yes" : "no",
             });
             const params = new URLSearchParams(location.search);
-            let pendingPay = false;
-            let pendingResume = false;
-            try {
-              pendingPay = sessionStorage.getItem("gosphoto_pay_pending") === id;
-              pendingResume =
-                sessionStorage.getItem("gosphoto_pay_resume_pending") === id;
-            } catch (_) {}
+            const pendingPay = isPayPending(id, "passport");
+            const pendingResume = isPayPending(id, "resume");
+            const fromPayReturn =
+              params.get("paid") === "1" || pendingPay;
+            const fromResumeReturn =
+              params.get("paid_resume") === "1" || pendingResume;
             if (params.get("paid") === "0") {
-              try {
-                sessionStorage.removeItem("gosphoto_pay_pending");
-              } catch (_) {}
+              clearPayPending("passport");
               setPayStatus(
                 "Оплата не завершена. Нажмите «Скачать за …», чтобы попробовать снова.",
                 true
               );
-            } else if (!data.paid && (params.get("paid") === "1" || pendingPay)) {
+            } else if (data.paid && fromPayReturn) {
+              reportPaySuccess(id, "passport", "return");
+              clearPayPending("passport");
+            } else if (!data.paid && fromPayReturn) {
               setPayStatus("Проверяем оплату…", true);
               startPoll("passport");
             }
             if (params.get("paid_resume") === "0") {
-              try {
-                sessionStorage.removeItem("gosphoto_pay_resume_pending");
-              } catch (_) {}
+              clearPayPending("resume");
               setResumePayStatus(
                 "Оплата не завершена. Нажмите «Скачать за …», чтобы попробовать снова.",
                 true
               );
-            } else if (
-              data.resume_offer &&
-              !data.paid_resume &&
-              (params.get("paid_resume") === "1" || pendingResume)
-            ) {
+            } else if (data.paid_resume && fromResumeReturn) {
+              reportPaySuccess(id, "resume", "return");
+              clearPayPending("resume");
+            } else if (data.resume_offer && !data.paid_resume && fromResumeReturn) {
               setResumePayStatus("Проверяем оплату…", true);
               startPoll("resume");
             }
-            if (data.paid) {
-              try {
-                sessionStorage.removeItem("gosphoto_pay_pending");
-              } catch (_) {}
-            }
-            if (data.paid_resume) {
-              try {
-                sessionStorage.removeItem("gosphoto_pay_resume_pending");
-              } catch (_) {}
-            }
+            if (data.paid) clearPayPending("passport");
+            if (data.paid_resume) clearPayPending("resume");
           } catch (err) {
             showMissing(
               (err && err.message) || "Не удалось загрузить результат. Попробуйте позже."
