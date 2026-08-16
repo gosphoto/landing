@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=20260808-contacts" />
+    <link rel="stylesheet" href="css/styles.css?v=20260816-doc-type" />
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -315,6 +315,48 @@
       </div>
     </dialog>
 
+    <dialog class="chooser-dialog" id="doc-type-dialog" aria-labelledby="doc-type-dialog-title">
+      <div class="chooser-dialog-inner">
+        <div class="chooser-head">
+          <h2 id="doc-type-dialog-title">Какой документ?</h2>
+          <button
+            class="chooser-close"
+            type="button"
+            id="doc-type-close"
+            aria-label="Закрыть"
+            data-metrika-goal="click_doc_type_close"
+          >
+            ×
+          </button>
+        </div>
+        <p class="chooser-lead">
+          От этого зависит разрешение файла: паспорт РФ — 600 dpi, загран — 300 dpi.
+        </p>
+        <div class="doc-type-actions">
+          <button
+            class="btn btn-primary"
+            type="button"
+            id="doc-type-passport"
+            data-doc-type="passport_rf"
+            data-metrika-goal="doc_type_select"
+            data-metrika-param="passport_rf"
+          >
+            Паспорт РФ
+          </button>
+          <button
+            class="btn btn-dark"
+            type="button"
+            id="doc-type-zagran"
+            data-doc-type="zagran"
+            data-metrika-goal="doc_type_select"
+            data-metrika-param="zagran"
+          >
+            Загранпаспорт
+          </button>
+        </div>
+      </div>
+    </dialog>
+
     <dialog class="camera-dialog" id="camera-dialog" aria-labelledby="camera-dialog-title">
       <div class="camera-dialog-inner">
         <div class="chooser-head">
@@ -382,6 +424,24 @@
       const MAX_BYTES = 20 * 1024 * 1024;
       const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
       const PROCESS_API = "/api/process/stream";
+      const DOC_TYPE_KEY = "gosphoto_doc_type";
+      const DOC_TYPES = new Set(["passport_rf", "zagran"]);
+
+      function getStoredDocType() {
+        try {
+          const v = sessionStorage.getItem(DOC_TYPE_KEY);
+          return DOC_TYPES.has(v) ? v : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function setStoredDocType(docType) {
+        if (!DOC_TYPES.has(docType)) return;
+        try {
+          sessionStorage.setItem(DOC_TYPE_KEY, docType);
+        } catch (_) {}
+      }
 
       const toggle = document.querySelector(".nav-toggle");
       const nav = document.querySelector(".nav");
@@ -392,6 +452,10 @@
 
       const uploadBtn = document.getElementById("upload-btn");
       const chooserDialog = document.getElementById("chooser-dialog");
+      const docTypeDialog = document.getElementById("doc-type-dialog");
+      const docTypeClose = document.getElementById("doc-type-close");
+      const docTypePassport = document.getElementById("doc-type-passport");
+      const docTypeZagran = document.getElementById("doc-type-zagran");
       const cameraDialog = document.getElementById("camera-dialog");
       const updateDialog = document.getElementById("update-dialog");
       const resultDialog = document.getElementById("result-dialog");
@@ -405,6 +469,8 @@
       const resultError = document.getElementById("result-error");
       const resultClose = document.getElementById("result-close");
       let resultPreviewUrl = null;
+      let pendingDocFile = null;
+      let pendingDocSource = "unknown";
 
       function revokeResultPreview() {
         if (resultPreviewUrl) {
@@ -644,7 +710,30 @@
         setError(errorEl, "");
         setPreview(previewEl, slotEl, file);
         if (goal) reachGoal(goal);
-        processPhoto(file, source || "unknown");
+        ensureDocTypeThenProcess(file, source || "unknown");
+      }
+
+      function ensureDocTypeThenProcess(file, source) {
+        const existing = getStoredDocType();
+        if (existing) {
+          processPhoto(file, source, existing);
+          return;
+        }
+        pendingDocFile = file;
+        pendingDocSource = source || "unknown";
+        closeDialog(chooserDialog);
+        closeDialog(cameraDialog);
+        showDialog(docTypeDialog);
+      }
+
+      function pickDocType(docType) {
+        setStoredDocType(docType);
+        closeDialog(docTypeDialog);
+        const file = pendingDocFile;
+        const source = pendingDocSource;
+        pendingDocFile = null;
+        pendingDocSource = "unknown";
+        if (file) processPhoto(file, source, docType);
       }
 
       function failReasonFromProcess(err, res, data) {
@@ -667,10 +756,14 @@
         return "unknown";
       }
 
-      async function processPhoto(file, source) {
+      async function processPhoto(file, source, docType) {
+        const resolvedType = DOC_TYPES.has(docType)
+          ? docType
+          : getStoredDocType() || "passport_rf";
         stopCamera();
         closeDialog(cameraDialog);
         closeDialog(chooserDialog);
+        closeDialog(docTypeDialog);
         setError(resultError, "");
 
         revokeResultPreview();
@@ -683,10 +776,14 @@
         if (resultStage) resultStage.hidden = false;
         startProgress();
         showDialog(resultDialog);
-        reachGoal("photo_process_start", { source: source || "unknown" });
+        reachGoal("photo_process_start", {
+          source: source || "unknown",
+          doc_type: resolvedType,
+        });
 
         const body = new FormData();
         body.append("file", file, file.name || "selfie.jpg");
+        body.append("doc_type", resolvedType);
         let res = null;
         let data = {};
         try {
@@ -863,6 +960,12 @@
       chooserClose?.addEventListener("click", () => {
         closeDialog(chooserDialog);
       });
+      docTypeClose?.addEventListener("click", () => {
+        pendingDocFile = null;
+        closeDialog(docTypeDialog);
+      });
+      docTypePassport?.addEventListener("click", () => pickDocType("passport_rf"));
+      docTypeZagran?.addEventListener("click", () => pickDocType("zagran"));
       cameraClose?.addEventListener("click", () => {
         stopCamera();
         closeDialog(cameraDialog);
@@ -870,10 +973,24 @@
       cameraBack?.addEventListener("click", leaveCamera);
       cameraShutter?.addEventListener("click", captureSelfie);
 
+      document.querySelectorAll(".doc-card[data-metrika-param]").forEach((card) => {
+        card.addEventListener("click", () => {
+          const param = card.getAttribute("data-metrika-param");
+          if (DOC_TYPES.has(param)) setStoredDocType(param);
+        });
+      });
+
       chooserDialog?.addEventListener("click", (event) => {
         if (event.target === chooserDialog) {
           reachGoal("click_chooser_close", { item: "backdrop" });
           closeDialog(chooserDialog);
+        }
+      });
+      docTypeDialog?.addEventListener("click", (event) => {
+        if (event.target === docTypeDialog) {
+          reachGoal("click_doc_type_close", { item: "backdrop" });
+          pendingDocFile = null;
+          closeDialog(docTypeDialog);
         }
       });
       cameraDialog?.addEventListener("click", (event) => {

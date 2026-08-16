@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260812-resume" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260816-doc-type" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -338,6 +338,8 @@
         const resultEmailInput = document.getElementById("result-email-input");
         const resultEmailBtn = document.getElementById("result-email-btn");
         const resultEmailStatus = document.getElementById("result-email-status");
+        const resultScreenTitle = document.getElementById("result-screen-title");
+        const resultScreenLead = document.getElementById("result-screen-lead");
         let pollTimer = null;
         let pollLeft = 0;
         let paying = false;
@@ -535,7 +537,11 @@
           const checks = c.checks || {};
           const w = data.width || c.width;
           const h = data.height || c.height;
-          const dpi = data.dpi || c.dpi_target || 600;
+          const docType = data.doc_type || "passport_rf";
+          const dpiMin = docType === "zagran" ? 300 : 600;
+          const dpi = data.dpi || c.dpi_target || dpiMin;
+          const jpegNorm =
+            docType === "zagran" ? "JPEG ≤ 2 МБ" : "JPEG ≤ 300 КБ";
           const facePct =
             c.face_ratio != null ? `${Math.round(c.face_ratio * 100)}%` : "—";
           const headMm =
@@ -557,9 +563,9 @@
             },
             {
               param: "Разрешение",
-              norm: "≥ 600 dpi",
+              norm: `≥ ${dpiMin} dpi`,
               value: `${dpi} dpi`,
-              ok: Number(dpi) >= 600,
+              ok: Number(dpi) >= dpiMin,
             },
             {
               param: "Овал / высота головы",
@@ -575,7 +581,7 @@
             },
             {
               param: "Файл",
-              norm: "JPEG ≤ 300 КБ",
+              norm: jpegNorm,
               value: formatKb(c.jpeg_bytes),
               ok: c.jpeg_size_ok !== false,
             },
@@ -693,6 +699,19 @@
           const paid = !!data.paid;
           const paidResume = !!data.paid_resume;
           const resumeOffer = !!data.resume_offer;
+          const docType = data.doc_type || "passport_rf";
+          const docLabel =
+            data.doc_label ||
+            (docType === "zagran" ? "Загранпаспорт" : "Паспорт РФ");
+          if (resultScreenTitle) {
+            resultScreenTitle.textContent = `35×45 мм · ${docLabel}`;
+          }
+          if (resultScreenLead) {
+            resultScreenLead.textContent =
+              docType === "zagran"
+                ? "Готово к загрузке на Госуслуги — загранпаспорт (≥ 300 dpi)"
+                : "Готово к загрузке на Госуслуги — паспорт РФ (≥ 600 dpi)";
+          }
           const previewDigital =
             data.preview_digital_url || data.digital_url || "";
           const previewPrint = data.preview_print_url || data.print_url || "";
