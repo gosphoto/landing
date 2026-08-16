@@ -1056,6 +1056,7 @@
             renderResult(data);
             reachGoal("result_page_view", {
               result_id: id,
+              doc_type: data.doc_type || "passport_rf",
               compliance: data.compliance?.pass ? "pass" : "soft",
               paid: data.paid ? "yes" : "no",
               resume_offer: data.resume_offer ? "yes" : "no",

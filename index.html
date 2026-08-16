@@ -823,16 +823,27 @@
           stopProgress(true);
           const resultId = data.result_id;
           const t = Date.now();
+          const doneType =
+            (data.doc_type && DOC_TYPES.has(data.doc_type)
+              ? data.doc_type
+              : null) || resolvedType;
+          const processGoal =
+            doneType === "zagran" ? "process_zagran" : "process_passport_rf";
           // Ждём отправку цели: иначе location.assign часто убивает hit.
           reachGoal(
             "photo_processed",
             {
               result_id: resultId,
               source: source || "unknown",
+              doc_type: doneType,
               compliance: data.compliance?.pass ? "pass" : "soft",
               print_sheet: data.print_sheet ? "yes" : "no",
             },
-            () => location.assign(`/result/${resultId}?t=${t}`)
+            () => {
+              reachGoal(processGoal, { result_id: resultId }, () =>
+                location.assign(`/result/${resultId}?t=${t}`)
+              );
+            }
           );
         } catch (err) {
           stopProgress(false);
