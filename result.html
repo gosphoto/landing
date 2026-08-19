@@ -568,10 +568,10 @@
               ok: Number(dpi) >= dpiMin,
             },
             {
-              param: "Овал / высота головы",
-              norm: "≥ 80% · 32–36 мм",
-              value: `${facePct} · ${headMm}`,
-              ok: checks.face_oval_ok !== false && checks.head_height_mm_ok !== false,
+              param: "Высота головы",
+              norm: "32–36 мм · 70–80%",
+              value: `${headMm} · ${facePct}`,
+              ok: checks.head_height_mm_ok !== false,
             },
             {
               param: "Отступ сверху",
