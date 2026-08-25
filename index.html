@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=20260816-doc-type" />
+    <link rel="stylesheet" href="css/styles.css?v=20260823-legal" />
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -234,8 +234,11 @@
         <a href="#how" data-metrika-goal="click_nav" data-metrika-param="footer_how">Как это работает</a>
         <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="footer_guarantee">Гарантия</a>
         <a href="/contacts" data-metrika-goal="click_contact_email" data-metrika-param="footer">Контакты</a>
+        <a href="/rekvizity">Реквизиты</a>
+        <a href="/privacy">Конфиденциальность</a>
+        <a href="/offer">Оферта</a>
       </div>
-      <p class="footer-copy">© Госфото</p>
+      <p class="footer-copy">© Госфото · ИП Бутов А.&nbsp;С.</p>
     </footer>
 
     <dialog class="chooser-dialog" id="chooser-dialog" aria-labelledby="chooser-dialog-title">
@@ -247,6 +250,16 @@
           </button>
         </div>
         <p class="chooser-lead">Выберите снимок из галереи или сделайте новое селфи.</p>
+        <div class="chooser-consent">
+          <label>
+            <input type="checkbox" id="chooser-consent" />
+            <span
+              >Согласен на обработку загружаемого фото,
+              <a href="/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a>
+              и <a href="/offer" target="_blank" rel="noopener">офертой</a>.</span
+            >
+          </label>
+        </div>
         <div class="chooser-slots">
           <button class="photo-slot" type="button" id="slot-choose" aria-label="Загрузить фото" data-metrika-goal="photo_choose_open">
             <span class="photo-slot-preview" id="preview-choose" hidden></span>
@@ -585,6 +598,16 @@
       const previewChoose = document.getElementById("preview-choose");
       const previewCamera = document.getElementById("preview-camera");
       const chooserError = document.getElementById("chooser-error");
+      const chooserConsent = document.getElementById("chooser-consent");
+
+      function requireConsent() {
+        if (chooserConsent && !chooserConsent.checked) {
+          setError(chooserError, "Подтвердите согласие на обработку персональных данных.");
+          reachGoal("photo_consent_missing");
+          return false;
+        }
+        return true;
+      }
       const endpoint = "https://formspree.io/f/mvkpprkk";
       const SEND_FORMSPREE = false; // временно отключено
       let cameraStream = null;
@@ -695,6 +718,7 @@
       }
 
       function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
+        if (!requireConsent()) return;
         const error = validateImage(file);
         if (error) {
           setError(errorEl, error);
@@ -945,6 +969,10 @@
         closeDialog(cameraDialog);
         showDialog(chooserDialog);
       }
+
+      chooserConsent?.addEventListener("change", () => {
+        if (chooserConsent.checked) setError(chooserError, "");
+      });
 
       uploadBtn?.addEventListener("click", () => {
         // photo_upload уходит через data-metrika-goal
