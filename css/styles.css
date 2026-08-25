@@ -539,11 +539,18 @@ a {
   transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
 }
 
-.photo-slot:hover,
-.photo-slot:focus-visible {
+.photo-slot:hover:not(:disabled),
+.photo-slot:focus-visible:not(:disabled) {
   border-color: var(--yellow-deep);
   outline: none;
   transform: translateY(-1px);
+}
+
+.photo-slot:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  pointer-events: none;
 }
 
 .photo-slot-placeholder {

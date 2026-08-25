@@ -261,7 +261,7 @@
           </label>
         </div>
         <div class="chooser-slots">
-          <button class="photo-slot" type="button" id="slot-choose" aria-label="Загрузить фото" data-metrika-goal="photo_choose_open">
+          <button class="photo-slot" type="button" id="slot-choose" aria-label="Загрузить фото" data-metrika-goal="photo_choose_open" disabled>
             <span class="photo-slot-preview" id="preview-choose" hidden></span>
             <span class="photo-slot-placeholder">
               <span class="photo-slot-icon" aria-hidden="true">
@@ -289,7 +289,7 @@
               <small>JPG, PNG · до 20 МБ</small>
             </span>
           </button>
-          <button class="photo-slot" type="button" id="slot-camera" aria-label="Сделать новое" data-metrika-goal="photo_camera">
+          <button class="photo-slot" type="button" id="slot-camera" aria-label="Сделать новое" data-metrika-goal="photo_camera" disabled>
             <span class="photo-slot-preview" id="preview-camera" hidden></span>
             <span class="photo-slot-placeholder">
               <span class="photo-slot-icon" aria-hidden="true">
@@ -600,10 +600,17 @@
       const chooserError = document.getElementById("chooser-error");
       const chooserConsent = document.getElementById("chooser-consent");
 
+      function syncConsentSlots() {
+        const allowed = Boolean(chooserConsent?.checked);
+        if (slotChoose) slotChoose.disabled = !allowed;
+        if (slotCamera) slotCamera.disabled = !allowed;
+      }
+
       function requireConsent() {
         if (chooserConsent && !chooserConsent.checked) {
           setError(chooserError, "Подтвердите согласие на обработку персональных данных.");
           reachGoal("photo_consent_missing");
+          syncConsentSlots();
           return false;
         }
         return true;
@@ -971,13 +978,16 @@
       }
 
       chooserConsent?.addEventListener("change", () => {
+        syncConsentSlots();
         if (chooserConsent.checked) setError(chooserError, "");
       });
+      syncConsentSlots();
 
       uploadBtn?.addEventListener("click", () => {
         // photo_upload уходит через data-metrika-goal
         trackFormspreeClick();
         setError(chooserError, "");
+        syncConsentSlots();
         showDialog(chooserDialog);
       });
 
