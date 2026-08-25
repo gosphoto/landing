@@ -6,7 +6,7 @@
     <title>Обратная связь — Госфото</title>
     <meta
       name="description"
-      content="Напишите в поддержку Госфото — ответим на ваш email. Можно приложить фото."
+      content="Напишите в поддержку Госфото — ответим на ваш email. Приложите фото."
     />
     <meta name="theme-color" content="#fdcb58" />
     <meta name="robots" content="index, follow" />
@@ -130,12 +130,13 @@
             ></textarea>
           </div>
           <div class="contacts-field">
-            <label for="feedback-photo">Фото (необязательно)</label>
+            <label for="feedback-photo">Фото</label>
             <div class="contacts-photo-row">
               <input
                 id="feedback-photo"
                 name="photo"
                 type="file"
+                required
                 accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
               />
               <button type="button" class="btn btn-dark" id="feedback-photo-clear" hidden>
@@ -242,14 +243,19 @@
             fullName.focus();
             return;
           }
+          const hasPhoto = !!(photo.files && photo.files[0]);
+          if (!hasPhoto) {
+            setStatus("Приложите фото.", "is-error");
+            photo.focus();
+            return;
+          }
           const body = new FormData();
           body.append("full_name", nameVal);
           body.append("email", email.value.trim());
           body.append("message", message.value.trim());
-          const hasPhoto = !!(photo.files && photo.files[0]);
-          if (hasPhoto) body.append("photo", photo.files[0]);
+          body.append("photo", photo.files[0]);
           submit.disabled = true;
-          reachGoal("feedback_submit", { has_photo: hasPhoto ? "yes" : "no" });
+          reachGoal("feedback_submit", { has_photo: "yes" });
           try {
             const res = await fetch("/api/feedback", { method: "POST", body: body });
             if (!res.ok) {
@@ -263,7 +269,7 @@
               setStatus(detail, "is-error");
               reachGoal("feedback_fail", {
                 reason: "http_" + res.status,
-                has_photo: hasPhoto ? "yes" : "no",
+                has_photo: "yes",
               });
               return;
             }
@@ -271,12 +277,12 @@
             photoName.textContent = "";
             photoClear.hidden = true;
             setStatus("Сообщение отправлено. Мы ответим на ваш email.", "is-ok");
-            reachGoal("feedback_ok", { has_photo: hasPhoto ? "yes" : "no" });
+            reachGoal("feedback_ok", { has_photo: "yes" });
           } catch (_) {
             setStatus("Сеть недоступна. Попробуйте позже.", "is-error");
             reachGoal("feedback_fail", {
               reason: "network",
-              has_photo: hasPhoto ? "yes" : "no",
+              has_photo: "yes",
             });
           } finally {
             submit.disabled = false;
