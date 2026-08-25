@@ -92,11 +92,11 @@
         <h1>Обратная связь</h1>
         <p class="contacts-lead">
           Напишите нам — ответим на ваш email в течение дня. Для возврата укажите
-          ФИО как на банковской карте.
+          Имя Отчество Ф. как на карте, например: Иван Сергеевич П.
         </p>
         <form class="contacts-form" id="feedback-form" novalidate>
           <div class="contacts-field">
-            <label for="feedback-full-name">ФИО (Имя Отчество Фамилия)</label>
+            <label for="feedback-full-name">Имя Отчество Ф.</label>
             <input
               id="feedback-full-name"
               name="full_name"
@@ -105,7 +105,7 @@
               minlength="5"
               maxlength="200"
               autocomplete="name"
-              placeholder="Как на карте — для возврата"
+              placeholder="Иван Сергеевич П."
             />
           </div>
           <div class="contacts-field">
@@ -234,9 +234,9 @@
           e.preventDefault();
           setStatus("");
           const nameVal = (fullName.value || "").trim().replace(/\s+/g, " ");
-          if (!nameVal || nameVal.split(" ").length < 2) {
+          if (!nameVal || nameVal.split(" ").length < 3) {
             setStatus(
-              "Укажите ФИО (имя, отчество и фамилию), как на карте.",
+              "Укажите Имя Отчество Ф., например: Иван Сергеевич П.",
               "is-error"
             );
             fullName.focus();
