@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=20260828-camera" />
+    <link rel="stylesheet" href="css/styles.css?v=20260828-pay-resume" />
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -393,21 +393,6 @@
           <canvas id="camera-canvas" hidden></canvas>
         </div>
         <p class="chooser-error" id="camera-error" hidden></p>
-        <div class="camera-permission-actions" id="camera-permission-actions" hidden>
-          <button class="btn btn-primary" type="button" id="camera-ask" data-metrika-goal="camera_ask">
-            Разрешить камеру
-          </button>
-          <button class="btn btn-dark" type="button" id="camera-native" data-metrika-goal="camera_native">
-            Снять в камере телефона
-          </button>
-        </div>
-        <input
-          type="file"
-          id="input-camera-capture"
-          accept="image/jpeg,image/png,.jpg,.jpeg,.png"
-          capture="user"
-          hidden
-        />
         <div class="camera-actions">
           <button class="btn btn-dark" type="button" id="camera-back" data-metrika-goal="click_camera_back">Назад</button>
           <button class="btn btn-primary" type="button" id="camera-shutter" data-metrika-goal="photo_shutter">Сфотографировать</button>
@@ -615,16 +600,12 @@
       const cameraClose = document.getElementById("camera-close");
       const cameraBack = document.getElementById("camera-back");
       const cameraShutter = document.getElementById("camera-shutter");
-      const cameraAsk = document.getElementById("camera-ask");
-      const cameraNative = document.getElementById("camera-native");
-      const cameraPermissionActions = document.getElementById("camera-permission-actions");
       const cameraVideo = document.getElementById("camera-video");
       const cameraCanvas = document.getElementById("camera-canvas");
       const cameraError = document.getElementById("camera-error");
       const slotChoose = document.getElementById("slot-choose");
       const slotCamera = document.getElementById("slot-camera");
       const inputChoose = document.getElementById("input-choose");
-      const inputCameraCapture = document.getElementById("input-camera-capture");
       const previewChoose = document.getElementById("preview-choose");
       const previewCamera = document.getElementById("preview-camera");
       const chooserError = document.getElementById("chooser-error");
@@ -933,99 +914,43 @@
         if (cameraVideo) cameraVideo.srcObject = null;
       }
 
-      const CAMERA_CONSTRAINTS = {
-        audio: false,
-        video: {
-          facingMode: { ideal: "user" },
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-        },
-      };
-
-      function isIosLike() {
-        const ua = navigator.userAgent || "";
-        return (
-          /iPad|iPhone|iPod/.test(ua) ||
-          (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-        );
-      }
-
-      function cameraDeniedHint() {
-        if (isIosLike()) {
-          return "Разрешите камеру для этого сайта: кнопка «аА» слева в адресной строке → Настройки сайта → Камера. Затем нажмите «Разрешить камеру».";
-        }
-        return "Разрешите камеру в настройках сайта (значок замка в адресной строке). Затем нажмите «Разрешить камеру».";
-      }
-
-      function setCameraPermissionUi(needsPermission, { canRetryGetUserMedia = true } = {}) {
-        if (cameraPermissionActions) cameraPermissionActions.hidden = !needsPermission;
-        if (cameraAsk) cameraAsk.hidden = !needsPermission || !canRetryGetUserMedia;
-        if (cameraNative) cameraNative.hidden = !needsPermission;
-      }
-
-      function startGetUserMedia() {
-        return navigator.mediaDevices.getUserMedia(CAMERA_CONSTRAINTS);
-      }
-
-      async function attachCameraStream(mediaPromise) {
-        cameraShutter.disabled = true;
-        setCameraPermissionUi(false);
+      async function openFrontCamera() {
         setError(cameraError, "");
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setError(cameraError, "Камера недоступна в этом браузере.");
+          showDialog(cameraDialog);
+          reachGoal("camera_denied", { reason: "unsupported" });
+          return;
+        }
+        closeDialog(chooserDialog);
+        showDialog(cameraDialog);
+        cameraShutter.disabled = true;
         try {
-          cameraStream = await mediaPromise;
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            audio: false,
+            video: {
+              facingMode: { ideal: "user" },
+              width: { ideal: 1280 },
+              height: { ideal: 720 },
+            },
+          });
           cameraVideo.srcObject = cameraStream;
           await cameraVideo.play();
           cameraShutter.disabled = false;
-          setCameraPermissionUi(false);
         } catch (err) {
           cameraShutter.disabled = true;
           const denied =
             err && (err.name === "NotAllowedError" || err.name === "PermissionDeniedError");
-          setCameraPermissionUi(true);
           setError(
             cameraError,
-            denied ? cameraDeniedHint() : "Не удалось открыть фронтальную камеру."
+            denied
+              ? "Разрешите доступ к камере в браузере."
+              : "Не удалось открыть фронтальную камеру."
           );
           reachGoal("camera_denied", {
             reason: denied ? "permission" : (err && err.name) || "error",
           });
         }
-      }
-
-      async function openFrontCamera() {
-        stopCamera();
-        if (!navigator.mediaDevices?.getUserMedia) {
-          setError(
-            cameraError,
-            "Камера в браузере недоступна. Можно снять фото в приложении камеры телефона."
-          );
-          closeDialog(chooserDialog);
-          showDialog(cameraDialog);
-          cameraShutter.disabled = true;
-          setCameraPermissionUi(true, { canRetryGetUserMedia: false });
-          reachGoal("camera_denied", { reason: "unsupported" });
-          return;
-        }
-        // getUserMedia сразу в том же клике — иначе Safari/Chrome не покажут системный запрос.
-        const mediaPromise = startGetUserMedia();
-        closeDialog(chooserDialog);
-        showDialog(cameraDialog);
-        await attachCameraStream(mediaPromise);
-      }
-
-      async function retryCameraPermission() {
-        stopCamera();
-        if (!navigator.mediaDevices?.getUserMedia) {
-          setError(
-            cameraError,
-            "Камера в браузере недоступна. Можно снять фото в приложении камеры телефона."
-          );
-          cameraShutter.disabled = true;
-          setCameraPermissionUi(true, { canRetryGetUserMedia: false });
-          return;
-        }
-        const mediaPromise = startGetUserMedia();
-        await attachCameraStream(mediaPromise);
       }
 
       function captureSelfie() {
@@ -1108,12 +1033,6 @@
       });
       cameraBack?.addEventListener("click", leaveCamera);
       cameraShutter?.addEventListener("click", captureSelfie);
-      cameraAsk?.addEventListener("click", () => {
-        retryCameraPermission();
-      });
-      cameraNative?.addEventListener("click", () => {
-        inputCameraCapture?.click();
-      });
 
       document.querySelectorAll(".doc-card[data-metrika-param]").forEach((card) => {
         card.addEventListener("click", () => {
@@ -1151,18 +1070,6 @@
       slotCamera?.addEventListener("click", () => {
         if (!requireConsent()) return;
         openFrontCamera();
-      });
-
-      inputCameraCapture?.addEventListener("change", () => {
-        const file = inputCameraCapture.files?.[0];
-        inputCameraCapture.value = "";
-        finishWithFile(file, {
-          goal: "photo_camera_native",
-          source: "camera_native",
-          previewEl: previewCamera,
-          slotEl: slotCamera,
-          errorEl: cameraError,
-        });
       });
 
       inputChoose?.addEventListener("change", () => {
