@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260816-doc-type" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260828-pay-resume" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -60,6 +60,7 @@
           alt=""
         /></div
     ></noscript>
+    <script src="/js/resume.js?v=20260828-pay-resume"></script>
   </head>
   <body class="result-page">
     <header class="site-header">
@@ -373,17 +374,28 @@
         }
 
         function clearPayPending(product) {
+          if (window.GosphotoResume) GosphotoResume.clearPending(product);
           try {
             sessionStorage.removeItem(payPendingKey(product));
           } catch (_) {}
         }
 
         function isPayPending(id, product) {
+          if (window.GosphotoResume && GosphotoResume.isPending(id, product)) {
+            return true;
+          }
           try {
             return sessionStorage.getItem(payPendingKey(product)) === id;
           } catch (_) {
             return false;
           }
+        }
+
+        function markPayPending(id, product) {
+          if (window.GosphotoResume) GosphotoResume.setPending(product, id);
+          try {
+            sessionStorage.setItem(payPendingKey(product), id);
+          } catch (_) {}
         }
 
         // Once per tab/session: webhook often marks paid before /pay/success returns,
@@ -524,6 +536,12 @@
                 setResumePayStatus("Оплата прошла — скачивание доступно.", true);
               } else {
                 setPayStatus("Оплата прошла — скачивание доступно.", true);
+                if (resultDownload && !resultDownload.hidden) {
+                  resultDownload.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }
               }
             } catch (_) {}
           }, POLL_MS);
@@ -771,15 +789,26 @@
             resultEmail.hidden = !paid;
           }
           if (resultPayBtn) {
-            resultPayBtn.textContent = `Скачать за ${priceRub} ₽`;
+            const pendingPay = resultId && isPayPending(resultId, "passport");
+            resultPayBtn.textContent = pendingPay && !paid
+              ? "Открыть оплату ещё раз"
+              : `Скачать за ${priceRub} ₽`;
             resultPayBtn.disabled = false;
           }
           if (resultPayNote) {
-            resultPayNote.textContent = paid
-              ? ""
-              : `Одна оплата (${priceRub} ₽) открывает оба файла: JPEG для Госуслуг и лист 10×15.`;
+            if (paid) {
+              resultPayNote.textContent = "";
+            } else if (resultId && isPayPending(resultId, "passport")) {
+              resultPayNote.textContent =
+                "Если уже оплатили — подождите, файлы откроются на этой странице.";
+            } else {
+              resultPayNote.textContent = `Одна оплата (${priceRub} ₽) открывает оба файла: JPEG для Госуслуг и лист 10×15.`;
+            }
           }
           if (paid) {
+            if (window.GosphotoResume && resultId) {
+              GosphotoResume.setLastPaid(resultId);
+            }
             if (pollMode === "passport") stopPoll();
             setPayStatus("", false);
           } else {
@@ -875,7 +904,7 @@
               throw new Error("Сервер не вернул ссылку на оплату.");
             }
             try {
-              sessionStorage.setItem("gosphoto_pay_pending", id);
+              markPayPending(id, "passport");
             } catch (_) {}
             reachGoal("pay_redirect", {
               result_id: id,
@@ -883,6 +912,7 @@
               product: "passport",
             });
             setPayStatus("Переходим к оплате…", true);
+            startPoll("passport");
             window.location.assign(data.payment_url);
             return;
           } catch (err) {
@@ -935,7 +965,7 @@
               throw new Error("Сервер не вернул ссылку на оплату.");
             }
             try {
-              sessionStorage.setItem("gosphoto_pay_resume_pending", id);
+              markPayPending(id, "resume");
             } catch (_) {}
             reachGoal("pay_redirect", {
               result_id: id,
@@ -943,6 +973,7 @@
               product: "resume",
             });
             setResumePayStatus("Переходим к оплате…", true);
+            startPoll("resume");
             window.location.assign(data.payment_url);
             return;
           } catch (err) {
@@ -1038,6 +1069,33 @@
           });
         }
 
+        async function refreshPaymentStatus() {
+          const id = parseResultId();
+          if (!id || !RESULT_ID_RE.test(id)) return;
+          try {
+            const res = await fetch(`/api/result/${id}/payment-status`);
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) return;
+            renderResult(data);
+            if (data.paid) {
+              clearPayPending("passport");
+            } else if (isPayPending(id, "passport") && !pollTimer) {
+              startPoll("passport");
+            }
+            if (data.paid_resume) {
+              clearPayPending("resume");
+            } else if (isPayPending(id, "resume") && !pollTimer) {
+              startPoll("resume");
+            }
+          } catch (_) {}
+        }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") refreshPaymentStatus();
+        });
+        window.addEventListener("pageshow", refreshPaymentStatus);
+        window.addEventListener("focus", refreshPaymentStatus);
+
         async function boot() {
           const id = parseResultId();
           if (!id || !RESULT_ID_RE.test(id)) {
@@ -1045,6 +1103,7 @@
             reachGoal("result_page_missing", { reason: "bad_id" });
             return;
           }
+          if (window.GosphotoResume) GosphotoResume.setLast(id);
           try {
             const res = await fetch(`/api/result/${id}`);
             if (res.status === 404) {

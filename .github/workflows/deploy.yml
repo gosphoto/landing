@@ -27,6 +27,7 @@ jobs:
           test -f index.html
           test -f result.html
           test -f css/styles.css
+          test -f js/resume.js
           test -d assets
           test -f deploy/gosphoto.ru.nginx.conf
           test -f deploy/gosphoto.ru.nginx.http.conf

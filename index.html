@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=20260823-legal" />
+    <link rel="stylesheet" href="css/styles.css?v=20260828-pay-resume" />
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -87,6 +87,16 @@
         <span></span><span></span>
       </button>
     </header>
+
+    <aside class="resume-banner" id="resume-banner" hidden>
+      <div class="resume-banner-inner">
+        <p class="resume-banner-text" id="resume-banner-text"></p>
+        <a class="btn btn-primary" id="resume-banner-link" href="#">Открыть</a>
+        <button type="button" class="btn btn-ghost" id="resume-banner-dismiss">
+          Закрыть
+        </button>
+      </div>
+    </aside>
 
     <main>
       <section class="hero">
@@ -431,6 +441,7 @@
       </form>
     </dialog>
 
+    <script src="/js/resume.js?v=20260828-pay-resume"></script>
     <script>
       const TRACK_CONVERSIONS = true;
       const METRIKA_ID = 111303098;
@@ -856,6 +867,7 @@
           }
           stopProgress(true);
           const resultId = data.result_id;
+          if (window.GosphotoResume) GosphotoResume.setLast(resultId);
           const t = Date.now();
           const doneType =
             (data.doc_type && DOC_TYPES.has(data.doc_type)
@@ -1071,6 +1083,74 @@
           errorEl: chooserError,
         });
       });
+
+      (function mountResumeBanner() {
+        const resume = window.GosphotoResume;
+        const banner = document.getElementById("resume-banner");
+        const textEl = document.getElementById("resume-banner-text");
+        const linkEl = document.getElementById("resume-banner-link");
+        const dismissEl = document.getElementById("resume-banner-dismiss");
+        if (!resume || !banner || !textEl || !linkEl) return;
+
+        function hide() {
+          banner.hidden = true;
+        }
+
+        function show(id, paid) {
+          if (resume.isBannerDismissed(id)) {
+            hide();
+            return;
+          }
+          textEl.textContent = paid
+            ? "Фото оплачено — скачайте файлы на странице результата."
+            : "У вас есть незаконченное фото — можно вернуться к нему.";
+          linkEl.href = "/result/" + id;
+          linkEl.textContent = paid ? "Скачать фото" : "Вернуться к фото";
+          banner.hidden = false;
+        }
+
+        dismissEl?.addEventListener("click", () => {
+          const href = (linkEl.getAttribute("href") || "").replace(
+            /^\/result\//,
+            ""
+          );
+          if (resume.valid(href)) resume.dismissBanner(href);
+          hide();
+        });
+
+        const paidId = resume.getLastPaid();
+        const lastId = resume.getLast();
+        const probeId = paidId || lastId;
+        if (!probeId) return;
+
+        fetch("/api/result/" + probeId)
+          .then((res) => {
+            if (res.status === 404) {
+              if (paidId === probeId) resume.clearLastPaid();
+              if (lastId === probeId) resume.clearLast();
+              if (paidId && paidId !== probeId) {
+                return fetch("/api/result/" + paidId).then((r2) => {
+                  if (!r2.ok) {
+                    resume.clearLastPaid();
+                    hide();
+                    return null;
+                  }
+                  return r2.json();
+                });
+              }
+              hide();
+              return null;
+            }
+            if (!res.ok) return null;
+            return res.json();
+          })
+          .then((data) => {
+            if (!data || !data.ok || !data.result_id) return;
+            if (data.paid) resume.setLastPaid(data.result_id);
+            show(data.result_id, !!data.paid);
+          })
+          .catch(hide);
+      })();
     </script>
   </body>
 </html>

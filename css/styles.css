@@ -52,6 +52,38 @@ a {
   gap: 1.5rem;
 }
 
+.resume-banner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 1.5rem 0.25rem;
+}
+
+.resume-banner[hidden] {
+  display: none !important;
+}
+
+.resume-banner-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.resume-banner-text {
+  flex: 1 1 12rem;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.resume-banner .btn {
+  text-decoration: none;
+}
+
 .logo {
   display: inline-flex;
   align-items: center;
