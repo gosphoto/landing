@@ -970,11 +970,16 @@ body.result-page {
 }
 
 .result-pay-note,
+.result-pay-guarantee,
 .result-pay-status {
   margin: 0;
   max-width: 36rem;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.result-pay-guarantee {
+  font-weight: 500;
 }
 
 .result-pay-status {

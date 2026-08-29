@@ -152,6 +152,9 @@
             <p class="result-pay-note" id="result-pay-note">
               Одна оплата открывает оба файла: JPEG для Госуслуг и лист 10×15.
             </p>
+            <p class="result-pay-guarantee" id="result-pay-guarantee">
+              Если не примут — вернём деньги.
+            </p>
             <p class="result-pay-status" id="result-pay-status" hidden aria-live="polite"></p>
           </div>
 
@@ -329,6 +332,7 @@
         const resultPay = document.getElementById("result-pay");
         const resultPayBtn = document.getElementById("result-pay-btn");
         const resultPayNote = document.getElementById("result-pay-note");
+        const resultPayGuarantee = document.getElementById("result-pay-guarantee");
         const resultPayStatus = document.getElementById("result-pay-status");
         const resultResume = document.getElementById("result-resume");
         const resultResumeImage = document.getElementById("result-resume-image");
@@ -798,11 +802,14 @@
           if (resultPayNote) {
             if (paid) {
               resultPayNote.textContent = "";
+              if (resultPayGuarantee) resultPayGuarantee.hidden = true;
             } else if (resultId && isPayPending(resultId, "passport")) {
               resultPayNote.textContent =
                 "Если уже оплатили — подождите, файлы откроются на этой странице.";
+              if (resultPayGuarantee) resultPayGuarantee.hidden = true;
             } else {
               resultPayNote.textContent = `Одна оплата (${priceRub} ₽) открывает оба файла: JPEG для Госуслуг и лист 10×15.`;
+              if (resultPayGuarantee) resultPayGuarantee.hidden = false;
             }
           }
           if (paid) {
