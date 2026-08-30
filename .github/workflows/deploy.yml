@@ -26,6 +26,7 @@ jobs:
         run: |
           test -f index.html
           test -f result.html
+          test -f view.html
           test -f css/styles.css
           test -f js/resume.js
           test -d assets

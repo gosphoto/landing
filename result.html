@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260828-pay-resume" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260830-view" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -107,6 +107,14 @@
                 class="result-product-image is-passport"
                 alt="Превью фото 35×45 для Госуслуг"
               />
+              <a
+                class="btn btn-ghost result-view-btn"
+                id="result-view-digital"
+                href="#"
+                hidden
+                data-metrika-goal="preview_view"
+                >Посмотреть</a
+              >
               <a
                 class="btn btn-primary"
                 id="result-download"
@@ -326,6 +334,7 @@
         const resultSpecsLead = document.getElementById("result-specs-lead");
         const resultSpecsBody = document.getElementById("result-specs-body");
         const resultDigitalImage = document.getElementById("result-digital-image");
+        const resultViewDigital = document.getElementById("result-view-digital");
         const resultPrintImage = document.getElementById("result-print-image");
         const resultDownload = document.getElementById("result-download");
         const resultDownloadPrint = document.getElementById("result-download-print");
@@ -436,7 +445,8 @@
                 goal === "pay_start" ||
                 goal === "pay_resume_start" ||
                 goal === "pay_success" ||
-                goal === "email_send")
+                goal === "email_send" ||
+                goal === "preview_view")
             ) {
               params.result_id = id;
               if (goal === "download_digital" || goal === "download_print") {
@@ -757,6 +767,25 @@
 
           if (resultDigitalImage && previewDigital) {
             resultDigitalImage.src = previewDigital;
+            if (!paid && resultId) {
+              resultDigitalImage.style.cursor = "pointer";
+              resultDigitalImage.onclick = () => {
+                reachGoal("preview_view", { result_id: resultId });
+                location.assign(`/result/${resultId}/view`);
+              };
+            } else {
+              resultDigitalImage.style.cursor = "";
+              resultDigitalImage.onclick = null;
+            }
+          }
+          if (resultViewDigital) {
+            if (!paid && resultId) {
+              resultViewDigital.href = `/result/${resultId}/view`;
+              resultViewDigital.hidden = false;
+            } else {
+              resultViewDigital.hidden = true;
+              resultViewDigital.removeAttribute("href");
+            }
           }
           if (previewPrint && resultPrintImage) {
             resultPrintImage.src = previewPrint;
