@@ -216,8 +216,8 @@
           <h2>Фото для Госуслуг за 30 секунд</h2>
           <p>Загрузите селфи и посмотрите результат до оплаты.</p>
           <div class="upload">
-            <button class="btn btn-dark" id="upload-btn" type="button" data-metrika-goal="photo_upload">Загрузить селфи</button>
-            <small>JPG, PNG · до 20 МБ</small>
+            <button class="btn btn-dark" id="upload-btn" type="button" data-metrika-goal="photo_upload">Загрузить или сделать</button>
+            <small>JPG, PNG, WebP, HEIC · до 20 МБ</small>
           </div>
         </div>
       </section>
@@ -296,7 +296,7 @@
                 </svg>
               </span>
               <strong>Загрузить фото</strong>
-              <small>JPG, PNG · до 20 МБ</small>
+              <small>JPG, PNG, WebP, HEIC · до 20 МБ</small>
             </span>
           </button>
           <button class="photo-slot" type="button" id="slot-camera" aria-label="Сделать новое" data-metrika-goal="photo_camera">
@@ -332,7 +332,7 @@
         <input
           type="file"
           id="input-choose"
-          accept="image/jpeg,image/png,.jpg,.jpeg,.png"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
           hidden
         />
       </div>
@@ -446,7 +446,14 @@
       const TRACK_CONVERSIONS = true;
       const METRIKA_ID = 111303098;
       const MAX_BYTES = 20 * 1024 * 1024;
-      const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+      const ALLOWED_TYPES = new Set([
+        "image/jpeg",
+        "image/png",
+        "image/webp",
+        "image/heic",
+        "image/heif",
+        "image/heic-sequence",
+      ]);
       const PROCESS_API = "/api/process/stream";
       const DOC_TYPE_KEY = "gosphoto_doc_type";
       const DOC_TYPES = new Set(["passport_rf", "zagran"]);
@@ -732,8 +739,8 @@
         if (!file) return "Файл не выбран.";
         const typeOk =
           ALLOWED_TYPES.has(file.type) ||
-          /\.(jpe?g|png)$/i.test(file.name || "");
-        if (!typeOk) return "Нужен файл JPG или PNG.";
+          /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name || "");
+        if (!typeOk) return "Нужен файл JPG, PNG, WebP или HEIC.";
         if (file.size > MAX_BYTES) return "Файл больше 20 МБ.";
         return null;
       }
