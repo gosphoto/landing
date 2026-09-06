@@ -20,7 +20,8 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260830-view" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260906-dims" />
+    <script src="/js/photo-guide.js?v=20260906-dims"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -102,11 +103,39 @@
             <article class="result-product">
               <h2>Для Госуслуг</h2>
               <p class="result-product-note">Цифровой JPEG для электронного заявления</p>
-              <img
-                id="result-digital-image"
-                class="result-product-image is-passport"
-                alt="Превью фото 35×45 для Госуслуг"
-              />
+              <div class="photo-guide photo-guide--card" id="result-digital-guide">
+                <div class="photo-guide-box">
+                  <div class="photo-guide-stage">
+                    <img
+                      id="result-digital-image"
+                      class="result-product-image is-passport"
+                      alt="Превью фото 35×45 для Госуслуг"
+                    />
+                    <div class="photo-guide-overlay" aria-hidden="true">
+                      <span class="photo-guide-band"></span>
+                      <span class="photo-guide-line photo-guide-line--crown"></span>
+                      <span class="photo-guide-line photo-guide-line--chin"></span>
+                      <span class="photo-guide-rail photo-guide-rail--top"></span>
+                      <span class="photo-guide-rail photo-guide-rail--head"></span>
+                      <span class="photo-guide-rail-x"></span>
+                      <span class="photo-guide-tag photo-guide-tag--top" data-guide-top>4,5 мм</span>
+                      <span class="photo-guide-tag photo-guide-tag--head" data-guide-head>32–36 мм</span>
+                      <span class="photo-guide-tag photo-guide-tag--facew" data-guide-facew hidden>18–25 мм</span>
+                    </div>
+                  </div>
+                  <span class="photo-guide-outer photo-guide-outer--h" aria-hidden="true">
+                    <span class="photo-guide-outer-line"></span>
+                    <span class="photo-guide-outer-label">45 мм</span>
+                  </span>
+                  <span class="photo-guide-outer photo-guide-outer--w" aria-hidden="true">
+                    <span class="photo-guide-outer-line"></span>
+                    <span class="photo-guide-outer-label">35 мм</span>
+                  </span>
+                </div>
+                <p class="photo-guide-caption" data-guide-caption>
+                  35×45 мм · сверху и голова — норма Госуслуг
+                </p>
+              </div>
               <a
                 class="btn btn-ghost result-view-btn"
                 id="result-view-digital"
@@ -155,7 +184,7 @@
               id="result-pay-btn"
               data-metrika-goal="pay_start"
             >
-              Скачать за 400 ₽
+              Скачать за 350 ₽
             </button>
             <p class="result-pay-note" id="result-pay-note">
               Одна оплата открывает оба файла: JPEG для Госуслуг и лист 10×15.
@@ -757,7 +786,7 @@
           const priceRub =
             data.price_rub != null && !Number.isNaN(Number(data.price_rub))
               ? Number(data.price_rub)
-              : 400;
+              : 350;
           const priceResumeRub =
             data.price_resume_rub != null &&
             !Number.isNaN(Number(data.price_resume_rub))
@@ -903,6 +932,12 @@
               : "Основные параметры выставлены — сверьте кадр перед отправкой";
           }
           fillSpecsTable(data);
+          if (window.GosphotoPhotoGuide) {
+            window.GosphotoPhotoGuide.bind(
+              document.getElementById("result-digital-guide"),
+              data
+            );
+          }
           if (statusEl) statusEl.hidden = true;
           if (resultScreen) resultScreen.hidden = false;
         }

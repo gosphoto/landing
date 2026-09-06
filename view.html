@@ -20,7 +20,8 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260830-view" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260906-dims" />
+    <script src="/js/photo-guide.js?v=20260906-dims"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -84,16 +85,45 @@
 
     <main class="result-view-main" id="view-main">
       <p class="result-view-kicker">Превью</p>
-      <h1>Фото 35×45 с водяным знаком</h1>
+      <h1>Фото 35×45 — как на Госуслугах</h1>
       <p class="result-view-note">
-        Можно рассмотреть кадр. Файл без знака — после оплаты, на странице результата.
+        Отступ сверху и высота головы совпадают с нормой портала. Файл без знака — после оплаты.
       </p>
-      <div class="result-view-photo-wrap" id="view-photo-wrap" hidden>
-        <img
-          class="result-view-photo"
-          id="view-photo"
-          alt="Фото 35×45 с водяным знаком Госфото"
-        />
+      <div class="result-view-photo-wrap photo-guide photo-guide--view" id="view-photo-wrap" hidden>
+        <div class="photo-guide-box">
+          <div class="photo-guide-stage">
+            <img
+              class="result-view-photo"
+              id="view-photo"
+              alt="Фото 35×45 с размерами по норме Госуслуг"
+            />
+            <div class="photo-guide-overlay" aria-hidden="true">
+              <span class="photo-guide-band"></span>
+              <span class="photo-guide-line photo-guide-line--crown"></span>
+              <span class="photo-guide-line photo-guide-line--chin"></span>
+              <span class="photo-guide-rail photo-guide-rail--top"></span>
+              <span class="photo-guide-rail photo-guide-rail--head"></span>
+              <span class="photo-guide-rail-x"></span>
+              <span class="photo-guide-tag photo-guide-tag--top" data-guide-top>4,5 мм</span>
+              <span class="photo-guide-tag photo-guide-tag--head" data-guide-head>32–36 мм</span>
+              <span class="photo-guide-tag photo-guide-tag--facew" data-guide-facew hidden>18–25 мм</span>
+            </div>
+          </div>
+          <span class="photo-guide-outer photo-guide-outer--h" aria-hidden="true">
+            <span class="photo-guide-outer-line"></span>
+            <span class="photo-guide-outer-label">45 мм</span>
+          </span>
+          <span class="photo-guide-outer photo-guide-outer--w" aria-hidden="true">
+            <span class="photo-guide-outer-line"></span>
+            <span class="photo-guide-outer-label">35 мм</span>
+          </span>
+        </div>
+        <p class="photo-guide-caption" data-guide-caption>
+          35×45 мм · сверху 4,5 мм · голова 32–36 мм — норма Госуслуг
+        </p>
+        <button type="button" class="photo-guide-toggle" data-guide-toggle aria-pressed="true">
+          Скрыть размеры
+        </button>
       </div>
       <p class="result-view-note" id="view-status" aria-live="polite">Загружаем фото…</p>
       <div class="result-view-actions">
@@ -170,6 +200,10 @@
             }
             const src =
               data.view_digital_url || `/api/result/${id}/view_digital.jpg`;
+            if (window.GosphotoPhotoGuide) {
+              window.GosphotoPhotoGuide.bind(photoWrap, data);
+              window.GosphotoPhotoGuide.bindToggle(photoWrap);
+            }
             if (photoEl) {
               photoEl.onload = () => {
                 if (photoWrap) photoWrap.hidden = false;
