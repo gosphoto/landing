@@ -1287,15 +1287,28 @@ body.result-page {
 }
 
 .result-pay-guarantee {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   margin: 0.1rem 0 0;
-  padding: 0.45rem 1rem;
-  width: fit-content;
-  border-radius: 999px;
-  background: var(--yellow);
+  padding: 0;
+  max-width: 36rem;
+  background: none;
   color: var(--ink);
-  font-size: 0.98rem;
-  font-weight: 800;
+  font-size: 0.95rem;
+  font-weight: 700;
   letter-spacing: -0.02em;
+  line-height: 1.4;
+}
+
+.result-pay-guarantee::before {
+  content: "";
+  flex: 0 0 0.45rem;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--yellow-deep);
 }
 
 .result-pay-status {
