@@ -1394,6 +1394,26 @@ body.result-page {
   }
 }
 
+/* Demand probe: print + mail after pay */
+.result-delivery {
+  display: grid;
+  gap: 0.55rem;
+  justify-items: stretch;
+  margin-top: 0.35rem;
+  padding: 0 1rem 0.35rem;
+  max-width: 36rem;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.result-delivery[hidden] {
+  display: none !important;
+}
+
+.result-delivery .btn {
+  width: 100%;
+}
+
 .result-specs {
   display: grid;
   gap: 0.65rem;

@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260907-note" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260909-print-mail" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -184,7 +184,7 @@
               id="result-pay-btn"
               data-metrika-goal="pay_start"
             >
-              Скачать за 350 ₽
+              Скачать за 390 ₽
             </button>
             <p class="result-pay-note" id="result-pay-note">
               Одна оплата открывает оба файла: JPEG для Госуслуг и лист 10×15.
@@ -271,6 +271,20 @@
             ></p>
           </div>
 
+          <!-- Demand probe: print + mail delivery (stub). Goal: result_print_mail -->
+          <div class="result-delivery" id="result-delivery" hidden>
+            <button
+              type="button"
+              class="btn btn-ghost"
+              id="result-delivery-btn"
+              data-print-mail
+              data-metrika-goal="result_print_mail"
+              data-metrika-param="after_pay"
+            >
+              Распечатать и послать по почте за 100&nbsp;₽
+            </button>
+          </div>
+
           <div class="result-specs">
             <h2>Соответствие требованиям</h2>
             <p class="result-specs-lead" id="result-specs-lead">
@@ -351,6 +365,24 @@
       <p class="footer-copy">© Госфото · ИП Бутов А.&nbsp;С.</p>
     </footer>
 
+    <dialog
+      class="notice-dialog"
+      id="print-mail-dialog"
+      aria-labelledby="print-mail-title"
+    >
+      <div class="notice-dialog-inner">
+        <h2 id="print-mail-title">Печать и доставка</h2>
+        <p>Извините, функция в разработке.</p>
+        <button
+          class="btn btn-primary"
+          type="button"
+          id="print-mail-close"
+        >
+          Понятно
+        </button>
+      </div>
+    </dialog>
+
     <script>
       (function () {
         const RESULT_ID_RE = /^[a-f0-9]{32}$/;
@@ -384,6 +416,9 @@
         const resultEmailInput = document.getElementById("result-email-input");
         const resultEmailBtn = document.getElementById("result-email-btn");
         const resultEmailStatus = document.getElementById("result-email-status");
+        const resultDelivery = document.getElementById("result-delivery");
+        const printMailDialog = document.getElementById("print-mail-dialog");
+        const printMailClose = document.getElementById("print-mail-close");
         const resultScreenTitle = document.getElementById("result-screen-title");
         const resultScreenLead = document.getElementById("result-screen-lead");
         let pollTimer = null;
@@ -475,7 +510,8 @@
                 goal === "pay_resume_start" ||
                 goal === "pay_success" ||
                 goal === "email_send" ||
-                goal === "preview_view")
+                goal === "preview_view" ||
+                goal === "result_print_mail")
             ) {
               params.result_id = id;
               if (goal === "download_digital" || goal === "download_print") {
@@ -786,7 +822,7 @@
           const priceRub =
             data.price_rub != null && !Number.isNaN(Number(data.price_rub))
               ? Number(data.price_rub)
-              : 350;
+              : 390;
           const priceResumeRub =
             data.price_resume_rub != null &&
             !Number.isNaN(Number(data.price_resume_rub))
@@ -849,6 +885,9 @@
           }
           if (resultEmail) {
             resultEmail.hidden = !paid;
+          }
+          if (resultDelivery) {
+            resultDelivery.hidden = !paid;
           }
           if (resultPayBtn) {
             const pendingPay = resultId && isPayPending(resultId, "passport");
@@ -1137,6 +1176,36 @@
               event.preventDefault();
               sendResultEmail();
             }
+          });
+        }
+
+        function openPrintMailDialog() {
+          if (!printMailDialog) return;
+          if (typeof printMailDialog.showModal === "function") {
+            printMailDialog.showModal();
+            return;
+          }
+          printMailDialog.setAttribute("open", "");
+        }
+
+        function closePrintMailDialog() {
+          if (!printMailDialog) return;
+          if (typeof printMailDialog.close === "function") {
+            printMailDialog.close();
+            return;
+          }
+          printMailDialog.removeAttribute("open");
+        }
+
+        document.querySelectorAll("[data-print-mail]").forEach((button) => {
+          button.addEventListener("click", openPrintMailDialog);
+        });
+        if (printMailClose) {
+          printMailClose.addEventListener("click", closePrintMailDialog);
+        }
+        if (printMailDialog) {
+          printMailDialog.addEventListener("click", (event) => {
+            if (event.target === printMailDialog) closePrintMailDialog();
           });
         }
 
