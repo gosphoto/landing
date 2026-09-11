@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260808-contacts" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260911-contacts" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -122,6 +122,18 @@
             />
           </div>
           <div class="contacts-field">
+            <label for="feedback-gosuslugi-error">Ошибка с Госуслуг</label>
+            <input
+              id="feedback-gosuslugi-error"
+              name="gosuslugi_error"
+              type="text"
+              required
+              minlength="3"
+              maxlength="1000"
+              placeholder="Укажите ошибку с Госуслуг"
+            />
+          </div>
+          <div class="contacts-field">
             <label for="feedback-message">Сообщение</label>
             <textarea
               id="feedback-message"
@@ -207,6 +219,7 @@
         const form = document.getElementById("feedback-form");
         const fullName = document.getElementById("feedback-full-name");
         const email = document.getElementById("feedback-email");
+        const gosuslugiError = document.getElementById("feedback-gosuslugi-error");
         const message = document.getElementById("feedback-message");
         const photo = document.getElementById("feedback-photo");
         const photoName = document.getElementById("feedback-photo-name");
@@ -245,6 +258,12 @@
             fullName.focus();
             return;
           }
+          const errorVal = (gosuslugiError.value || "").trim().replace(/\s+/g, " ");
+          if (!errorVal || errorVal.length < 3) {
+            setStatus("Укажите ошибку с Госуслуг", "is-error");
+            gosuslugiError.focus();
+            return;
+          }
           const hasPhoto = !!(photo.files && photo.files[0]);
           if (!hasPhoto) {
             setStatus("Приложите фото.", "is-error");
@@ -254,6 +273,7 @@
           const body = new FormData();
           body.append("full_name", nameVal);
           body.append("email", email.value.trim());
+          body.append("gosuslugi_error", errorVal);
           body.append("message", message.value.trim());
           body.append("photo", photo.files[0]);
           submit.disabled = true;
