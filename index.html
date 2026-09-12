@@ -441,7 +441,7 @@
       </form>
     </dialog>
 
-    <script src="/js/resume.js?v=20260828-pay-resume"></script>
+    <script src="/js/resume.js?v=20260912-pay-cookie"></script>
     <script>
       const TRACK_CONVERSIONS = true;
       const METRIKA_ID = 111303098;
@@ -1103,16 +1103,15 @@
           banner.hidden = true;
         }
 
-        function show(id, paid) {
+        function showUnpaid(id) {
           if (resume.isBannerDismissed(id)) {
             hide();
             return;
           }
-          textEl.textContent = paid
-            ? "Фото оплачено — скачайте файлы на странице результата."
-            : "У вас есть незаконченное фото — можно вернуться к нему.";
+          textEl.textContent =
+            "У вас есть незаконченное фото — можно вернуться к нему.";
           linkEl.href = "/result/" + id;
-          linkEl.textContent = paid ? "Скачать фото" : "Вернуться к фото";
+          linkEl.textContent = "Вернуться к фото";
           banner.hidden = false;
         }
 
@@ -1125,26 +1124,13 @@
           hide();
         });
 
-        const paidId = resume.getLastPaid();
-        const lastId = resume.getLast();
-        const probeId = paidId || lastId;
+        const probeId = resume.getProbeId();
         if (!probeId) return;
 
-        fetch("/api/result/" + probeId)
+        fetch("/api/result/" + probeId + "/payment-status")
           .then((res) => {
             if (res.status === 404) {
-              if (paidId === probeId) resume.clearLastPaid();
-              if (lastId === probeId) resume.clearLast();
-              if (paidId && paidId !== probeId) {
-                return fetch("/api/result/" + paidId).then((r2) => {
-                  if (!r2.ok) {
-                    resume.clearLastPaid();
-                    hide();
-                    return null;
-                  }
-                  return r2.json();
-                });
-              }
+              resume.clearSeenPaid(probeId);
               hide();
               return null;
             }
@@ -1153,8 +1139,11 @@
           })
           .then((data) => {
             if (!data || !data.ok || !data.result_id) return;
-            if (data.paid) resume.setLastPaid(data.result_id);
-            show(data.result_id, !!data.paid);
+            if (data.paid) {
+              location.assign("/result/" + data.result_id + "?paid=1");
+              return;
+            }
+            showUnpaid(data.result_id);
           })
           .catch(hide);
       })();

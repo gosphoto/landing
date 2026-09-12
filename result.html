@@ -61,7 +61,7 @@
           alt=""
         /></div
     ></noscript>
-    <script src="/js/resume.js?v=20260828-pay-resume"></script>
+    <script src="/js/resume.js?v=20260912-pay-cookie"></script>
   </head>
   <body class="result-page">
     <header class="site-header">
@@ -911,7 +911,7 @@
           }
           if (paid) {
             if (window.GosphotoResume && resultId) {
-              GosphotoResume.setLastPaid(resultId);
+              GosphotoResume.clearSeenPaid(resultId);
             }
             if (pollMode === "passport") stopPoll();
             setPayStatus("", false);
