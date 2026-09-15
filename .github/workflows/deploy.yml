@@ -27,6 +27,8 @@ jobs:
           test -f index.html
           test -f result.html
           test -f view.html
+          test -f robots.txt
+          test -f sitemap.xml
           test -f css/styles.css
           test -f js/resume.js
           test -f js/photo-guide.js
@@ -34,6 +36,8 @@ jobs:
           test -f deploy/gosphoto.ru.nginx.conf
           test -f deploy/gosphoto.ru.nginx.http.conf
           test -f deploy/install-gosphoto-nginx.sh
+          grep -q 'Sitemap: https://gosphoto.ru/sitemap.xml' robots.txt
+          grep -q 'https://gosphoto.ru/</loc>' sitemap.xml
           echo "Landing OK"
 
   deploy:
