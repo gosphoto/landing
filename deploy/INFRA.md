@@ -44,3 +44,15 @@ dig +short www.gosphoto.ru A
 ## После первого деплоя
 
 Открой https://gosphoto.ru — должен открыться лендинг Госфото.
+
+## SEO / зеркала (фаза 0)
+
+- `https://www.gosphoto.ru/*` → **301** на `https://gosphoto.ru$request_uri`
+- `https://gosphoto.ru/index.html` → **301** `/`
+- HTTP (80) для apex и www → **301** на `https://gosphoto.ru$request_uri`
+
+Вручную в Вебмастере (API не умеет):
+
+1. Привязать Метрику **111303098** + включить «Обход по счётчикам»
+2. Региональность → **Россия**
+3. Если `www` висит отдельным хостом — «Переезд сайта» на apex
