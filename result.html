@@ -285,6 +285,17 @@
             </button>
           </div>
 
+          <div class="result-review" id="result-review" hidden>
+            <p>Госуслуги приняли фото? Напишите пару слов — опубликуем на сайте с вашего согласия.</p>
+            <a
+              class="btn btn-ghost"
+              href="/contacts?from=review"
+              data-metrika-goal="click_review_ask"
+              data-metrika-param="after_pay"
+              >Оставить отзыв</a
+            >
+          </div>
+
           <div class="result-specs">
             <h2>Соответствие требованиям</h2>
             <p class="result-specs-lead" id="result-specs-lead">
@@ -417,6 +428,7 @@
         const resultEmailBtn = document.getElementById("result-email-btn");
         const resultEmailStatus = document.getElementById("result-email-status");
         const resultDelivery = document.getElementById("result-delivery");
+        const resultReview = document.getElementById("result-review");
         const printMailDialog = document.getElementById("print-mail-dialog");
         const printMailClose = document.getElementById("print-mail-close");
         const resultScreenTitle = document.getElementById("result-screen-title");
@@ -888,6 +900,9 @@
           }
           if (resultDelivery) {
             resultDelivery.hidden = !paid;
+          }
+          if (resultReview) {
+            resultReview.hidden = !paid;
           }
           if (resultPayBtn) {
             const pendingPay = resultId && isPayPending(resultId, "passport");
