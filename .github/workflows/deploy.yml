@@ -31,6 +31,7 @@ jobs:
           test -f sitemap.xml
           test -f css/styles.css
           test -f js/resume.js
+          test -f js/upload-flow.js
           test -f js/photo-guide.js
           test -d assets
           test -f deploy/gosphoto.ru.nginx.conf

@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260920-phase1b" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260920-phase1c" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -62,7 +62,7 @@
         /></div
     ></noscript>
   </head>
-  <body>
+  <body data-doc-type="passport_rf">
     <header class="site-header">
       <a class="logo" href="/" aria-label="Госфото">
         <span class="logo-mark" aria-hidden="true">
@@ -102,13 +102,13 @@
             <li>Не приняли — переделаем</li>
           </ul>
           <p class="hero-cta">
-            <a
+            <button
               class="btn btn-primary"
-              href="/?doc=passport_rf#start"
-              data-metrika-goal="click_landing_cta"
+              type="button"
+              id="upload-btn"
+              data-metrika-goal="photo_upload"
               data-metrika-param="pasport_hero"
-              >Сделать фото на паспорт</a
-            >
+            >Сделать фото на паспорт</button>
           </p>
         </div>
 
@@ -205,9 +205,9 @@
             <strong>Фото для Госуслуг</strong>
             <span>Общий сервис без привязки к документу</span>
           </a>
-          <a class="doc-card" href="/?doc=passport_rf#start" data-metrika-goal="click_landing_cta" data-metrika-param="pasport_docs">
+          <a class="doc-card" href="#start" data-upload-open data-metrika-goal="photo_upload" data-metrika-param="pasport_docs">
             <strong>Сделать фото на паспорт</strong>
-            <span>Превью до оплаты</span>
+            <span>Превью до оплаты · на этой странице</span>
           </a>
         </div>
       </section>
@@ -252,14 +252,17 @@
       <section class="section section-cta" id="start">
         <div class="cta-box">
           <h2>Фото на паспорт за 30 секунд</h2>
-          <p>Превью до оплаты. Не приняли из‑за формата — переделаем.</p>
-          <a
-            class="btn btn-dark"
-            href="/?doc=passport_rf#start"
-            data-metrika-goal="click_landing_cta"
-            data-metrika-param="pasport_bottom"
-            >Сделать фото на паспорт</a
-          >
+          <p>Загрузите селфи и посмотрите результат до оплаты.</p>
+          <div class="upload">
+            <button
+              class="btn btn-dark"
+              type="button"
+              data-upload-open
+              data-metrika-goal="photo_upload"
+              data-metrika-param="pasport_bottom"
+            >Загрузить или сделать</button>
+            <small>JPG, PNG, WebP, HEIC · до 20 МБ</small>
+          </div>
         </div>
       </section>
     </main>
@@ -282,17 +285,197 @@
       <p class="footer-copy">© Госфото · ИП Бутов А.&nbsp;С.</p>
     </footer>
 
-    <script>
-      (function () {
-        const toggle = document.querySelector(".nav-toggle");
-        const nav = document.querySelector(".nav");
-        if (toggle && nav) {
-          toggle.addEventListener("click", function () {
-            const open = nav.classList.toggle("is-open");
-            toggle.setAttribute("aria-expanded", open ? "true" : "false");
-          });
-        }
-      })();
-    </script>
+    <dialog class="chooser-dialog" id="chooser-dialog" aria-labelledby="chooser-dialog-title">
+      <div class="chooser-dialog-inner">
+        <div class="chooser-head">
+          <h2 id="chooser-dialog-title">Добавьте фото</h2>
+          <button class="chooser-close" type="button" id="chooser-close" aria-label="Закрыть" data-metrika-goal="click_chooser_close">
+            ×
+          </button>
+        </div>
+        <p class="chooser-lead">Выберите снимок из галереи или сделайте новое селфи.</p>
+        <div class="chooser-consent">
+          <label>
+            <input type="checkbox" id="chooser-consent" />
+            <span
+              >Согласен на обработку загружаемого фото,
+              <a href="/privacy" target="_blank" rel="noopener">политикой конфиденциальности</a>
+              и <a href="/offer" target="_blank" rel="noopener">офертой</a>.</span
+            >
+          </label>
+        </div>
+        <div class="chooser-slots">
+          <button class="photo-slot" type="button" id="slot-choose" aria-label="Загрузить фото" data-metrika-goal="photo_choose_open">
+            <span class="photo-slot-preview" id="preview-choose" hidden></span>
+            <span class="photo-slot-placeholder">
+              <span class="photo-slot-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                  <rect
+                    x="8"
+                    y="12"
+                    width="32"
+                    height="24"
+                    rx="4"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                  />
+                  <path
+                    d="M16 28l6-7 5 5 3-3 6 7"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="18" cy="18" r="2.2" fill="currentColor" />
+                </svg>
+              </span>
+              <strong>Загрузить фото</strong>
+              <small>JPG, PNG, WebP, HEIC · до 20 МБ</small>
+            </span>
+          </button>
+          <button class="photo-slot" type="button" id="slot-camera" aria-label="Сделать новое" data-metrika-goal="photo_camera">
+            <span class="photo-slot-preview" id="preview-camera" hidden></span>
+            <span class="photo-slot-placeholder">
+              <span class="photo-slot-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="40" height="40" fill="none">
+                  <rect
+                    x="6"
+                    y="14"
+                    width="36"
+                    height="24"
+                    rx="5"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                  />
+                  <path
+                    d="M18 14l2.5-4h7L30 14"
+                    stroke="currentColor"
+                    stroke-width="2.2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <circle cx="24" cy="26" r="7" stroke="currentColor" stroke-width="2.2" />
+                </svg>
+              </span>
+              <strong>Сделать новое</strong>
+              <small>Фронтальная камера</small>
+            </span>
+          </button>
+        </div>
+        <p class="chooser-error" id="chooser-error" hidden></p>
+        <input
+          type="file"
+          id="input-choose"
+          accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.webp,.heic,.heif"
+          hidden
+        />
+      </div>
+    </dialog>
+
+    <dialog class="chooser-dialog" id="doc-type-dialog" aria-labelledby="doc-type-dialog-title">
+      <div class="chooser-dialog-inner">
+        <div class="chooser-head">
+          <h2 id="doc-type-dialog-title">Какой документ?</h2>
+          <button
+            class="chooser-close"
+            type="button"
+            id="doc-type-close"
+            aria-label="Закрыть"
+            data-metrika-goal="click_doc_type_close"
+          >
+            ×
+          </button>
+        </div>
+        <p class="chooser-lead">
+          От этого зависит разрешение файла: паспорт РФ — 600 dpi, загран — 300 dpi.
+        </p>
+        <div class="doc-type-actions">
+          <button
+            class="btn btn-primary"
+            type="button"
+            id="doc-type-passport"
+            data-doc-type="passport_rf"
+            data-metrika-goal="doc_type_select"
+            data-metrika-param="passport_rf"
+          >
+            Паспорт РФ
+          </button>
+          <button
+            class="btn btn-dark"
+            type="button"
+            id="doc-type-zagran"
+            data-doc-type="zagran"
+            data-metrika-goal="doc_type_select"
+            data-metrika-param="zagran"
+          >
+            Загранпаспорт
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="camera-dialog" id="camera-dialog" aria-labelledby="camera-dialog-title">
+      <div class="camera-dialog-inner">
+        <div class="chooser-head">
+          <h2 id="camera-dialog-title">Сделать селфи</h2>
+          <button class="chooser-close" type="button" id="camera-close" aria-label="Закрыть" data-metrika-goal="click_camera_close">
+            ×
+          </button>
+        </div>
+        <div class="camera-stage">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="camera-canvas" hidden></canvas>
+        </div>
+        <p class="chooser-error" id="camera-error" hidden></p>
+        <div class="camera-actions">
+          <button class="btn btn-dark" type="button" id="camera-back" data-metrika-goal="click_camera_back">Назад</button>
+          <button class="btn btn-primary" type="button" id="camera-shutter" data-metrika-goal="photo_shutter">Сфотографировать</button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="notice-dialog" id="result-dialog" aria-labelledby="result-dialog-title">
+      <div class="notice-dialog-inner result-dialog-inner">
+        <h2 id="result-dialog-title">Готовим фото</h2>
+        <div class="result-stage" id="result-stage" hidden>
+          <img id="result-image" class="result-image" alt="Загруженное фото" />
+          <div class="result-progress" id="result-progress" hidden>
+            <div class="result-progress-track" aria-hidden="true">
+              <div class="result-progress-bar" id="result-progress-bar"></div>
+            </div>
+            <p class="result-progress-step" id="result-progress-step" aria-live="polite">
+              Проверяем фото…
+            </p>
+            <ol class="result-progress-list" id="result-progress-list" aria-hidden="true">
+              <li data-step="0">Проверка</li>
+              <li data-step="1">Фон</li>
+              <li data-step="2">Кадр</li>
+              <li data-step="3">Файл</li>
+            </ol>
+          </div>
+        </div>
+        <p id="result-status" class="result-status">Обрабатываем снимок…</p>
+        <p class="chooser-error" id="result-error" hidden></p>
+        <div class="result-actions">
+          <button class="btn btn-ghost" type="button" id="result-close" data-metrika-goal="click_result_close">
+            Закрыть
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog class="notice-dialog" id="update-dialog" aria-labelledby="update-dialog-title" hidden>
+      <form method="dialog" class="notice-dialog-inner">
+        <h2 id="update-dialog-title">Сейчас идёт обновление</h2>
+        <p>
+          Извините, загрузка фото пока недоступна. Мы обновляем сервис и скоро
+          вернём эту возможность.
+        </p>
+        <button class="btn btn-primary" value="ok" id="update-ok" data-metrika-goal="click_update_ok">Понятно</button>
+      </form>
+    </dialog>
+
+    <script src="/js/resume.js?v=20260912-pay-cookie"></script>
+    <script src="/js/upload-flow.js?v=20260920-phase1c"></script>
   </body>
 </html>
