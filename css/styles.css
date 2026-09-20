@@ -1708,6 +1708,20 @@ body.result-page {
   max-width: 40rem;
 }
 
+.seo-text h2 {
+  margin-top: 1.75rem;
+}
+
+.seo-text h2:first-child {
+  margin-top: 0;
+}
+
+.seo-text a {
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
 .site-footer {
   max-width: var(--max);
   margin: 0 auto;
