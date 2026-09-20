@@ -36,8 +36,14 @@ jobs:
           test -f deploy/gosphoto.ru.nginx.conf
           test -f deploy/gosphoto.ru.nginx.http.conf
           test -f deploy/install-gosphoto-nginx.sh
+          test -f foto-na-zagranpasport.html
+          test -f foto-na-pasport.html
           grep -q 'Sitemap: https://gosphoto.ru/sitemap.xml' robots.txt
           grep -q 'https://gosphoto.ru/</loc>' sitemap.xml
+          grep -q 'https://gosphoto.ru/foto-na-zagranpasport</loc>' sitemap.xml
+          grep -q 'https://gosphoto.ru/foto-na-pasport</loc>' sitemap.xml
+          grep -q 'location = /foto-na-zagranpasport' deploy/gosphoto.ru.nginx.conf
+          grep -q 'location = /foto-na-pasport' deploy/gosphoto.ru.nginx.conf
           echo "Landing OK"
 
   deploy:

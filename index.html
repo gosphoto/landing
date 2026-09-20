@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="css/styles.css?v=20260828-pay-resume" />
+    <link rel="stylesheet" href="css/styles.css?v=20260920-phase1" />
     <!-- Yandex.Metrika counter -->
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -78,10 +78,10 @@
       </a>
 
       <nav class="nav" aria-label="Основное меню">
-        <a href="#docs" data-metrika-goal="click_nav" data-metrika-param="docs">Документы <span class="chev">▾</span></a>
-        <a href="#how" data-metrika-goal="click_nav" data-metrika-param="how">Как это работает <span class="chev">▾</span></a>
+        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="nav_zagran">Загран</a>
+        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="nav_pasport">Паспорт</a>
+        <a href="#how" data-metrika-goal="click_nav" data-metrika-param="how">Как это работает</a>
         <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="guarantee">Гарантия</a>
-        <a href="#about" data-metrika-goal="click_nav" data-metrika-param="about">О сервисе</a>
       </nav>
 
       <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false" data-metrika-goal="click_nav_toggle">
@@ -183,11 +183,11 @@
           <p>Цифровой файл под требования Госуслуг и нужный документ.</p>
         </div>
         <div class="docs-grid">
-          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="zagran">
+          <a class="doc-card" href="/foto-na-zagranpasport" data-metrika-goal="click_doc_card" data-metrika-param="zagran">
             <strong>Госуслуги · загран</strong>
             <span>JPEG для электронного заявления</span>
           </a>
-          <a class="doc-card" href="#start" data-metrika-goal="click_doc_card" data-metrika-param="passport_rf">
+          <a class="doc-card" href="/foto-na-pasport" data-metrika-goal="click_doc_card" data-metrika-param="passport_rf">
             <strong>Госуслуги · паспорт РФ</strong>
             <span>Файл для анкеты + печать при необходимости</span>
           </a>
@@ -269,7 +269,8 @@
         <p>Фото для Госуслуг · gosphoto.ru</p>
       </div>
       <div class="footer-links">
-        <a href="#docs" data-metrika-goal="click_nav" data-metrika-param="footer_docs">Документы</a>
+        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="footer_zagran">Загранпаспорт</a>
+        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="footer_pasport">Паспорт РФ</a>
         <a href="#how" data-metrika-goal="click_nav" data-metrika-param="footer_how">Как это работает</a>
         <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="footer_guarantee">Гарантия</a>
         <a href="/contacts" data-metrika-goal="click_contact_email" data-metrika-param="footer">Контакты</a>
@@ -502,6 +503,15 @@
           sessionStorage.setItem(DOC_TYPE_KEY, docType);
         } catch (_) {}
       }
+
+      (function applyDocFromQuery() {
+        try {
+          const raw = new URLSearchParams(location.search).get("doc");
+          if (!raw) return;
+          const alias = raw === "passport" ? "passport_rf" : raw;
+          if (DOC_TYPES.has(alias)) setStoredDocType(alias);
+        } catch (_) {}
+      })();
 
       const toggle = document.querySelector(".nav-toggle");
       const nav = document.querySelector(".nav");

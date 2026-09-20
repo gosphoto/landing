@@ -2146,3 +2146,147 @@ body.result-view-page {
 .result-view-missing {
   text-align: center;
 }
+
+/* Phase 1 document landings */
+.landing-doc-main {
+  width: min(var(--max), 100%);
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  box-sizing: border-box;
+}
+
+.landing-doc-hero {
+  max-width: 40rem;
+  margin: 0 0 2.5rem;
+}
+
+.landing-doc-eyebrow {
+  margin: 0 0 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.landing-doc-hero h1 {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.9rem, 4vw, 2.75rem);
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+}
+
+.landing-doc-lead {
+  margin: 0 0 1.4rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 36rem;
+}
+
+.landing-doc-section {
+  max-width: 40rem;
+  margin: 0 0 2.25rem;
+}
+
+.landing-doc-section h2 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.25rem, 2.5vw, 1.55rem);
+  letter-spacing: -0.02em;
+}
+
+.landing-doc-section p {
+  margin: 0.65rem 0;
+  line-height: 1.6;
+  color: rgba(26, 26, 26, 0.88);
+}
+
+.landing-doc-section a {
+  font-weight: 600;
+}
+
+.landing-doc-list {
+  margin: 0.75rem 0;
+  padding-left: 1.2rem;
+  line-height: 1.6;
+}
+
+.landing-doc-list li {
+  margin: 0.45rem 0;
+}
+
+.landing-doc-steps {
+  margin: 0.75rem 0;
+  padding-left: 1.35rem;
+  line-height: 1.6;
+}
+
+.landing-doc-steps li {
+  margin: 0.5rem 0;
+}
+
+.landing-doc-table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+}
+
+.landing-doc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.landing-doc-table th,
+.landing-doc-table td {
+  padding: 0.75rem 0.9rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.landing-doc-table thead th {
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: rgba(253, 203, 88, 0.28);
+}
+
+.landing-doc-table tbody th {
+  font-weight: 700;
+  white-space: nowrap;
+  width: 7.5rem;
+}
+
+.landing-doc-table tr:last-child th,
+.landing-doc-table tr:last-child td {
+  border-bottom: none;
+}
+
+.landing-doc-faq {
+  margin: 0.5rem 0 0;
+}
+
+.landing-doc-faq dt {
+  margin: 1rem 0 0.35rem;
+  font-weight: 700;
+}
+
+.landing-doc-faq dd {
+  margin: 0;
+  line-height: 1.55;
+  color: rgba(26, 26, 26, 0.88);
+}
+
+.landing-doc-page .section {
+  max-width: 46rem;
+}
+
+@media (max-width: 720px) {
+  .landing-doc-page .guarantee {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
