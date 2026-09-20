@@ -230,6 +230,10 @@ a {
   background: var(--yellow-deep);
 }
 
+.hero-cta {
+  margin: 1.5rem 0 0;
+}
+
 .hero-visual {
   position: relative;
   min-height: 34rem;

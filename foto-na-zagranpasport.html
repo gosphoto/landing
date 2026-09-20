@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260920-phase1" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260920-phase1b" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -62,7 +62,7 @@
         /></div
     ></noscript>
   </head>
-  <body class="landing-doc-page">
+  <body>
     <header class="site-header">
       <a class="logo" href="/" aria-label="Госфото">
         <span class="logo-mark" aria-hidden="true">
@@ -74,120 +74,160 @@
         </span>
         <span class="logo-text">Госфото</span>
       </a>
+
       <nav class="nav" aria-label="Основное меню">
-        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="zagran_to_pasport">Паспорт РФ</a>
+        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="zagran_nav_zagran" aria-current="page">Загран</a>
+        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="zagran_nav_pasport">Паспорт</a>
         <a href="/#how" data-metrika-goal="click_nav" data-metrika-param="zagran_how">Как это работает</a>
+        <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="zagran_guarantee">Гарантия</a>
       </nav>
+
       <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false" data-metrika-goal="click_nav_toggle">
         <span></span><span></span>
       </button>
     </header>
 
-    <main class="landing-doc-main">
-      <section class="landing-doc-hero">
-        <p class="landing-doc-eyebrow">Загранпаспорт · Госуслуги</p>
-        <h1>Фото на загранпаспорт онлайн</h1>
-        <p class="landing-doc-lead">
-          Загрузите селфи — получите JPEG под электронное заявление на загран.
-          Подходит для биометрического (10&nbsp;лет) и старого образца (5&nbsp;лет).
-          Сначала превью, оплата только если кадр готов.
-        </p>
-        <a
-          class="btn btn-primary"
-          href="/?doc=zagran#start"
-          data-metrika-goal="click_landing_cta"
-          data-metrika-param="zagran_hero"
-          >Сделать фото на загран</a
-        >
-      </section>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Фото на<br />загранпаспорт онлайн</h1>
+          <p class="hero-lead">
+            JPEG под заявление на загран на Госуслугах — для биометрии (10&nbsp;лет)
+            и старого образца (5&nbsp;лет). Сначала превью, оплата только если кадр готов.
+          </p>
+          <ul class="hero-trust">
+            <li>Под загрузку на Госуслуги</li>
+            <li>Оплата после превью</li>
+            <li>Не приняли — переделаем</li>
+          </ul>
+          <p class="hero-cta">
+            <a
+              class="btn btn-primary"
+              href="/?doc=zagran#start"
+              data-metrika-goal="click_landing_cta"
+              data-metrika-param="zagran_hero"
+              >Сделать фото на загран</a
+            >
+          </p>
+        </div>
 
-      <section class="landing-doc-section">
-        <h2>5 или 10 лет — один файл для портала</h2>
-        <p>
-          На Госуслугах вы выбираете тип заграна в самом заявлении. От сервиса
-          нужен цифровой снимок с правильным кадром и разрешением под загран
-          (у нас — 300&nbsp;dpi). Один и тот же файл подойдёт и для биометрии на
-          10&nbsp;лет, и для паспорта старого образца на 5&nbsp;лет — если
-          портал принимает электронную фотографию в вашей услуге.
-        </p>
-        <div class="landing-doc-table-wrap">
-          <table class="landing-doc-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Биометрия, 10 лет</th>
-                <th>Старый образец, 5 лет</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <th scope="row">Где фото</th>
-                <td>Часто снимают в МВД при выдаче; файл на портале — для заявления</td>
-                <td>Файл обычно нужен и на портале, и для печати</td>
-              </tr>
-              <tr>
-                <th scope="row">Что готовим</th>
-                <td colspan="2">JPEG 35×45 под загрузку в заявление на Госуслугах</td>
-              </tr>
-              <tr>
-                <th scope="row">Печать 10×15</th>
-                <td colspan="2">Можно скачать лист для МФЦ, если подаёте офлайн</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-panel">
+            <img
+              class="hero-person"
+              src="/assets/hero-jump.png"
+              alt=""
+              width="720"
+              height="960"
+            />
+          </div>
+          <div class="process-card process-before">
+            <img src="/assets/selfie-before.png" alt="" width="160" height="160" />
+          </div>
+          <svg class="process-arrow" viewBox="0 0 40 80" width="36" height="72" fill="none">
+            <path
+              d="M20 4c0 28-10 40-10 58"
+              stroke="#1a1a1a"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M4 54l6 12 12-8"
+              stroke="#1a1a1a"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <div class="process-card process-after">
+            <img src="/assets/passport-result.png" alt="" width="220" height="220" />
+            <span class="badge-time">3с</span>
+            <span class="guide-line"></span>
+          </div>
         </div>
       </section>
 
-      <section class="landing-doc-section">
-        <h2>Госуслуги или МФЦ</h2>
-        <ul class="landing-doc-list">
-          <li>
-            <strong>Через Госуслуги.</strong> Нужен файл, который портал примет в
-            анкете: формат, вес и кадр. Это основной сценарий Госфото.
-          </li>
-          <li>
-            <strong>Через МФЦ / МВД.</strong> Часто просят распечатку 35×45 на
-            листе 10×15 — её тоже можно скачать после оплаты.
-          </li>
-        </ul>
-        <p>
-          Если нужен только внутренний паспорт РФ — смотрите отдельную страницу
-          <a href="/foto-na-pasport">фото на паспорт</a>. Общие вопросы про
-          Госуслуги как сервис — на
-          <a href="/">главной Госфото</a>.
-        </p>
+      <section class="section" id="how">
+        <div class="section-head">
+          <h2>5 или 10 лет — один файл</h2>
+          <p>
+            Тип заграна выбираете в заявлении на Госуслугах. Мы готовим JPEG 35×45
+            с разрешением под загран (300&nbsp;dpi).
+          </p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span class="step-num">01</span>
+            <h3>Биометрия, 10 лет</h3>
+            <p>Файл для электронного заявления. На выдаче МВД может снять своё фото отдельно.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">02</span>
+            <h3>Старый образец, 5 лет</h3>
+            <p>Тот же JPEG под портал; при офлайн-подаче — лист 10×15 для печати.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">03</span>
+            <h3>Госуслуги или МФЦ</h3>
+            <p>Онлайн — файл в анкету. МФЦ — распечатка 35×45, если попросят.</p>
+          </article>
+        </div>
       </section>
 
-      <section class="landing-doc-section">
-        <h2>Как получить файл</h2>
-        <ol class="landing-doc-steps">
-          <li>Нажмите «Сделать фото на загран» — откроется загрузка с типом «загранпаспорт».</li>
-          <li>Загрузите селфи или снимите на фронтальную камеру.</li>
-          <li>Посмотрите превью. Если кадр устраивает — оплатите и скачайте JPEG.</li>
-          <li>Прикрепите файл в заявление на загранпаспорт на Госуслугах.</li>
-        </ol>
+      <section class="section section-muted" id="docs">
+        <div class="section-head">
+          <h2>Как получить файл</h2>
+          <p>От селфи до загрузки в заявление на загран.</p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span class="step-num">01</span>
+            <h3>Загрузите селфи</h3>
+            <p>Кнопка ниже открывает главную уже с типом «загранпаспорт».</p>
+          </article>
+          <article class="step">
+            <span class="step-num">02</span>
+            <h3>Проверьте превью</h3>
+            <p>Платите, только если кадр устраивает.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">03</span>
+            <h3>В заявление</h3>
+            <p>Скачайте JPEG и прикрепите на Госуслугах.</p>
+          </article>
+        </div>
+        <div class="docs-grid" style="margin-top: 2rem">
+          <a class="doc-card" href="/foto-na-pasport" data-metrika-goal="click_doc_card" data-metrika-param="zagran_to_pasport">
+            <strong>Нужен паспорт РФ?</strong>
+            <span>Отдельная страница — 600 dpi под внутренний паспорт</span>
+          </a>
+          <a class="doc-card" href="/" data-metrika-goal="click_doc_card" data-metrika-param="zagran_to_home">
+            <strong>Фото для Госуслуг</strong>
+            <span>Общий сервис без привязки к документу</span>
+          </a>
+          <a class="doc-card" href="/?doc=zagran#start" data-metrika-goal="click_landing_cta" data-metrika-param="zagran_docs">
+            <strong>Сделать фото на загран</strong>
+            <span>Превью до оплаты</span>
+          </a>
+        </div>
       </section>
 
-      <section class="landing-doc-section">
-        <h2>Частые вопросы</h2>
-        <dl class="landing-doc-faq">
-          <dt>Подойдёт ли одно фото и для 5, и для 10 лет?</dt>
-          <dd>
-            Да: мы готовим файл под загран для портала. Тип документа (5 или
-            10&nbsp;лет) вы выбираете в заявлении на Госуслугах.
-          </dd>
-          <dt>Нужно ли ехать в фотоателье?</dt>
-          <dd>
-            Для электронной подачи — нет. Селфи дома достаточно, если лицо
-            открыто и свет ровный. Для биометрии на выдаче МВД может снять своё
-            фото отдельно — это не отменяет файл в заявлении.
-          </dd>
-          <dt>Чем загран отличается от паспорта РФ в сервисе?</dt>
-          <dd>
-            Разрешением файла: загран — 300&nbsp;dpi, паспорт РФ — 600&nbsp;dpi.
-            Поэтому на старте важно выбрать правильный документ.
-          </dd>
-        </dl>
+      <section class="section" id="faq">
+        <div class="about">
+          <h2>Частые вопросы</h2>
+          <p>
+            <strong>Подойдёт ли одно фото и для 5, и для 10 лет?</strong><br />
+            Да. Тип документа выбираете в заявлении на Госуслугах — файл готовим под загран.
+          </p>
+          <p>
+            <strong>Нужно ли ехать в фотоателье?</strong><br />
+            Для электронной подачи — нет. Селфи дома достаточно при ровном свете и открытом лице.
+          </p>
+          <p>
+            <strong>Чем загран отличается от паспорта РФ?</strong><br />
+            Разрешением файла: загран — 300&nbsp;dpi, паспорт РФ — 600&nbsp;dpi. Поэтому важно выбрать документ на старте.
+          </p>
+        </div>
       </section>
 
       <section class="section" id="guarantee">
@@ -209,7 +249,7 @@
         </div>
       </section>
 
-      <section class="section section-cta">
+      <section class="section section-cta" id="start">
         <div class="cta-box">
           <h2>Фото на загран за 30 секунд</h2>
           <p>Превью до оплаты. Не приняли из‑за формата — переделаем.</p>
@@ -230,10 +270,11 @@
         <p>Фото для Госуслуг · gosphoto.ru</p>
       </div>
       <div class="footer-links">
-        <a href="/foto-na-zagranpasport">Загранпаспорт</a>
-        <a href="/foto-na-pasport">Паспорт РФ</a>
-        <a href="/">Госуслуги</a>
-        <a href="/contacts">Контакты</a>
+        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="footer_zagran">Загранпаспорт</a>
+        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="footer_pasport">Паспорт РФ</a>
+        <a href="/#how" data-metrika-goal="click_nav" data-metrika-param="footer_how">Как это работает</a>
+        <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="footer_guarantee">Гарантия</a>
+        <a href="/contacts" data-metrika-goal="click_contact_email" data-metrika-param="footer">Контакты</a>
         <a href="/rekvizity">Реквизиты</a>
         <a href="/privacy">Конфиденциальность</a>
         <a href="/offer">Оферта</a>

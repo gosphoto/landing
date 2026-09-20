@@ -21,7 +21,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260920-phase1" />
+    <link rel="stylesheet" href="/css/styles.css?v=20260920-phase1b" />
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -62,7 +62,7 @@
         /></div
     ></noscript>
   </head>
-  <body class="landing-doc-page">
+  <body>
     <header class="site-header">
       <a class="logo" href="/" aria-label="Госфото">
         <span class="logo-mark" aria-hidden="true">
@@ -74,116 +74,160 @@
         </span>
         <span class="logo-text">Госфото</span>
       </a>
+
       <nav class="nav" aria-label="Основное меню">
-        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="pasport_to_zagran">Загранпаспорт</a>
+        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="pasport_nav_zagran">Загран</a>
+        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="pasport_nav_pasport" aria-current="page">Паспорт</a>
         <a href="/#how" data-metrika-goal="click_nav" data-metrika-param="pasport_how">Как это работает</a>
+        <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="pasport_guarantee">Гарантия</a>
       </nav>
+
       <button class="nav-toggle" type="button" aria-label="Меню" aria-expanded="false" data-metrika-goal="click_nav_toggle">
         <span></span><span></span>
       </button>
     </header>
 
-    <main class="landing-doc-main">
-      <section class="landing-doc-hero">
-        <p class="landing-doc-eyebrow">Паспорт РФ · Госуслуги</p>
-        <h1>Фото на паспорт онлайн</h1>
-        <p class="landing-doc-lead">
-          Цифровой снимок для заявления на внутренний паспорт РФ на Госуслугах —
-          при замене в 20 и 45&nbsp;лет, утере или смене данных. Сначала превью,
-          оплата только если файл готов к загрузке.
-        </p>
-        <a
-          class="btn btn-primary"
-          href="/?doc=passport_rf#start"
-          data-metrika-goal="click_landing_cta"
-          data-metrika-param="pasport_hero"
-          >Сделать фото на паспорт</a
-        >
-      </section>
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <h1>Фото на<br />паспорт онлайн</h1>
+          <p class="hero-lead">
+            Цифровой снимок для заявления на внутренний паспорт РФ на Госуслугах —
+            замена в 20 и 45&nbsp;лет, утеря или смена данных. Сначала превью,
+            оплата только если файл готов.
+          </p>
+          <ul class="hero-trust">
+            <li>Под загрузку на Госуслуги</li>
+            <li>Оплата после превью</li>
+            <li>Не приняли — переделаем</li>
+          </ul>
+          <p class="hero-cta">
+            <a
+              class="btn btn-primary"
+              href="/?doc=passport_rf#start"
+              data-metrika-goal="click_landing_cta"
+              data-metrika-param="pasport_hero"
+              >Сделать фото на паспорт</a
+            >
+          </p>
+        </div>
 
-      <section class="landing-doc-section">
-        <h2>Когда нужен файл на портале</h2>
-        <p>
-          Внутренний паспорт РФ чаще всего меняют в 20 и 45&nbsp;лет. Заявление
-          можно подать через Госуслуги: к анкете прикрепляют фотографию в
-          электронном виде. Мы готовим JPEG 35×45 с разрешением под паспорт РФ
-          (600&nbsp;dpi) — выше, чем для заграна.
-        </p>
-        <div class="landing-doc-table-wrap">
-          <table class="landing-doc-table">
-            <thead>
-              <tr>
-                <th>Ситуация</th>
-                <th>Что готовим</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Замена в 20 или 45 лет</td>
-                <td>Файл для заявления на Госуслугах</td>
-              </tr>
-              <tr>
-                <td>Утеря, порча, смена ФИО</td>
-                <td>Тот же JPEG под электронную анкету</td>
-              </tr>
-              <tr>
-                <td>Подача через МФЦ</td>
-                <td>При необходимости — лист 10×15 для печати</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="hero-panel">
+            <img
+              class="hero-person"
+              src="/assets/hero-jump.png"
+              alt=""
+              width="720"
+              height="960"
+            />
+          </div>
+          <div class="process-card process-before">
+            <img src="/assets/selfie-before.png" alt="" width="160" height="160" />
+          </div>
+          <svg class="process-arrow" viewBox="0 0 40 80" width="36" height="72" fill="none">
+            <path
+              d="M20 4c0 28-10 40-10 58"
+              stroke="#1a1a1a"
+              stroke-width="2.4"
+              stroke-linecap="round"
+            />
+            <path
+              d="M4 54l6 12 12-8"
+              stroke="#1a1a1a"
+              stroke-width="2.4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <div class="process-card process-after">
+            <img src="/assets/passport-result.png" alt="" width="220" height="220" />
+            <span class="badge-time">3с</span>
+            <span class="guide-line"></span>
+          </div>
         </div>
       </section>
 
-      <section class="landing-doc-section">
-        <h2>Паспорт РФ и загран — не путать в сервисе</h2>
-        <ul class="landing-doc-list">
-          <li>
-            <strong>Паспорт РФ.</strong> Выбирайте тип «Паспорт РФ» при загрузке:
-            файл собирается с 600&nbsp;dpi.
-          </li>
-          <li>
-            <strong>Загранпаспорт.</strong> Другое разрешение (300&nbsp;dpi) и
-            другой сценарий заявления —
-            <a href="/foto-na-zagranpasport">отдельная страница</a>.
-          </li>
-        </ul>
-        <p>
-          Общий сервис «фото для Госуслуг» без привязки к документу — на
-          <a href="/">главной</a>. Сюда приходите, если уже знаете, что нужен
-          именно внутренний паспорт.
-        </p>
+      <section class="section" id="how">
+        <div class="section-head">
+          <h2>Когда нужен файл на портале</h2>
+          <p>
+            JPEG 35×45 с разрешением под паспорт РФ (600&nbsp;dpi) — выше, чем для заграна.
+          </p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span class="step-num">01</span>
+            <h3>Замена в 20 или 45</h3>
+            <p>Файл для заявления на Госуслугах при плановой замене паспорта.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">02</span>
+            <h3>Утеря, порча, смена ФИО</h3>
+            <p>Тот же JPEG под электронную анкету на портале.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">03</span>
+            <h3>МФЦ при необходимости</h3>
+            <p>Лист 10×15 для печати, если попросят бумажный снимок.</p>
+          </article>
+        </div>
       </section>
 
-      <section class="landing-doc-section">
-        <h2>Как получить файл</h2>
-        <ol class="landing-doc-steps">
-          <li>Нажмите «Сделать фото на паспорт» — откроется загрузка с типом «паспорт РФ».</li>
-          <li>Загрузите селфи или снимите на камеру телефона.</li>
-          <li>Проверьте превью. Оплатите, только если кадр устраивает.</li>
-          <li>Скачайте JPEG и прикрепите к заявлению на паспорт на Госуслугах.</li>
-        </ol>
+      <section class="section section-muted" id="docs">
+        <div class="section-head">
+          <h2>Как получить файл</h2>
+          <p>От селфи до загрузки в заявление на паспорт РФ.</p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <span class="step-num">01</span>
+            <h3>Загрузите селфи</h3>
+            <p>Кнопка ниже открывает главную уже с типом «паспорт РФ».</p>
+          </article>
+          <article class="step">
+            <span class="step-num">02</span>
+            <h3>Проверьте превью</h3>
+            <p>Платите, только если кадр устраивает.</p>
+          </article>
+          <article class="step">
+            <span class="step-num">03</span>
+            <h3>В заявление</h3>
+            <p>Скачайте JPEG и прикрепите на Госуслугах.</p>
+          </article>
+        </div>
+        <div class="docs-grid" style="margin-top: 2rem">
+          <a class="doc-card" href="/foto-na-zagranpasport" data-metrika-goal="click_doc_card" data-metrika-param="pasport_to_zagran">
+            <strong>Нужен загран?</strong>
+            <span>Отдельная страница — 300 dpi под загранпаспорт</span>
+          </a>
+          <a class="doc-card" href="/" data-metrika-goal="click_doc_card" data-metrika-param="pasport_to_home">
+            <strong>Фото для Госуслуг</strong>
+            <span>Общий сервис без привязки к документу</span>
+          </a>
+          <a class="doc-card" href="/?doc=passport_rf#start" data-metrika-goal="click_landing_cta" data-metrika-param="pasport_docs">
+            <strong>Сделать фото на паспорт</strong>
+            <span>Превью до оплаты</span>
+          </a>
+        </div>
       </section>
 
-      <section class="landing-doc-section">
-        <h2>Частые вопросы</h2>
-        <dl class="landing-doc-faq">
-          <dt>Подойдёт ли фото с телефона?</dt>
-          <dd>
+      <section class="section" id="faq">
+        <div class="about">
+          <h2>Частые вопросы</h2>
+          <p>
+            <strong>Подойдёт ли фото с телефона?</strong><br />
             Да, если лицо открыто, фон однотонный светлый и нет сильных теней.
-            Мы подгоняем кадр и параметры файла под портал.
-          </dd>
-          <dt>Нужна ли печать, если подаю только онлайн?</dt>
-          <dd>
-            Для чистой электронной подачи достаточно JPEG. Лист 10×15 скачивайте,
-            если в МФЦ или МВД просят бумажный снимок.
-          </dd>
-          <dt>Это то же самое, что «фото на госуслуги»?</dt>
-          <dd>
-            Похожий сценарий, но здесь акцент на внутреннем паспорте РФ.
-            Универсальная посадка под портал — на главной Госфото.
-          </dd>
-        </dl>
+          </p>
+          <p>
+            <strong>Нужна ли печать при онлайн-подаче?</strong><br />
+            Для электронной подачи достаточно JPEG. Лист 10×15 — если в МФЦ попросят.
+          </p>
+          <p>
+            <strong>Это то же, что «фото на госуслуги»?</strong><br />
+            Похожий сценарий, но здесь акцент на внутреннем паспорте РФ. Универсальная посадка — на главной.
+          </p>
+        </div>
       </section>
 
       <section class="section" id="guarantee">
@@ -205,7 +249,7 @@
         </div>
       </section>
 
-      <section class="section section-cta">
+      <section class="section section-cta" id="start">
         <div class="cta-box">
           <h2>Фото на паспорт за 30 секунд</h2>
           <p>Превью до оплаты. Не приняли из‑за формата — переделаем.</p>
@@ -226,10 +270,11 @@
         <p>Фото для Госуслуг · gosphoto.ru</p>
       </div>
       <div class="footer-links">
-        <a href="/foto-na-zagranpasport">Загранпаспорт</a>
-        <a href="/foto-na-pasport">Паспорт РФ</a>
-        <a href="/">Госуслуги</a>
-        <a href="/contacts">Контакты</a>
+        <a href="/foto-na-zagranpasport" data-metrika-goal="click_nav" data-metrika-param="footer_zagran">Загранпаспорт</a>
+        <a href="/foto-na-pasport" data-metrika-goal="click_nav" data-metrika-param="footer_pasport">Паспорт РФ</a>
+        <a href="/#how" data-metrika-goal="click_nav" data-metrika-param="footer_how">Как это работает</a>
+        <a href="#guarantee" data-metrika-goal="click_nav" data-metrika-param="footer_guarantee">Гарантия</a>
+        <a href="/contacts" data-metrika-goal="click_contact_email" data-metrika-param="footer">Контакты</a>
         <a href="/rekvizity">Реквизиты</a>
         <a href="/privacy">Конфиденциальность</a>
         <a href="/offer">Оферта</a>
