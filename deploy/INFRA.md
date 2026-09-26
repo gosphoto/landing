@@ -50,7 +50,7 @@ dig +short www.gosphoto.ru A
 - `https://www.gosphoto.ru/*` → **301** на `https://gosphoto.ru$request_uri`
 - `https://gosphoto.ru/index.html` → **301** `/`
 - HTTP (80) для apex и www → **301** на `https://gosphoto.ru$request_uri`
-- Clean URL: `/foto-na-zagranpasport`, `/foto-na-pasport` (+ 301 с `.html`)
+- Clean URL: `/foto-na-zagranpasport`, `/foto-na-pasport`, `/ne-prinimaet-foto-na-gosuslugah`, `/kak-sdelat-foto-na-gosuslugi`, `/trebovaniya-k-foto-na-zagranpasport`, `/trebovaniya-k-foto-na-pasport`, `/trebovaniya-k-foto-na-gosuslugi` (+ 301 с `.html`)
 
 Вручную в Вебмастере (API не умеет регион):
 
