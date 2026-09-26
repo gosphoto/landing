@@ -27,7 +27,7 @@ Upload на странице (`data-doc-type`). В шапке — Загран +
 
 | Path | Угол | Статус |
 |------|------|--------|
-| `/ne-prinimaet-foto-na-gosuslugah` | отказы + `trustedphoto` | ✅ |
+| `/ne-prinimaet-foto-na-gosuslugah` | отказы портала | ✅ |
 | `/kak-sdelat-foto-na-gosuslugi` | съёмка дома | ✅ |
 | `/trebovaniya-k-foto-na-zagranpasport` | кадр/образец 5–10 | ✅ |
 | `/trebovaniya-k-foto-na-pasport` | требования паспорта РФ | ✅ |
