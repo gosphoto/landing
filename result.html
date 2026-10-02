@@ -869,7 +869,9 @@
                 ? "Готово к загрузке на Госуслуги — загранпаспорт (≥ 300 dpi)"
                 : "Готово к загрузке на Госуслуги — паспорт РФ (≥ 600 dpi)";
           }
-          const fullStatus = paid ? data.full || "pending" : null;
+          const fullStatus = !paid
+            ? null
+            : data.full || (data.digital_url ? "ready" : "pending");
           lastFullStatus = fullStatus;
           const previewBust = fullStatus === "ready" ? "?v=full" : "";
           const previewDigital = data.preview_digital_url
