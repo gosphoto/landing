@@ -137,14 +137,6 @@
                 </p>
               </div>
               <a
-                class="btn btn-ghost result-view-btn"
-                id="result-view-digital"
-                href="#"
-                hidden
-                data-metrika-goal="preview_view"
-                >Посмотреть</a
-              >
-              <a
                 class="btn btn-primary"
                 id="result-download"
                 href="#"
@@ -398,6 +390,7 @@
         const RESULT_ID_RE = /^[a-f0-9]{32}$/;
         const POLL_MS = 2500;
         const POLL_MAX = 48; // ~2 мин после возврата с оплаты
+        const FULL_POLL_MAX = 72; // ~3 мин, пока собирается полный кадр
         const statusEl = document.getElementById("result-status");
         const resultScreen = document.getElementById("result-screen");
         const resultMissing = document.getElementById("result-missing");
@@ -405,7 +398,6 @@
         const resultSpecsLead = document.getElementById("result-specs-lead");
         const resultSpecsBody = document.getElementById("result-specs-body");
         const resultDigitalImage = document.getElementById("result-digital-image");
-        const resultViewDigital = document.getElementById("result-view-digital");
         const resultPrintImage = document.getElementById("result-print-image");
         const resultDownload = document.getElementById("result-download");
         const resultDownloadPrint = document.getElementById("result-download-print");
@@ -434,6 +426,9 @@
         const resultScreenLead = document.getElementById("result-screen-lead");
         let pollTimer = null;
         let pollLeft = 0;
+        let fullPollTimer = null;
+        let fullPollLeft = 0;
+        let lastFullStatus = null;
         let paying = false;
         let payingResume = false;
         let emailing = false;
@@ -586,6 +581,50 @@
           pollLeft = 0;
         }
 
+        function stopFullPoll() {
+          if (fullPollTimer) {
+            clearInterval(fullPollTimer);
+            fullPollTimer = null;
+          }
+          fullPollLeft = 0;
+        }
+
+        function startFullPoll() {
+          if (fullPollTimer) return;
+          fullPollLeft = FULL_POLL_MAX;
+          fullPollTimer = setInterval(async () => {
+            fullPollLeft -= 1;
+            const id = parseResultId();
+            if (!id || fullPollLeft <= 0) {
+              stopFullPoll();
+              if (id && lastFullStatus === "pending") {
+                setPayStatus(
+                  "Фото ещё готовится. Обновите страницу через минуту.",
+                  true
+                );
+              }
+              return;
+            }
+            try {
+              const res = await fetch(`/api/result/${id}/payment-status`);
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok || !data.ok || !data.paid) return;
+              if (data.full === "pending") return;
+              stopFullPoll();
+              renderResult(data);
+              if (data.full === "ready") {
+                setPayStatus("Оплата прошла — скачивание доступно.", true);
+                if (resultDownload && !resultDownload.hidden) {
+                  resultDownload.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                  });
+                }
+              }
+            } catch (_) {}
+          }, POLL_MS);
+        }
+
         function startPoll(mode) {
           stopPoll();
           pollMode = mode === "resume" ? "resume" : "passport";
@@ -624,7 +663,7 @@
               reportPaySuccess(id, pollMode, "poll");
               if (pollMode === "resume") {
                 setResumePayStatus("Оплата прошла — скачивание доступно.", true);
-              } else {
+              } else if (data.full === "ready") {
                 setPayStatus("Оплата прошла — скачивание доступно.", true);
                 if (resultDownload && !resultDownload.hidden) {
                   resultDownload.scrollIntoView({
@@ -632,6 +671,13 @@
                     block: "center",
                   });
                 }
+              } else if (data.full === "error") {
+                setPayStatus(
+                  "Не удалось собрать фото. Обновите страницу",
+                  true
+                );
+              } else {
+                setPayStatus("Готовим фото после оплаты", true);
               }
             } catch (_) {}
           }, POLL_MS);
@@ -823,12 +869,18 @@
                 ? "Готово к загрузке на Госуслуги — загранпаспорт (≥ 300 dpi)"
                 : "Готово к загрузке на Госуслуги — паспорт РФ (≥ 600 dpi)";
           }
-          const previewDigital =
-            data.preview_digital_url || data.digital_url || "";
-          const previewPrint = data.preview_print_url || data.print_url || "";
+          const fullStatus = paid ? data.full || "pending" : null;
+          lastFullStatus = fullStatus;
+          const previewBust = fullStatus === "ready" ? "?v=full" : "";
+          const previewDigital = data.preview_digital_url
+            ? data.preview_digital_url + previewBust
+            : data.digital_url || "";
+          const previewPrint = data.preview_print_url
+            ? data.preview_print_url + previewBust
+            : data.print_url || "";
           const previewResume = data.preview_resume_url || data.resume_url || "";
-          const digitalUrl = data.digital_url;
-          const printUrl = data.print_url;
+          const digitalUrl = fullStatus === "ready" ? data.digital_url : null;
+          const printUrl = fullStatus === "ready" ? data.print_url : null;
           const resumeUrl = data.resume_url;
           const priceRub =
             data.price_rub != null && !Number.isNaN(Number(data.price_rub))
@@ -843,25 +895,8 @@
 
           if (resultDigitalImage && previewDigital) {
             resultDigitalImage.src = previewDigital;
-            if (!paid && resultId) {
-              resultDigitalImage.style.cursor = "pointer";
-              resultDigitalImage.onclick = () => {
-                reachGoal("preview_view", { result_id: resultId });
-                location.assign(`/result/${resultId}/view`);
-              };
-            } else {
-              resultDigitalImage.style.cursor = "";
-              resultDigitalImage.onclick = null;
-            }
-          }
-          if (resultViewDigital) {
-            if (!paid && resultId) {
-              resultViewDigital.href = `/result/${resultId}/view`;
-              resultViewDigital.hidden = false;
-            } else {
-              resultViewDigital.hidden = true;
-              resultViewDigital.removeAttribute("href");
-            }
+            resultDigitalImage.style.cursor = "";
+            resultDigitalImage.onclick = null;
           }
           if (previewPrint && resultPrintImage) {
             resultPrintImage.src = previewPrint;
@@ -892,7 +927,10 @@
           }
 
           if (resultPay) {
-            resultPay.hidden = paid;
+            resultPay.hidden = paid && fullStatus !== "pending" && fullStatus !== "error";
+          }
+          if (resultPayBtn) {
+            resultPayBtn.hidden = paid;
           }
           if (resultEmail) {
             resultEmail.hidden = !paid;
@@ -913,12 +951,15 @@
           if (resultPayNote) {
             if (paid) {
               resultPayNote.textContent = "";
+              resultPayNote.hidden = true;
               if (resultPayGuarantee) resultPayGuarantee.hidden = true;
             } else if (resultId && isPayPending(resultId, "passport")) {
+              resultPayNote.hidden = false;
               resultPayNote.textContent =
                 "Если уже оплатили — подождите, файлы откроются на этой странице.";
               if (resultPayGuarantee) resultPayGuarantee.hidden = true;
             } else {
+              resultPayNote.hidden = false;
               resultPayNote.textContent = `Одна оплата (${priceRub} ₽) открывает оба файла: JPEG для Госуслуг и лист 10×15.`;
               if (resultPayGuarantee) resultPayGuarantee.hidden = false;
             }
@@ -928,8 +969,18 @@
               GosphotoResume.clearSeenPaid(resultId);
             }
             if (pollMode === "passport") stopPoll();
-            setPayStatus("", false);
+            if (fullStatus === "pending") {
+              setPayStatus("Готовим фото после оплаты", true);
+              startFullPoll();
+            } else if (fullStatus === "error") {
+              stopFullPoll();
+              setPayStatus("Не удалось собрать фото. Обновите страницу", true);
+            } else {
+              stopFullPoll();
+              setPayStatus("", false);
+            }
           } else {
+            stopFullPoll();
             setEmailStatus("", false);
           }
 
@@ -1019,7 +1070,16 @@
                 renderResult(statusData);
                 reportPaySuccess(id, "passport", "instant");
               }
-              setPayStatus("Скачивание доступно.", true);
+              if (statusData.full === "pending") {
+                setPayStatus("Готовим фото после оплаты", true);
+              } else if (statusData.full === "error") {
+                setPayStatus(
+                  "Не удалось собрать фото. Обновите страницу",
+                  true
+                );
+              } else {
+                setPayStatus("Скачивание доступно.", true);
+              }
               paying = false;
               if (resultPayBtn) resultPayBtn.disabled = false;
               return;
@@ -1140,7 +1200,13 @@
           }
           emailing = true;
           if (resultEmailBtn) resultEmailBtn.disabled = true;
-          setEmailStatus("Отправляем…", true, null);
+          setEmailStatus(
+            lastFullStatus === "pending"
+              ? "Отправляем, фото ещё готовится"
+              : "Отправляем…",
+            true,
+            null
+          );
           try {
             const res = await fetch(`/api/result/${id}/email`, {
               method: "POST",
