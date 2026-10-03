@@ -1266,6 +1266,8 @@ body.result-page {
 
 .photo-guide.is-preparing .result-product-image,
 .photo-guide.is-preparing .photo-guide-overlay,
+.photo-guide.is-preparing .photo-guide-outer,
+.photo-guide.is-preparing .photo-guide-caption,
 .result-print-frame.is-preparing .result-product-image {
   visibility: hidden;
 }
