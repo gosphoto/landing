@@ -1360,11 +1360,8 @@ body.result-page {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .result-prep-spin,
   .result-prep-fill {
     animation: none;
-  }
-  .result-prep-fill {
     width: 40%;
   }
 }
