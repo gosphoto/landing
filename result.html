@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261003-prep4" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261003-flow" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -112,10 +112,20 @@
                       alt="Превью фото 35×45 для Госуслуг"
                     />
                     <div class="result-prep" id="result-digital-prep" hidden>
-                      <span class="result-prep-spin" aria-hidden="true"></span>
-                      <span class="result-prep-label">Готовим фото</span>
-                      <span class="result-prep-hint">Одна–две минуты. Не закрывайте страницу.</span>
-                      <span class="result-prep-track" aria-hidden="true"><span class="result-prep-fill"></span></span>
+                      <div class="result-progress is-active">
+                        <div class="result-progress-track" aria-hidden="true">
+                          <div class="result-progress-bar result-prep-bar is-waiting"></div>
+                        </div>
+                        <p class="result-progress-step result-prep-step" aria-live="polite">
+                          Проверяем лицо и качество снимка…
+                        </p>
+                        <ol class="result-progress-list result-prep-list" aria-hidden="true">
+                          <li data-step="0" class="is-current">Проверка</li>
+                          <li data-step="1">Фон</li>
+                          <li data-step="2">Кадр</li>
+                          <li data-step="3">Файл</li>
+                        </ol>
+                      </div>
                     </div>
                     <div class="photo-guide-overlay" aria-hidden="true">
                       <span class="photo-guide-band"></span>
@@ -164,10 +174,20 @@
                   hidden
                 />
                 <div class="result-prep" id="result-print-prep" hidden>
-                  <span class="result-prep-spin" aria-hidden="true"></span>
-                  <span class="result-prep-label">Готовим лист</span>
-                  <span class="result-prep-hint">Одна–две минуты. Не закрывайте страницу.</span>
-                  <span class="result-prep-track" aria-hidden="true"><span class="result-prep-fill"></span></span>
+                  <div class="result-progress is-active">
+                    <div class="result-progress-track" aria-hidden="true">
+                      <div class="result-progress-bar result-prep-bar is-waiting"></div>
+                    </div>
+                    <p class="result-progress-step result-prep-step">
+                      Проверяем лицо и качество снимка…
+                    </p>
+                    <ol class="result-progress-list result-prep-list" aria-hidden="true">
+                      <li data-step="0" class="is-current">Проверка</li>
+                      <li data-step="1">Фон</li>
+                      <li data-step="2">Кадр</li>
+                      <li data-step="3">Файл</li>
+                    </ol>
+                  </div>
                 </div>
               </div>
               <a
@@ -446,6 +466,35 @@
         let pollLeft = 0;
         let fullPollTimer = null;
         let fullPollLeft = 0;
+        let prepTimer = null;
+        let prepIndex = 0;
+        const PREP_INTERVAL_MS = 4000;
+        const PREP_STEPS = [
+          "Проверяем лицо и качество снимка…",
+          "Смотрим резкость и освещение…",
+          "Убеждаемся, что в кадре один человек…",
+          "Готовим кадр к обработке фона…",
+          "Убираем фон, делаем чисто белый…",
+          "Аккуратно обходим контур волос…",
+          "Убираем ореол и цветной контур у плеч…",
+          "Проверяем, что фон без теней…",
+          "Сохраняем черты лица один в один…",
+          "Кадрируем под формат 35×45 мм…",
+          "Выравниваем положение головы…",
+          "Проверяем отступы по ГОСТ / п. 34.3…",
+          "Готовим JPEG для загрузки на Госуслуги…",
+          "Собираем лист 10×15 с четырьмя фото…",
+          "Финальная проверка файла…",
+          "Ещё немного — нейросеть обрабатывает фон…",
+          "Почти готово, дожимаем качество…",
+          "Сохраняем результат…",
+        ];
+        const PREP_TAIL = [
+          "Нейросеть ещё работает над фоном…",
+          "Это занимает до пары минут — не закрывайте вкладку…",
+          "Доводим края и белый фон…",
+          "Совсем скоро будет готово…",
+        ];
         let lastFullStatus = null;
         let paying = false;
         let payingResume = false;
@@ -577,6 +626,67 @@
           resultPayResumeStatus.textContent = text || "";
         }
 
+        function prepEvent(index) {
+          const n = PREP_STEPS.length;
+          let text;
+          let pct;
+          if (index < n) {
+            text = PREP_STEPS[index];
+            pct = 5 + (85 * index) / Math.max(n - 1, 1);
+          } else {
+            text = PREP_TAIL[(index - n) % PREP_TAIL.length];
+            const over = index - n + 1;
+            pct = 90 + 9 * (1 - Math.exp(-over / 12));
+          }
+          let pctI = Math.round(Math.min(99, Math.max(1, pct)));
+          if (pctI >= 100) pctI = 99;
+          return { text, pct: pctI };
+        }
+
+        function phaseFromPct(pct) {
+          if (pct < 30) return 0;
+          if (pct < 55) return 1;
+          if (pct < 80) return 2;
+          return 3;
+        }
+
+        function paintPrep(index) {
+          const ev = prepEvent(index);
+          const active = phaseFromPct(ev.pct);
+          document.querySelectorAll(".result-prep-step").forEach((el) => {
+            el.textContent = ev.text;
+          });
+          document.querySelectorAll(".result-prep-bar").forEach((el) => {
+            el.style.width = ev.pct + "%";
+            el.classList.add("is-waiting");
+          });
+          document.querySelectorAll(".result-prep-list").forEach((list) => {
+            list.querySelectorAll("li").forEach((li) => {
+              const i = Number(li.getAttribute("data-step"));
+              li.classList.toggle("is-done", i < active);
+              li.classList.toggle("is-current", i === active);
+            });
+          });
+          setPayStatus(ev.text, true);
+        }
+
+        function startPrepFlow() {
+          if (prepTimer) return;
+          prepIndex = 0;
+          paintPrep(prepIndex);
+          prepTimer = setInterval(() => {
+            prepIndex += 1;
+            paintPrep(prepIndex);
+          }, PREP_INTERVAL_MS);
+        }
+
+        function stopPrepFlow() {
+          if (prepTimer) {
+            clearInterval(prepTimer);
+            prepTimer = null;
+          }
+        }
+
         function setPreparing(on) {
           if (resultDigitalGuide) {
             resultDigitalGuide.classList.toggle("is-preparing", on);
@@ -587,6 +697,8 @@
           if (resultDigitalPrep) resultDigitalPrep.hidden = !on;
           if (resultPrintPrep) resultPrintPrep.hidden = !on;
           if (on && resultPayBtn) resultPayBtn.hidden = true;
+          if (on) startPrepFlow();
+          else stopPrepFlow();
         }
 
         function setEmailStatus(text, show, kind) {
@@ -706,8 +818,6 @@
                   "Не удалось собрать фото. Обновите страницу",
                   true
                 );
-              } else {
-                setPayStatus("Готовим фото. Около минуты — не закрывайте страницу.", true);
               }
             } catch (_) {}
           }, POLL_MS);
@@ -1003,7 +1113,6 @@
             }
             if (pollMode === "passport") stopPoll();
             if (fullStatus === "pending") {
-              setPayStatus("Готовим фото. Около минуты — не закрывайте страницу.", true);
               startFullPoll();
             } else if (fullStatus === "error") {
               stopFullPoll();
@@ -1103,9 +1212,7 @@
                 renderResult(statusData);
                 reportPaySuccess(id, "passport", "instant");
               }
-              if (statusData.full === "pending") {
-                setPayStatus("Готовим фото. Около минуты — не закрывайте страницу.", true);
-              } else if (statusData.full === "error") {
+              if (statusData.full === "error") {
                 setPayStatus(
                   "Не удалось собрать фото. Обновите страницу",
                   true

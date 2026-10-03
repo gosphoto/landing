@@ -1293,12 +1293,9 @@ body.result-page {
   inset: 0;
   z-index: 4;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.7rem;
-  padding: 1rem;
-  text-align: center;
+  padding: 0.7rem 0.55rem;
   background: #fffdf6;
 }
 
@@ -1306,64 +1303,17 @@ body.result-page {
   display: none !important;
 }
 
-.result-prep-spin {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  border: 4px solid #efe8d4;
-  border-top-color: #e2a312;
-  animation: result-prep-spin 0.75s linear infinite;
+.result-prep .result-progress {
+  width: 100%;
 }
 
-.result-prep-label {
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-
-.result-prep-hint {
-  max-width: 12rem;
+.result-prep .result-progress-step {
   font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: #5c5c58;
+  line-height: 1.3;
 }
 
-.result-prep-track {
-  width: min(100%, 8.5rem);
-  height: 0.4rem;
-  border-radius: 999px;
-  background: #efe8d4;
-  overflow: hidden;
-}
-
-.result-prep-fill {
-  display: block;
-  height: 100%;
-  width: 8%;
-  border-radius: inherit;
-  background: var(--yellow-deep, #e2a312);
-  animation: result-prep-fill 100s linear forwards;
-}
-
-@keyframes result-prep-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes result-prep-fill {
-  to {
-    width: 92%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .result-prep-fill {
-    animation: none;
-    width: 40%;
-  }
+.result-prep .result-progress-list {
+  font-size: 0.62rem;
 }
 
 .result-product-image.is-resume {
