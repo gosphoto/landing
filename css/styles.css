@@ -1246,10 +1246,74 @@ body.result-page {
   padding: 0.1rem 0.28rem;
 }
 
+.result-print-frame {
+  position: relative;
+  width: 100%;
+  max-width: 11rem;
+  justify-self: center;
+}
+
+.result-print-frame .result-product-image.is-print {
+  max-width: none;
+  width: 100%;
+}
+
 .result-product-image.is-print {
   aspect-ratio: 10 / 15;
   object-fit: contain;
   max-width: 11rem;
+}
+
+.photo-guide.is-preparing .result-product-image,
+.photo-guide.is-preparing .photo-guide-overlay,
+.result-print-frame.is-preparing .result-product-image {
+  visibility: hidden;
+}
+
+.result-prep {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: #f4f4f1;
+}
+
+.result-prep[hidden] {
+  display: none !important;
+}
+
+.result-prep-shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, #f3f3f0 18%, #fff6dc 48%, #f3f3f0 78%);
+  background-size: 220% 100%;
+  animation: result-prep-sweep 1.35s ease-in-out infinite;
+}
+
+.result-prep-label {
+  position: relative;
+  z-index: 1;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+@keyframes result-prep-sweep {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result-prep-shimmer {
+    animation: none;
+  }
 }
 
 .result-product-image.is-resume {
@@ -1311,6 +1375,13 @@ body.result-page {
 .result-pay-btn {
   min-width: min(100%, 280px);
   font-size: 1.05rem;
+}
+
+.result-pay-btn[hidden],
+.result-pay-note[hidden],
+.result-pay-guarantee[hidden],
+.result-pay-status[hidden] {
+  display: none !important;
 }
 
 .result-pay-note,

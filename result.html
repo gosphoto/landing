@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260909-print-mail" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261003-prep" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -111,6 +111,10 @@
                       class="result-product-image is-passport"
                       alt="Превью фото 35×45 для Госуслуг"
                     />
+                    <div class="result-prep" id="result-digital-prep" hidden>
+                      <span class="result-prep-shimmer" aria-hidden="true"></span>
+                      <span class="result-prep-label">Готовим фото</span>
+                    </div>
                     <div class="photo-guide-overlay" aria-hidden="true">
                       <span class="photo-guide-band"></span>
                       <span class="photo-guide-line photo-guide-line--crown"></span>
@@ -150,12 +154,18 @@
             <article class="result-product">
               <h2>Для печати</h2>
               <p class="result-product-note">Лист 10×15 см · 4 фото 35×45</p>
-              <img
-                id="result-print-image"
-                class="result-product-image is-print"
-                alt="Превью листа 10×15 для печати"
-                hidden
-              />
+              <div class="result-print-frame" id="result-print-frame">
+                <img
+                  id="result-print-image"
+                  class="result-product-image is-print"
+                  alt="Превью листа 10×15 для печати"
+                  hidden
+                />
+                <div class="result-prep" id="result-print-prep" hidden>
+                  <span class="result-prep-shimmer" aria-hidden="true"></span>
+                  <span class="result-prep-label">Готовим лист</span>
+                </div>
+              </div>
               <a
                 class="btn btn-dark"
                 id="result-download-print"
@@ -398,6 +408,10 @@
         const resultSpecsLead = document.getElementById("result-specs-lead");
         const resultSpecsBody = document.getElementById("result-specs-body");
         const resultDigitalImage = document.getElementById("result-digital-image");
+        const resultDigitalGuide = document.getElementById("result-digital-guide");
+        const resultDigitalPrep = document.getElementById("result-digital-prep");
+        const resultPrintFrame = document.getElementById("result-print-frame");
+        const resultPrintPrep = document.getElementById("result-print-prep");
         const resultPrintImage = document.getElementById("result-print-image");
         const resultDownload = document.getElementById("result-download");
         const resultDownloadPrint = document.getElementById("result-download-print");
@@ -557,6 +571,18 @@
           }
           resultPayResumeStatus.hidden = false;
           resultPayResumeStatus.textContent = text || "";
+        }
+
+        function setPreparing(on) {
+          if (resultDigitalGuide) {
+            resultDigitalGuide.classList.toggle("is-preparing", on);
+          }
+          if (resultPrintFrame) {
+            resultPrintFrame.classList.toggle("is-preparing", on);
+          }
+          if (resultDigitalPrep) resultDigitalPrep.hidden = !on;
+          if (resultPrintPrep) resultPrintPrep.hidden = !on;
+          if (on && resultPayBtn) resultPayBtn.hidden = true;
         }
 
         function setEmailStatus(text, show, kind) {
@@ -873,6 +899,7 @@
             ? null
             : data.full || (data.digital_url ? "ready" : "pending");
           lastFullStatus = fullStatus;
+          setPreparing(fullStatus === "pending");
           const previewBust = fullStatus === "ready" ? "?v=full" : "";
           const previewDigital = data.preview_digital_url
             ? data.preview_digital_url + previewBust
@@ -932,7 +959,7 @@
             resultPay.hidden = paid && fullStatus !== "pending" && fullStatus !== "error";
           }
           if (resultPayBtn) {
-            resultPayBtn.hidden = paid;
+            resultPayBtn.hidden = paid || fullStatus === "pending";
           }
           if (resultEmail) {
             resultEmail.hidden = !paid;
