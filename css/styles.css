@@ -1272,49 +1272,100 @@ body.result-page {
   visibility: hidden;
 }
 
+.photo-guide.is-preparing .photo-guide-box {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+}
+
+.photo-guide.is-preparing .photo-guide-stage,
+.result-print-frame.is-preparing {
+  aspect-ratio: 35 / 45;
+  width: 100%;
+  background: #fffdf6;
+}
+
+.result-print-frame.is-preparing {
+  aspect-ratio: 10 / 15;
+}
+
 .result-prep {
   position: absolute;
   inset: 0;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background: #f4f4f1;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  padding: 1rem;
+  text-align: center;
+  background: #fffdf6;
 }
 
 .result-prep[hidden] {
   display: none !important;
 }
 
-.result-prep-shimmer {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(100deg, #f3f3f0 18%, #fff6dc 48%, #f3f3f0 78%);
-  background-size: 220% 100%;
-  animation: result-prep-sweep 1.35s ease-in-out infinite;
+.result-prep-spin {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 4px solid #efe8d4;
+  border-top-color: #e2a312;
+  animation: result-prep-spin 0.75s linear infinite;
 }
 
 .result-prep-label {
-  position: relative;
-  z-index: 1;
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--ink);
 }
 
-@keyframes result-prep-sweep {
-  0% {
-    background-position: 100% 0;
+.result-prep-hint {
+  max-width: 12rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: #5c5c58;
+}
+
+.result-prep-track {
+  width: min(100%, 8.5rem);
+  height: 0.4rem;
+  border-radius: 999px;
+  background: #efe8d4;
+  overflow: hidden;
+}
+
+.result-prep-fill {
+  display: block;
+  height: 100%;
+  width: 8%;
+  border-radius: inherit;
+  background: var(--yellow-deep, #e2a312);
+  animation: result-prep-fill 100s linear forwards;
+}
+
+@keyframes result-prep-spin {
+  to {
+    transform: rotate(360deg);
   }
-  100% {
-    background-position: -100% 0;
+}
+
+@keyframes result-prep-fill {
+  to {
+    width: 92%;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .result-prep-shimmer {
+  .result-prep-spin,
+  .result-prep-fill {
     animation: none;
+  }
+  .result-prep-fill {
+    width: 40%;
   }
 }
 

@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261003-prep2" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261003-prep3" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -112,8 +112,10 @@
                       alt="Превью фото 35×45 для Госуслуг"
                     />
                     <div class="result-prep" id="result-digital-prep" hidden>
-                      <span class="result-prep-shimmer" aria-hidden="true"></span>
+                      <span class="result-prep-spin" aria-hidden="true"></span>
                       <span class="result-prep-label">Готовим фото</span>
+                      <span class="result-prep-hint">Одна–две минуты. Не закрывайте страницу.</span>
+                      <span class="result-prep-track" aria-hidden="true"><span class="result-prep-fill"></span></span>
                     </div>
                     <div class="photo-guide-overlay" aria-hidden="true">
                       <span class="photo-guide-band"></span>
@@ -162,8 +164,10 @@
                   hidden
                 />
                 <div class="result-prep" id="result-print-prep" hidden>
-                  <span class="result-prep-shimmer" aria-hidden="true"></span>
+                  <span class="result-prep-spin" aria-hidden="true"></span>
                   <span class="result-prep-label">Готовим лист</span>
+                  <span class="result-prep-hint">Одна–две минуты. Не закрывайте страницу.</span>
+                  <span class="result-prep-track" aria-hidden="true"><span class="result-prep-fill"></span></span>
                 </div>
               </div>
               <a
@@ -703,7 +707,7 @@
                   true
                 );
               } else {
-                setPayStatus("Готовим фото после оплаты", true);
+                setPayStatus("Готовим фото. Около минуты — не закрывайте страницу.", true);
               }
             } catch (_) {}
           }, POLL_MS);
@@ -999,7 +1003,7 @@
             }
             if (pollMode === "passport") stopPoll();
             if (fullStatus === "pending") {
-              setPayStatus("Готовим фото после оплаты", true);
+              setPayStatus("Готовим фото. Около минуты — не закрывайте страницу.", true);
               startFullPoll();
             } else if (fullStatus === "error") {
               stopFullPoll();
@@ -1100,7 +1104,7 @@
                 reportPaySuccess(id, "passport", "instant");
               }
               if (statusData.full === "pending") {
-                setPayStatus("Готовим фото после оплаты", true);
+                setPayStatus("Готовим фото. Около минуты — не закрывайте страницу.", true);
               } else if (statusData.full === "error") {
                 setPayStatus(
                   "Не удалось собрать фото. Обновите страницу",
