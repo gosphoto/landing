@@ -297,20 +297,6 @@
             ></p>
           </div>
 
-          <!-- Demand probe: print + mail delivery (stub). Goal: result_print_mail -->
-          <div class="result-delivery" id="result-delivery" hidden>
-            <button
-              type="button"
-              class="btn btn-ghost"
-              id="result-delivery-btn"
-              data-print-mail
-              data-metrika-goal="result_print_mail"
-              data-metrika-param="after_pay"
-            >
-              Распечатать и отправить по почте
-            </button>
-          </div>
-
           <div class="result-review" id="result-review" hidden>
             <p>Госуслуги приняли фото? Напишите пару слов — опубликуем на сайте с вашего согласия.</p>
             <a
@@ -401,24 +387,6 @@
       </div>
     </footer>
 
-    <dialog
-      class="notice-dialog"
-      id="print-mail-dialog"
-      aria-labelledby="print-mail-title"
-    >
-      <div class="notice-dialog-inner">
-        <h2 id="print-mail-title">Печать и доставка</h2>
-        <p>Извините, функция в разработке.</p>
-        <button
-          class="btn btn-primary"
-          type="button"
-          id="print-mail-close"
-        >
-          Понятно
-        </button>
-      </div>
-    </dialog>
-
     <script>
       (function () {
         const RESULT_ID_RE = /^[a-f0-9]{32}$/;
@@ -456,10 +424,7 @@
         const resultEmailInput = document.getElementById("result-email-input");
         const resultEmailBtn = document.getElementById("result-email-btn");
         const resultEmailStatus = document.getElementById("result-email-status");
-        const resultDelivery = document.getElementById("result-delivery");
         const resultReview = document.getElementById("result-review");
-        const printMailDialog = document.getElementById("print-mail-dialog");
-        const printMailClose = document.getElementById("print-mail-close");
         const resultScreenTitle = document.getElementById("result-screen-title");
         const resultScreenLead = document.getElementById("result-screen-lead");
         let pollTimer = null;
@@ -583,8 +548,7 @@
                 goal === "pay_resume_start" ||
                 goal === "pay_success" ||
                 goal === "email_send" ||
-                goal === "preview_view" ||
-                goal === "result_print_mail")
+                goal === "preview_view")
             ) {
               params.result_id = id;
               if (goal === "download_digital" || goal === "download_print") {
@@ -1078,9 +1042,6 @@
           if (resultEmail) {
             resultEmail.hidden = !(paid && fullStatus === "ready");
           }
-          if (resultDelivery) {
-            resultDelivery.hidden = !paid;
-          }
           if (resultReview) {
             resultReview.hidden = !(paid && fullStatus === "ready");
           }
@@ -1396,36 +1357,6 @@
               event.preventDefault();
               sendResultEmail();
             }
-          });
-        }
-
-        function openPrintMailDialog() {
-          if (!printMailDialog) return;
-          if (typeof printMailDialog.showModal === "function") {
-            printMailDialog.showModal();
-            return;
-          }
-          printMailDialog.setAttribute("open", "");
-        }
-
-        function closePrintMailDialog() {
-          if (!printMailDialog) return;
-          if (typeof printMailDialog.close === "function") {
-            printMailDialog.close();
-            return;
-          }
-          printMailDialog.removeAttribute("open");
-        }
-
-        document.querySelectorAll("[data-print-mail]").forEach((button) => {
-          button.addEventListener("click", openPrintMailDialog);
-        });
-        if (printMailClose) {
-          printMailClose.addEventListener("click", closePrintMailDialog);
-        }
-        if (printMailDialog) {
-          printMailDialog.addEventListener("click", (event) => {
-            if (event.target === printMailDialog) closePrintMailDialog();
           });
         }
 
