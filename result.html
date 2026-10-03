@@ -966,13 +966,13 @@
             resultPayBtn.hidden = paid || fullStatus === "pending";
           }
           if (resultEmail) {
-            resultEmail.hidden = !paid;
+            resultEmail.hidden = !(paid && fullStatus === "ready");
           }
           if (resultDelivery) {
             resultDelivery.hidden = !paid;
           }
           if (resultReview) {
-            resultReview.hidden = !paid;
+            resultReview.hidden = !(paid && fullStatus === "ready");
           }
           if (resultPayBtn) {
             const pendingPay = resultId && isPayPending(resultId, "passport");
