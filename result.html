@@ -529,6 +529,31 @@
           return true;
         }
 
+        function reportOnce(storageKey, goal, params) {
+          try {
+            if (sessionStorage.getItem(storageKey) === "1") return;
+            sessionStorage.setItem(storageKey, "1");
+          } catch (_) {}
+          reachGoal(goal, params);
+        }
+
+        function reportFullFrame(id, status, docType) {
+          if (!id) return;
+          const goal =
+            status === "pending"
+              ? "full_pending"
+              : status === "ready"
+                ? "full_ready"
+                : status === "error"
+                  ? "full_error"
+                  : "";
+          if (!goal) return;
+          reportOnce(`gosphoto_${goal}_${id}`, goal, {
+            result_id: id,
+            doc_type: docType || "passport_rf",
+          });
+        }
+
         // Делегированный трекинг всех data-metrika-goal (кнопки и ссылки).
         document.addEventListener(
           "click",
@@ -708,6 +733,9 @@
                   "Фото ещё готовится. Обновите страницу через минуту.",
                   true
                 );
+                reportOnce(`gosphoto_full_wait_timeout_${id}`, "full_wait_timeout", {
+                  result_id: id,
+                });
               }
               return;
             }
@@ -1082,6 +1110,7 @@
               stopFullPoll();
               setPayStatus("", false);
             }
+            if (resultId) reportFullFrame(resultId, fullStatus, docType);
           } else {
             stopFullPoll();
             setEmailStatus("", false);
@@ -1412,6 +1441,9 @@
               doc_type: data.doc_type || "passport_rf",
               compliance: data.compliance?.pass ? "pass" : "soft",
               paid: data.paid ? "yes" : "no",
+              full: data.paid
+                ? data.full || (data.digital_url ? "ready" : "pending")
+                : "preview",
               resume_offer: data.resume_offer ? "yes" : "no",
               paid_resume: data.paid_resume ? "yes" : "no",
             });
