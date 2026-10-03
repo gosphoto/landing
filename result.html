@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261003-flow" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261003-actions" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -339,7 +339,7 @@
             </p>
           </div>
 
-          <div class="result-screen-actions">
+          <div class="result-screen-actions" id="result-actions">
             <a
               class="btn btn-primary"
               href="/#start"
@@ -425,6 +425,7 @@
         const resultEmailBtn = document.getElementById("result-email-btn");
         const resultEmailStatus = document.getElementById("result-email-status");
         const resultReview = document.getElementById("result-review");
+        const resultActions = document.getElementById("result-actions");
         const resultScreenTitle = document.getElementById("result-screen-title");
         const resultScreenLead = document.getElementById("result-screen-lead");
         let pollTimer = null;
@@ -1072,6 +1073,9 @@
           }
           if (resultReview) {
             resultReview.hidden = !(paid && fullStatus === "ready");
+          }
+          if (resultActions) {
+            resultActions.hidden = fullStatus === "pending";
           }
           if (resultPayBtn) {
             const pendingPay = resultId && isPayPending(resultId, "passport");
