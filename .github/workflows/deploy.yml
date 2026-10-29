@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  DEPLOY_HOST: 91.207.75.72
+  DEPLOY_HOST: 206.223.250.251
   DEPLOY_PATH: /opt/gosphoto-landing
   WEB_ROOT: /var/www/gosphoto.ru
   SITE_HOST: gosphoto.ru
