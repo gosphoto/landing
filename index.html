@@ -521,7 +521,6 @@
         "image/heic-sequence",
       ]);
       const PROCESS_API = "/api/process/stream";
-      const VALIDATE_API = "/api/validate";
       const DOC_TYPE_KEY = "gosphoto_doc_type";
       const DOC_TYPES = new Set(["passport_rf", "zagran"]);
 
@@ -832,32 +831,19 @@
         return null;
       }
 
-      async function maybeWarnTooCloseThen(file, source, continueFn) {
+      function maybeWarnTooCloseThen(file, source, continueFn) {
         if (!isMobileClient() || !tooCloseDialog) {
           continueFn();
           return;
         }
-        try {
-          const body = new FormData();
-          body.append("file", file, file.name || "selfie.jpg");
-          const res = await fetch(VALIDATE_API, { method: "POST", body });
-          const data = await res.json().catch(() => ({}));
-          const warnings = (data && data.warnings) || [];
-          if (res.ok && warnings.includes("camera_too_close")) {
-            reachGoal("too_close_warn_shown", {
-              mobile: 1,
-              source: source || "unknown",
-            });
-            pendingTooCloseContinue = continueFn;
-            closeDialog(chooserDialog);
-            closeDialog(cameraDialog);
-            showDialog(tooCloseDialog);
-            return;
-          }
-        } catch (_) {
-          /* soft path: validate failure must not block process */
-        }
-        continueFn();
+        reachGoal("too_close_warn_shown", {
+          mobile: 1,
+          source: source || "unknown",
+        });
+        pendingTooCloseContinue = continueFn;
+        closeDialog(chooserDialog);
+        closeDialog(cameraDialog);
+        showDialog(tooCloseDialog);
       }
 
       function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
