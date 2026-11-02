@@ -12,6 +12,7 @@ const ALLOWED_TYPES = new Set([
   "image/heic-sequence",
 ]);
 const PROCESS_API = "/api/process/stream";
+const VALIDATE_API = "/api/validate";
 const DOC_TYPE_KEY = "gosphoto_doc_type";
 const DOC_TYPES = new Set(["passport_rf", "zagran"]);
 
@@ -66,6 +67,8 @@ const docTypePassport = document.getElementById("doc-type-passport");
 const docTypeZagran = document.getElementById("doc-type-zagran");
 const cameraDialog = document.getElementById("camera-dialog");
 const updateDialog = document.getElementById("update-dialog");
+const tooCloseDialog = document.getElementById("too-close-dialog");
+const tooCloseOk = document.getElementById("too-close-ok");
 const resultDialog = document.getElementById("result-dialog");
 const resultStatus = document.getElementById("result-status");
 const resultStage = document.getElementById("result-stage");
@@ -79,6 +82,15 @@ const resultClose = document.getElementById("result-close");
 let resultPreviewUrl = null;
 let pendingDocFile = null;
 let pendingDocSource = "unknown";
+let pendingTooCloseContinue = null;
+
+function isMobileClient() {
+  try {
+    return window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+  } catch (_) {
+    return false;
+  }
+}
 
 function revokeResultPreview() {
   if (resultPreviewUrl) {
@@ -322,6 +334,34 @@ function validateImage(file) {
   return null;
 }
 
+async function maybeWarnTooCloseThen(file, source, continueFn) {
+  if (!isMobileClient() || !tooCloseDialog) {
+    continueFn();
+    return;
+  }
+  try {
+    const body = new FormData();
+    body.append("file", file, file.name || "selfie.jpg");
+    const res = await fetch(VALIDATE_API, { method: "POST", body });
+    const data = await res.json().catch(() => ({}));
+    const warnings = (data && data.warnings) || [];
+    if (res.ok && warnings.includes("camera_too_close")) {
+      reachGoal("too_close_warn_shown", {
+        mobile: 1,
+        source: source || "unknown",
+      });
+      pendingTooCloseContinue = continueFn;
+      closeDialog(chooserDialog);
+      closeDialog(cameraDialog);
+      showDialog(tooCloseDialog);
+      return;
+    }
+  } catch (_) {
+    /* soft path: validate failure must not block process */
+  }
+  continueFn();
+}
+
 function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
   if (!requireConsent()) return;
   const error = validateImage(file);
@@ -339,8 +379,17 @@ function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
   setError(errorEl, "");
   setPreview(previewEl, slotEl, file);
   if (goal) reachGoal(goal);
-  ensureDocTypeThenProcess(file, source || "unknown");
+  const src = source || "unknown";
+  maybeWarnTooCloseThen(file, src, () => ensureDocTypeThenProcess(file, src));
 }
+
+tooCloseOk?.addEventListener("click", () => {
+  reachGoal("too_close_warn_ok", { mobile: 1 });
+  const fn = pendingTooCloseContinue;
+  pendingTooCloseContinue = null;
+  closeDialog(tooCloseDialog);
+  if (fn) fn();
+});
 
 function ensureDocTypeThenProcess(file, source) {
   const existing = FIXED_DOC_TYPE || getStoredDocType();

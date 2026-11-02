@@ -441,7 +441,21 @@
       </form>
     </dialog>
 
+    <dialog class="notice-dialog" id="too-close-dialog" aria-labelledby="too-close-dialog-title">
+      <form method="dialog" class="notice-dialog-inner">
+        <h2 id="too-close-dialog-title">Отойдите подальше</h2>
+        <p>
+          Так Госуслуги реже отклоняют фото, и меньше искажений от близкого
+          фокуса. Держите камеру на расстоянии больше метра, используйте
+          селфи-палку или попросите другого человека сделать снимок. Лишнее по
+          краям обрежется автоматически.
+        </p>
+        <button class="btn btn-primary" value="ok" id="too-close-ok" data-metrika-goal="click_too_close_ok">Понятно</button>
+      </form>
+    </dialog>
+
+
     <script src="/js/resume.js?v=20260912-pay-cookie"></script>
-    <script src="/js/upload-flow.js?v=20260926-phase2"></script>
+    <script src="/js/upload-flow.js?v=20261102-too-close"></script>
   </body>
 </html>

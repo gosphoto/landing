@@ -493,6 +493,20 @@
       </form>
     </dialog>
 
+    <dialog class="notice-dialog" id="too-close-dialog" aria-labelledby="too-close-dialog-title">
+      <form method="dialog" class="notice-dialog-inner">
+        <h2 id="too-close-dialog-title">Отойдите подальше</h2>
+        <p>
+          Так Госуслуги реже отклоняют фото, и меньше искажений от близкого
+          фокуса. Держите камеру на расстоянии больше метра, используйте
+          селфи-палку или попросите другого человека сделать снимок. Лишнее по
+          краям обрежется автоматически.
+        </p>
+        <button class="btn btn-primary" value="ok" id="too-close-ok" data-metrika-goal="click_too_close_ok">Понятно</button>
+      </form>
+    </dialog>
+
+
     <script src="/js/resume.js?v=20260912-pay-cookie"></script>
     <script>
       const TRACK_CONVERSIONS = true;
@@ -507,6 +521,7 @@
         "image/heic-sequence",
       ]);
       const PROCESS_API = "/api/process/stream";
+      const VALIDATE_API = "/api/validate";
       const DOC_TYPE_KEY = "gosphoto_doc_type";
       const DOC_TYPES = new Set(["passport_rf", "zagran"]);
 
@@ -550,6 +565,8 @@
       const docTypeZagran = document.getElementById("doc-type-zagran");
       const cameraDialog = document.getElementById("camera-dialog");
       const updateDialog = document.getElementById("update-dialog");
+      const tooCloseDialog = document.getElementById("too-close-dialog");
+      const tooCloseOk = document.getElementById("too-close-ok");
       const resultDialog = document.getElementById("result-dialog");
       const resultStatus = document.getElementById("result-status");
       const resultStage = document.getElementById("result-stage");
@@ -563,6 +580,15 @@
       let resultPreviewUrl = null;
       let pendingDocFile = null;
       let pendingDocSource = "unknown";
+      let pendingTooCloseContinue = null;
+
+      function isMobileClient() {
+        try {
+          return window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
+        } catch (_) {
+          return false;
+        }
+      }
 
       function revokeResultPreview() {
         if (resultPreviewUrl) {
@@ -806,6 +832,34 @@
         return null;
       }
 
+      async function maybeWarnTooCloseThen(file, source, continueFn) {
+        if (!isMobileClient() || !tooCloseDialog) {
+          continueFn();
+          return;
+        }
+        try {
+          const body = new FormData();
+          body.append("file", file, file.name || "selfie.jpg");
+          const res = await fetch(VALIDATE_API, { method: "POST", body });
+          const data = await res.json().catch(() => ({}));
+          const warnings = (data && data.warnings) || [];
+          if (res.ok && warnings.includes("camera_too_close")) {
+            reachGoal("too_close_warn_shown", {
+              mobile: 1,
+              source: source || "unknown",
+            });
+            pendingTooCloseContinue = continueFn;
+            closeDialog(chooserDialog);
+            closeDialog(cameraDialog);
+            showDialog(tooCloseDialog);
+            return;
+          }
+        } catch (_) {
+          /* soft path: validate failure must not block process */
+        }
+        continueFn();
+      }
+
       function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
         if (!requireConsent()) return;
         const error = validateImage(file);
@@ -823,8 +877,17 @@
         setError(errorEl, "");
         setPreview(previewEl, slotEl, file);
         if (goal) reachGoal(goal);
-        ensureDocTypeThenProcess(file, source || "unknown");
+        const src = source || "unknown";
+        maybeWarnTooCloseThen(file, src, () => ensureDocTypeThenProcess(file, src));
       }
+
+      tooCloseOk?.addEventListener("click", () => {
+        reachGoal("too_close_warn_ok", { mobile: 1 });
+        const fn = pendingTooCloseContinue;
+        pendingTooCloseContinue = null;
+        closeDialog(tooCloseDialog);
+        if (fn) fn();
+      });
 
       function ensureDocTypeThenProcess(file, source) {
         const existing = getStoredDocType();
