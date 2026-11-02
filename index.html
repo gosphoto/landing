@@ -831,18 +831,14 @@
         return null;
       }
 
-      function maybeWarnTooCloseThen(file, source, continueFn) {
+      function warnTooCloseBeforeCamera(continueFn) {
         if (!isMobileClient() || !tooCloseDialog) {
           continueFn();
           return;
         }
-        reachGoal("too_close_warn_shown", {
-          mobile: 1,
-          source: source || "unknown",
-        });
+        reachGoal("too_close_warn_shown", { mobile: 1, source: "camera" });
         pendingTooCloseContinue = continueFn;
         closeDialog(chooserDialog);
-        closeDialog(cameraDialog);
         showDialog(tooCloseDialog);
       }
 
@@ -863,8 +859,7 @@
         setError(errorEl, "");
         setPreview(previewEl, slotEl, file);
         if (goal) reachGoal(goal);
-        const src = source || "unknown";
-        maybeWarnTooCloseThen(file, src, () => ensureDocTypeThenProcess(file, src));
+        ensureDocTypeThenProcess(file, source || "unknown");
       }
 
       tooCloseOk?.addEventListener("click", () => {
@@ -1186,7 +1181,7 @@
       });
       slotCamera?.addEventListener("click", () => {
         if (!requireConsent()) return;
-        openFrontCamera();
+        warnTooCloseBeforeCamera(() => openFrontCamera());
       });
 
       inputChoose?.addEventListener("change", () => {
