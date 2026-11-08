@@ -203,13 +203,6 @@
             </article>
           </div>
 
-          <div class="result-variants" id="result-variants" hidden>
-            <p class="result-variants-lead">
-              Два варианта обработки — выберите, какой подходит лучше
-            </p>
-            <div class="result-variants-grid" id="result-variants-grid"></div>
-          </div>
-
           <div class="result-pay" id="result-pay" hidden>
             <button
               type="button"
@@ -399,7 +392,7 @@
         const RESULT_ID_RE = /^[a-f0-9]{32}$/;
         const POLL_MS = 2500;
         const POLL_MAX = 48; // ~2 мин после возврата с оплаты
-        const FULL_POLL_MAX = 72; // ~3 мин, пока собирается полный кадр
+        const FULL_POLL_MAX = 12; // ~30 с — promote с preview почти мгновенный
         const statusEl = document.getElementById("result-status");
         const resultScreen = document.getElementById("result-screen");
         const resultMissing = document.getElementById("result-missing");
@@ -414,8 +407,6 @@
         const resultPrintImage = document.getElementById("result-print-image");
         const resultDownload = document.getElementById("result-download");
         const resultDownloadPrint = document.getElementById("result-download-print");
-        const resultVariants = document.getElementById("result-variants");
-        const resultVariantsGrid = document.getElementById("result-variants-grid");
         const resultEmailNote = document.getElementById("result-email-note");
         const resultPay = document.getElementById("result-pay");
         const resultPayBtn = document.getElementById("result-pay-btn");
@@ -1029,11 +1020,6 @@
           const previewResume = data.preview_resume_url || data.resume_url || "";
           const digitalUrl = fullStatus === "ready" ? data.digital_url : null;
           const printUrl = fullStatus === "ready" ? data.print_url : null;
-          const variants =
-            fullStatus === "ready" && Array.isArray(data.variants)
-              ? data.variants.filter((v) => v && v.digital_url)
-              : [];
-          const multiVariants = variants.length >= 2;
           const resumeUrl = data.resume_url;
           const priceRub =
             data.price_rub != null && !Number.isNaN(Number(data.price_rub))
@@ -1057,7 +1043,7 @@
           }
 
           if (resultDownload) {
-            if (paid && digitalUrl && !multiVariants) {
+            if (paid && digitalUrl) {
               resultDownload.href = digitalUrl;
               resultDownload.hidden = false;
               resultDownload.removeAttribute("aria-disabled");
@@ -1068,7 +1054,7 @@
             }
           }
           if (resultDownloadPrint) {
-            if (paid && printUrl && !multiVariants) {
+            if (paid && printUrl) {
               resultDownloadPrint.href = printUrl;
               resultDownloadPrint.hidden = false;
               resultDownloadPrint.removeAttribute("aria-disabled");
@@ -1078,62 +1064,9 @@
               resultDownloadPrint.setAttribute("aria-disabled", "true");
             }
           }
-
-          if (resultVariants && resultVariantsGrid) {
-            if (multiVariants) {
-              resultVariants.hidden = false;
-              resultVariantsGrid.innerHTML = variants
-                .map((v, i) => {
-                  const label = v.label || `Вариант ${i + 1}`;
-                  const vid = v.id || `v${i + 1}`;
-                  const preview =
-                    (v.preview_digital_url || v.digital_url || "") +
-                    (v.preview_digital_url || v.digital_url ? "?v=full" : "");
-                  const dig = v.digital_url || "";
-                  const prn = v.print_url || "";
-                  const fnameDig = `gosphoto-v${i + 1}-passport.jpg`;
-                  const fnamePrn = `gosphoto-v${i + 1}-10x15.jpg`;
-                  return (
-                    `<article class="result-variant" data-variant="${vid}">` +
-                    `<h2>${label}</h2>` +
-                    `<p class="result-product-note">JPEG 35×45 и лист 10×15</p>` +
-                    (preview
-                      ? `<img class="result-variant-image" src="${preview}" alt="${label}" />`
-                      : "") +
-                    `<div class="result-variant-actions">` +
-                    (dig
-                      ? `<a class="btn btn-primary" href="${dig}" download="${fnameDig}" data-metrika-goal="download_digital" data-variant="${vid}">Скачать JPEG</a>`
-                      : "") +
-                    (prn
-                      ? `<a class="btn btn-dark" href="${prn}" download="${fnamePrn}" data-metrika-goal="download_print" data-variant="${vid}">Скачать 10×15</a>`
-                      : "") +
-                    `</div></article>`
-                  );
-                })
-                .join("");
-              // Show first variant digital/print in the main cards as context.
-              const first = variants[0];
-              if (resultDigitalImage && first.preview_digital_url) {
-                resultDigitalImage.src = first.preview_digital_url + "?v=full";
-              } else if (resultDigitalImage && first.digital_url) {
-                resultDigitalImage.src = first.digital_url + "?v=full";
-              }
-              if (resultPrintImage && first.preview_print_url) {
-                resultPrintImage.src = first.preview_print_url + "?v=full";
-                resultPrintImage.hidden = false;
-              } else if (resultPrintImage && first.print_url) {
-                resultPrintImage.src = first.print_url + "?v=full";
-                resultPrintImage.hidden = false;
-              }
-            } else {
-              resultVariants.hidden = true;
-              resultVariantsGrid.innerHTML = "";
-            }
-          }
           if (resultEmailNote) {
-            resultEmailNote.textContent = multiVariants
-              ? "Пришлём все 4 файла: два варианта JPEG и два листа 10×15."
-              : "Пришлём оба файла: JPEG для Госуслуг и лист 10×15.";
+            resultEmailNote.textContent =
+              "Пришлём оба файла: JPEG для Госуслуг и лист 10×15.";
           }
 
           if (resultPay) {
