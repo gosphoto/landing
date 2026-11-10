@@ -82,6 +82,9 @@ let resultPreviewUrl = null;
 let pendingDocFile = null;
 let pendingDocSource = "unknown";
 let pendingTooCloseContinue = null;
+let pendingProcessFile = null;
+let pendingProcessSource = "unknown";
+let chooserReviewUrl = null;
 
 function isMobileClient() {
   try {
@@ -206,6 +209,13 @@ const previewCamera = document.getElementById("preview-camera");
 const chooserError = document.getElementById("chooser-error");
 const chooserConsent = document.getElementById("chooser-consent");
 const chooserConsentBox = document.querySelector(".chooser-consent");
+const chooserSlots = document.querySelector("#chooser-dialog .chooser-slots");
+const chooserLead = document.querySelector("#chooser-dialog .chooser-lead");
+const chooserTitle = document.getElementById("chooser-dialog-title");
+const chooserReview = document.getElementById("chooser-review");
+const chooserReviewImage = document.getElementById("chooser-review-image");
+const chooserProcess = document.getElementById("chooser-process");
+const chooserReviewChange = document.getElementById("chooser-review-change");
 
 function clearConsentError() {
   setError(chooserError, "");
@@ -317,10 +327,63 @@ function setError(el, message) {
 }
 
 function setPreview(previewEl, slotEl, file) {
+  if (!previewEl || !slotEl || !file) return;
   const url = URL.createObjectURL(file);
   previewEl.style.backgroundImage = `url("${url}")`;
   previewEl.hidden = false;
   slotEl.classList.add("has-preview");
+}
+
+function revokeChooserReview() {
+  if (chooserReviewUrl) {
+    URL.revokeObjectURL(chooserReviewUrl);
+    chooserReviewUrl = null;
+  }
+}
+
+function clearChooserReview() {
+  pendingProcessFile = null;
+  pendingProcessSource = "unknown";
+  revokeChooserReview();
+  if (chooserReviewImage) {
+    chooserReviewImage.removeAttribute("src");
+    chooserReviewImage.alt = "Выбранное фото";
+  }
+  if (chooserSlots) chooserSlots.hidden = false;
+  if (chooserReview) chooserReview.hidden = true;
+  if (chooserTitle) chooserTitle.textContent = "Добавьте фото";
+  if (chooserLead) {
+    chooserLead.textContent =
+      "Выберите снимок из галереи или сделайте новое селфи.";
+  }
+  [previewChoose, previewCamera].forEach((el) => {
+    if (!el) return;
+    el.hidden = true;
+    el.style.backgroundImage = "";
+  });
+  slotChoose?.classList.remove("has-preview");
+  slotCamera?.classList.remove("has-preview");
+}
+
+function showChooserReview(file, source) {
+  pendingProcessFile = file;
+  pendingProcessSource = source || "unknown";
+  revokeChooserReview();
+  chooserReviewUrl = URL.createObjectURL(file);
+  if (chooserReviewImage) {
+    chooserReviewImage.src = chooserReviewUrl;
+    chooserReviewImage.alt = "Выбранное фото";
+  }
+  if (chooserSlots) chooserSlots.hidden = true;
+  if (chooserReview) chooserReview.hidden = false;
+  if (chooserTitle) chooserTitle.textContent = "Проверьте фото";
+  if (chooserLead) {
+    chooserLead.textContent =
+      "Если снимок удачный — нажмите «Обработать». Можно выбрать другое.";
+  }
+  stopCamera();
+  closeDialog(cameraDialog);
+  showDialog(chooserDialog);
 }
 
 function validateImage(file) {
@@ -361,7 +424,7 @@ function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
   setError(errorEl, "");
   setPreview(previewEl, slotEl, file);
   if (goal) reachGoal(goal);
-  ensureDocTypeThenProcess(file, source || "unknown");
+  showChooserReview(file, source || "unknown");
 }
 
 tooCloseOk?.addEventListener("click", () => {
@@ -423,6 +486,7 @@ async function processPhoto(file, source, docType) {
   closeDialog(cameraDialog);
   closeDialog(chooserDialog);
   closeDialog(docTypeDialog);
+  clearChooserReview();
   setError(resultError, "");
 
   revokeResultPreview();
@@ -613,8 +677,27 @@ chooserConsent?.addEventListener("change", () => {
 function openUploadChooser() {
   trackFormspreeClick();
   clearConsentError();
+  if (pendingProcessFile) {
+    showChooserReview(pendingProcessFile, pendingProcessSource);
+    return;
+  }
   showDialog(chooserDialog);
 }
+chooserProcess?.addEventListener("click", () => {
+  if (!requireConsent()) return;
+  if (!pendingProcessFile) {
+    setError(chooserError, "Сначала выберите или сделайте фото.");
+    return;
+  }
+  reachGoal("photo_process_confirm", {
+    source: pendingProcessSource || "unknown",
+  });
+  ensureDocTypeThenProcess(pendingProcessFile, pendingProcessSource);
+});
+chooserReviewChange?.addEventListener("click", () => {
+  clearChooserReview();
+  setError(chooserError, "");
+});
 uploadBtn?.addEventListener("click", openUploadChooser);
 document.querySelectorAll("[data-upload-open]").forEach((el) => {
   el.addEventListener("click", (event) => {
@@ -639,7 +722,15 @@ resultDialog?.addEventListener("close", () => {
 });
 
 chooserClose?.addEventListener("click", () => {
+  clearChooserReview();
   closeDialog(chooserDialog);
+});
+chooserDialog?.addEventListener("close", () => {
+  // Keep pending file if we closed chooser to open doc-type picker.
+  if (pendingDocFile) return;
+  if (docTypeDialog && (docTypeDialog.open || docTypeDialog.hasAttribute("open"))) {
+    return;
+  }
 });
 docTypeClose?.addEventListener("click", () => {
   pendingDocFile = null;
@@ -664,6 +755,7 @@ document.querySelectorAll(".doc-card[data-metrika-param]").forEach((card) => {
 chooserDialog?.addEventListener("click", (event) => {
   if (event.target === chooserDialog) {
     reachGoal("click_chooser_close", { item: "backdrop" });
+    clearChooserReview();
     closeDialog(chooserDialog);
   }
 });

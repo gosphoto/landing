@@ -18,7 +18,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20260926-phase2" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261110-preview-confirm" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -328,6 +328,14 @@
             </span>
           </button>
         </div>
+        <div class="chooser-review" id="chooser-review" hidden>
+          <img class="chooser-review-image" id="chooser-review-image" alt="Выбранное фото" />
+          <p class="chooser-review-hint">Если снимок удачный — нажмите «Обработать». Можно выбрать другое.</p>
+          <div class="chooser-review-actions">
+            <button class="btn btn-dark" type="button" id="chooser-review-change">Выбрать другое</button>
+            <button class="btn btn-primary" type="button" id="chooser-process" data-metrika-goal="photo_process_confirm">Обработать</button>
+          </div>
+        </div>
         <p class="chooser-error" id="chooser-error" hidden></p>
         <input
           type="file"
@@ -456,6 +464,6 @@
 
 
     <script src="/js/resume.js?v=20260912-pay-cookie"></script>
-    <script src="/js/upload-flow.js?v=20261102-arm-length"></script>
+    <script src="/js/upload-flow.js?v=20261110-preview-confirm"></script>
   </body>
 </html>
