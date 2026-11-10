@@ -350,12 +350,14 @@ function clearChooserReview() {
     chooserReviewImage.alt = "Выбранное фото";
   }
   if (chooserSlots) chooserSlots.hidden = false;
-  if (chooserReview) chooserReview.hidden = true;
-  if (chooserTitle) chooserTitle.textContent = "Добавьте фото";
+  if (chooserConsentBox) chooserConsentBox.hidden = false;
   if (chooserLead) {
+    chooserLead.hidden = false;
     chooserLead.textContent =
       "Выберите снимок из галереи или сделайте новое селфи.";
   }
+  if (chooserReview) chooserReview.hidden = true;
+  if (chooserTitle) chooserTitle.textContent = "Добавьте фото";
   [previewChoose, previewCamera].forEach((el) => {
     if (!el) return;
     el.hidden = true;
@@ -375,12 +377,10 @@ function showChooserReview(file, source) {
     chooserReviewImage.alt = "Выбранное фото";
   }
   if (chooserSlots) chooserSlots.hidden = true;
+  if (chooserConsentBox) chooserConsentBox.hidden = true;
+  if (chooserLead) chooserLead.hidden = true;
   if (chooserReview) chooserReview.hidden = false;
   if (chooserTitle) chooserTitle.textContent = "Проверьте фото";
-  if (chooserLead) {
-    chooserLead.textContent =
-      "Если снимок удачный — нажмите «Обработать». Можно выбрать другое.";
-  }
   stopCamera();
   closeDialog(cameraDialog);
   showDialog(chooserDialog);
@@ -422,7 +422,6 @@ function finishWithFile(file, { goal, source, previewEl, slotEl, errorEl }) {
     return;
   }
   setError(errorEl, "");
-  setPreview(previewEl, slotEl, file);
   if (goal) reachGoal(goal);
   showChooserReview(file, source || "unknown");
 }

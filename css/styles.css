@@ -589,6 +589,12 @@ a {
   gap: 0.85rem;
 }
 
+.chooser-slots[hidden],
+.chooser-consent[hidden],
+.chooser-lead[hidden] {
+  display: none !important;
+}
+
 .photo-slot {
   position: relative;
   display: grid;
