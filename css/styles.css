@@ -1086,9 +1086,7 @@ body.result-page {
 
 .photo-guide.is-guide-off .photo-guide-overlay,
 .photo-guide.is-guide-off .photo-guide-outer {
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
+  display: none !important;
 }
 
 .photo-guide-band {
