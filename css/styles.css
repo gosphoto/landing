@@ -1326,6 +1326,10 @@ body.result-page {
   font-weight: 700;
 }
 
+#result-download {
+  gap: 0.35em;
+}
+
 #result-download.is-dl-attn {
   position: relative;
   box-shadow: 0 12px 28px rgba(253, 203, 88, 0.55);
