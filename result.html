@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261113-paid-dl" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261113-paid-dl2" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -1011,15 +1011,21 @@
           lastFullStatus = fullStatus;
           setPreparing(fullStatus === "pending");
           const previewBust = fullStatus === "ready" ? "?v=full" : "";
-          const previewDigital = data.preview_digital_url
-            ? data.preview_digital_url + previewBust
-            : data.digital_url || "";
-          const previewPrint = data.preview_print_url
-            ? data.preview_print_url + previewBust
-            : data.print_url || "";
-          const previewResume = data.preview_resume_url || data.resume_url || "";
           const digitalUrl = fullStatus === "ready" ? data.digital_url : null;
           const printUrl = fullStatus === "ready" ? data.print_url : null;
+          const showFullDigital = !!(paid && digitalUrl);
+          const showFullPrint = !!(paid && printUrl);
+          const previewDigital = showFullDigital
+            ? digitalUrl + previewBust
+            : data.preview_digital_url
+              ? data.preview_digital_url + previewBust
+              : data.digital_url || "";
+          const previewPrint = showFullPrint
+            ? printUrl + previewBust
+            : data.preview_print_url
+              ? data.preview_print_url + previewBust
+              : data.print_url || "";
+          const previewResume = data.preview_resume_url || data.resume_url || "";
           const resumeUrl = data.resume_url;
           const priceRub =
             data.price_rub != null && !Number.isNaN(Number(data.price_rub))
@@ -1031,15 +1037,22 @@
               ? Number(data.price_resume_rub)
               : 300;
           const resultId = data.result_id || parseResultId() || "";
+          const digitalGuide = document.getElementById("result-digital-guide");
 
           if (resultDigitalImage && previewDigital) {
             resultDigitalImage.src = previewDigital;
+            resultDigitalImage.alt = showFullDigital
+              ? "Фото 35×45 для Госуслуг"
+              : "Превью фото 35×45 для Госуслуг";
             resultDigitalImage.style.cursor = "";
             resultDigitalImage.onclick = null;
           }
           if (previewPrint && resultPrintImage) {
             resultPrintImage.src = previewPrint;
             resultPrintImage.hidden = false;
+          }
+          if (digitalGuide) {
+            digitalGuide.classList.toggle("is-guide-off", showFullDigital);
           }
 
           if (resultDownload) {
@@ -1049,10 +1062,12 @@
               resultDownload.removeAttribute("aria-disabled");
               resultDownload.innerHTML =
                 '<span class="result-dl-word">Скачать</span> JPEG';
-              resultDownload.classList.toggle(
-                "is-dl-attn",
-                fullStatus === "ready"
-              );
+              resultDownload.classList.add("is-dl-attn");
+              // Restart CSS animation after show/innerHTML swap
+              void resultDownload.offsetWidth;
+              resultDownload.classList.remove("is-dl-attn");
+              void resultDownload.offsetWidth;
+              resultDownload.classList.add("is-dl-attn");
             } else {
               resultDownload.hidden = true;
               resultDownload.removeAttribute("href");
