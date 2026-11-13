@@ -1316,6 +1316,34 @@ body.result-page {
   line-height: 1.35;
 }
 
+.photo-guide-caption.is-ready-download {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+#result-download.is-dl-attn .result-dl-word {
+  display: inline-block;
+  animation: result-dl-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes result-dl-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 0.82;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #result-download.is-dl-attn .result-dl-word {
+    animation: none;
+  }
+}
+
 .photo-guide-toggle {
   margin: 0.15rem 0 0;
   padding: 0;

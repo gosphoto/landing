@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261110-review-hide-slots" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261113-paid-dl" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
@@ -160,7 +160,7 @@
                 hidden
                 aria-disabled="true"
                 data-metrika-goal="download_digital"
-                >Скачать JPEG</a
+                ><span class="result-dl-word">Скачать</span> JPEG</a
               >
             </article>
             <article class="result-product">
@@ -1047,10 +1047,19 @@
               resultDownload.href = digitalUrl;
               resultDownload.hidden = false;
               resultDownload.removeAttribute("aria-disabled");
+              resultDownload.innerHTML =
+                '<span class="result-dl-word">Скачать</span> JPEG';
+              resultDownload.classList.toggle(
+                "is-dl-attn",
+                fullStatus === "ready"
+              );
             } else {
               resultDownload.hidden = true;
               resultDownload.removeAttribute("href");
               resultDownload.setAttribute("aria-disabled", "true");
+              resultDownload.classList.remove("is-dl-attn");
+              resultDownload.innerHTML =
+                '<span class="result-dl-word">Скачать</span> JPEG';
             }
           }
           if (resultDownloadPrint) {
@@ -1184,6 +1193,17 @@
               document.getElementById("result-digital-guide"),
               data
             );
+          }
+          const guideCaption = document.querySelector(
+            "#result-digital-guide [data-guide-caption]"
+          );
+          if (guideCaption) {
+            if (paid && fullStatus === "ready") {
+              guideCaption.textContent = "Готов к скачиванию";
+              guideCaption.classList.add("is-ready-download");
+            } else {
+              guideCaption.classList.remove("is-ready-download");
+            }
           }
           if (statusEl) statusEl.hidden = true;
           if (resultScreen) resultScreen.hidden = false;
