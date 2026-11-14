@@ -435,9 +435,10 @@ tooCloseOk?.addEventListener("click", () => {
 });
 
 function ensureDocTypeThenProcess(file, source) {
-  const existing = FIXED_DOC_TYPE || getStoredDocType();
-  if (existing) {
-    processPhoto(file, source, existing);
+  // Only skip the chooser on fixed landing pages (data-doc-type / GOSPHOTO_DOC_TYPE).
+  // Do not reuse sessionStorage from a previous photo — the next one may be another doc.
+  if (FIXED_DOC_TYPE) {
+    processPhoto(file, source, FIXED_DOC_TYPE);
     return;
   }
   pendingDocFile = file;
