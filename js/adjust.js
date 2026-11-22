@@ -111,11 +111,13 @@
           return {};
         });
         if (!res.ok || data.ok === false) throw new Error("adjust_failed");
-        if (mySeq !== seq) return;
         serverB = normalize(data.brightness != null ? data.brightness : brightness);
         serverC = normalize(data.contrast != null ? data.contrast : contrast);
-        currentB = serverB;
-        currentC = serverC;
+        if (mySeq !== seq) return;
+        if (!timer) {
+          currentB = serverB;
+          currentC = serverC;
+        }
         const urls = pickUrls(data);
         const token = Date.now().toString(36);
         if (o.digitalImg && urls.digital) o.digitalImg.src = bustUrl(urls.digital, token);
