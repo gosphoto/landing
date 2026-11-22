@@ -20,8 +20,9 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261113-paid-dl5" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261122-brightness" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
+    <script src="/js/brightness.js?v=20261122-slider"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -151,6 +152,22 @@
                 <p class="photo-guide-caption" data-guide-caption>
                   35×45 мм · сверху и голова — норма Госуслуг
                 </p>
+              </div>
+              <div class="brightness-controls" id="result-brightness-controls" hidden>
+                <label class="brightness-label" for="result-brightness">Яркость</label>
+                <input
+                  id="result-brightness"
+                  class="brightness-range"
+                  data-brightness
+                  type="range"
+                  min="0.7"
+                  max="1.35"
+                  step="0.01"
+                  value="1"
+                />
+                <button type="button" class="btn btn-ghost" data-brightness-reset hidden>
+                  Сбросить
+                </button>
               </div>
               <a
                 class="btn btn-primary"
@@ -989,6 +1006,8 @@
           }
         }
 
+        let brightnessCtl = null;
+
         function renderResult(data) {
           const paid = !!data.paid;
           const paidResume = !!data.paid_resume;
@@ -1054,6 +1073,29 @@
           }
           if (digitalGuide) {
             digitalGuide.classList.toggle("is-guide-off", showFullDigital);
+          }
+          if (window.GosphotoBrightness && resultId) {
+            if (!brightnessCtl) {
+              brightnessCtl = GosphotoBrightness.mount({
+                root: document.getElementById("result-brightness-controls"),
+                digitalImg: resultDigitalImage,
+                printImg: resultPrintImage,
+                resultId,
+                getBrightnessUrl: (rid) => `/api/result/${rid}/brightness`,
+                onApplied: (resp, token) => {
+                  if (resp.paid && resp.digital_url && resultDownload && !resultDownload.hidden) {
+                    resultDownload.href = `${resp.digital_url}${resp.digital_url.includes("?") ? "&" : "?"}bv=${token}`;
+                  }
+                  if (resp.paid && resp.print_url && resultDownloadPrint && !resultDownloadPrint.hidden) {
+                    resultDownloadPrint.href = `${resp.print_url}${resp.print_url.includes("?") ? "&" : "?"}bv=${token}`;
+                  }
+                },
+              });
+            }
+            if (brightnessCtl) {
+              brightnessCtl.applyFromServer(data.brightness);
+              brightnessCtl.show();
+            }
           }
 
           if (resultDownload) {

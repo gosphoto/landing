@@ -4,4 +4,6 @@ assert.strictEqual(b.normalize(1.25), 1.25);
 assert.strictEqual(b.normalize(9), 1.35);
 assert.strictEqual(b.isDirty(1), false);
 assert.strictEqual(b.isDirty(1.2), true);
+assert.strictEqual(typeof b.mount, "function");
+assert.strictEqual(b.mount({}), null);
 console.log("ok");
