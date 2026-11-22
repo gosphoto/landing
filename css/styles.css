@@ -828,15 +828,12 @@ a {
 }
 
 .brightness-controls {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
+  display: grid;
   gap: 0.75rem;
   margin: 0.75rem 0;
 }
 
 .brightness-error {
-  flex: 0 0 100%;
   margin: 0;
   font-size: 0.85rem;
   color: #b3261e;
@@ -853,12 +850,13 @@ a {
 }
 
 .brightness-range {
-  flex: 1;
+  width: 100%;
   min-width: 0;
   accent-color: var(--ink);
 }
 
 .brightness-controls .btn-ghost {
+  justify-self: start;
   padding: 0.35rem 0.75rem;
   font-size: 0.85rem;
 }

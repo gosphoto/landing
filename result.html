@@ -20,9 +20,9 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261122-brightness" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261122-adjust" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
-    <script src="/js/brightness.js?v=20261122-slider"></script>
+    <script src="/js/adjust.js?v=20261122-adjust"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -165,7 +165,18 @@
                   step="0.01"
                   value="1"
                 />
-                <button type="button" class="btn btn-ghost" data-brightness-reset hidden>
+                <label class="brightness-label" for="result-contrast">Контраст</label>
+                <input
+                  id="result-contrast"
+                  class="brightness-range"
+                  data-contrast
+                  type="range"
+                  min="0.7"
+                  max="1.35"
+                  step="0.01"
+                  value="1"
+                />
+                <button type="button" class="btn btn-ghost" data-adjust-reset hidden>
                   Сбросить
                 </button>
                 <p class="brightness-error" data-brightness-error role="status" hidden></p>
@@ -1007,7 +1018,7 @@
           }
         }
 
-        let brightnessCtl = null;
+        let adjustCtl = null;
 
         function renderResult(data) {
           const paid = !!data.paid;
@@ -1075,18 +1086,18 @@
           if (digitalGuide) {
             digitalGuide.classList.toggle("is-guide-off", showFullDigital);
           }
-          if (window.GosphotoBrightness && resultId && data.brightness_editable === true) {
-            if (!brightnessCtl) {
-              brightnessCtl = GosphotoBrightness.mount({
+          if (window.GosphotoAdjust && resultId && data.brightness_editable === true) {
+            if (!adjustCtl) {
+              adjustCtl = GosphotoAdjust.mount({
                 root: document.getElementById("result-brightness-controls"),
                 digitalImg: resultDigitalImage,
                 printImg: resultPrintImage,
                 resultId,
-                getBrightnessUrl: (rid) => `/api/result/${rid}/brightness`,
+                getAdjustUrl: (rid) => `/api/result/${rid}/adjust`,
                 onError: () => {
                   const el = document.querySelector("[data-brightness-error]");
                   if (!el) return;
-                  el.textContent = "Не удалось изменить яркость. Попробуйте ещё раз.";
+                  el.textContent = "Не удалось изменить фото. Попробуйте ещё раз.";
                   el.hidden = false;
                   clearTimeout(el._t);
                   el._t = setTimeout(() => {
@@ -1103,9 +1114,12 @@
                 },
               });
             }
-            if (brightnessCtl) {
-              brightnessCtl.applyFromServer(data.brightness);
-              brightnessCtl.show();
+            if (adjustCtl) {
+              adjustCtl.applyFromServer({
+                brightness: data.brightness,
+                contrast: data.contrast != null ? data.contrast : 1,
+              });
+              adjustCtl.show();
             }
           }
 
