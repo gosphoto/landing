@@ -111,9 +111,9 @@
           return {};
         });
         if (!res.ok || data.ok === false) throw new Error("adjust_failed");
+        if (mySeq !== seq) return;
         serverB = normalize(data.brightness != null ? data.brightness : brightness);
         serverC = normalize(data.contrast != null ? data.contrast : contrast);
-        if (mySeq !== seq) return;
         if (!timer) {
           currentB = serverB;
           currentC = serverC;
