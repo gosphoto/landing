@@ -28,3 +28,13 @@ Green: `ok` after adjust.js implementation.
 - RED: `node js/adjust.test.js` failed with next POST brightness `1.2` instead of `1.3`.
 - GREEN: `node js/adjust.test.js` -> ok
 - Regression: `node js/brightness.test.js` -> ok
+
+## Review fix: out-of-order POST success
+- Moved `if (mySeq !== seq) return;` before `serverB`/`serverC` assignment on the POST success path so stale responses cannot rewind the server baseline.
+- Added `testStaleSuccessDoesNotRewindServerBaseline` (newer response 1.3 applied first, stale 1.2 ignored; failed follow-up error reverts UI to 1.3 not 1.2).
+
+## Review fix (out-of-order) test results
+```
+$ node js/adjust.test.js
+ok
+```
