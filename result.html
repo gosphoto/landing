@@ -20,8 +20,9 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261113-paid-dl5" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261122-adjust" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
+    <script src="/js/adjust.js?v=20261122-adjust"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -151,6 +152,34 @@
                 <p class="photo-guide-caption" data-guide-caption>
                   35×45 мм · сверху и голова — норма Госуслуг
                 </p>
+              </div>
+              <div class="brightness-controls" id="result-brightness-controls" hidden>
+                <label class="brightness-label" for="result-brightness">Яркость</label>
+                <input
+                  id="result-brightness"
+                  class="brightness-range"
+                  data-brightness
+                  type="range"
+                  min="0.7"
+                  max="1.35"
+                  step="0.01"
+                  value="1"
+                />
+                <label class="brightness-label" for="result-contrast">Контраст</label>
+                <input
+                  id="result-contrast"
+                  class="brightness-range"
+                  data-contrast
+                  type="range"
+                  min="0.7"
+                  max="1.35"
+                  step="0.01"
+                  value="1"
+                />
+                <button type="button" class="btn btn-ghost" data-adjust-reset hidden>
+                  Сбросить
+                </button>
+                <p class="brightness-error" data-brightness-error role="status" hidden></p>
               </div>
               <a
                 class="btn btn-primary"
@@ -989,6 +1018,8 @@
           }
         }
 
+        let adjustCtl = null;
+
         function renderResult(data) {
           const paid = !!data.paid;
           const paidResume = !!data.paid_resume;
@@ -1054,6 +1085,42 @@
           }
           if (digitalGuide) {
             digitalGuide.classList.toggle("is-guide-off", showFullDigital);
+          }
+          if (window.GosphotoAdjust && resultId && data.brightness_editable === true) {
+            if (!adjustCtl) {
+              adjustCtl = GosphotoAdjust.mount({
+                root: document.getElementById("result-brightness-controls"),
+                digitalImg: resultDigitalImage,
+                printImg: resultPrintImage,
+                resultId,
+                getAdjustUrl: (rid) => `/api/result/${rid}/adjust`,
+                onError: () => {
+                  const el = document.querySelector("[data-brightness-error]");
+                  if (!el) return;
+                  el.textContent = "Не удалось изменить фото. Попробуйте ещё раз.";
+                  el.hidden = false;
+                  clearTimeout(el._t);
+                  el._t = setTimeout(() => {
+                    el.hidden = true;
+                  }, 4000);
+                },
+                onApplied: (resp, token) => {
+                  if (resp.paid && resp.digital_url && resultDownload && !resultDownload.hidden) {
+                    resultDownload.href = `${resp.digital_url}${resp.digital_url.includes("?") ? "&" : "?"}bv=${token}`;
+                  }
+                  if (resp.paid && resp.print_url && resultDownloadPrint && !resultDownloadPrint.hidden) {
+                    resultDownloadPrint.href = `${resp.print_url}${resp.print_url.includes("?") ? "&" : "?"}bv=${token}`;
+                  }
+                },
+              });
+            }
+            if (adjustCtl) {
+              adjustCtl.applyFromServer({
+                brightness: data.brightness,
+                contrast: data.contrast != null ? data.contrast : 1,
+              });
+              adjustCtl.show();
+            }
           }
 
           if (resultDownload) {

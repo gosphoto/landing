@@ -883,6 +883,40 @@ a {
   border: 1px solid rgba(15, 23, 42, 0.14);
 }
 
+.brightness-controls {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
+}
+
+.brightness-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b3261e;
+}
+
+.brightness-controls[hidden],
+.brightness-controls [hidden] {
+  display: none;
+}
+
+.brightness-label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.brightness-range {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--ink);
+}
+
+.brightness-controls .btn-ghost {
+  justify-self: start;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+}
+
 /* Full result screen (Visafoto-like, no payment) */
 body.result-page {
   min-height: 100vh;
