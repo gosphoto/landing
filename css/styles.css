@@ -830,8 +830,16 @@ a {
 .brightness-controls {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.75rem;
   margin: 0.75rem 0;
+}
+
+.brightness-error {
+  flex: 0 0 100%;
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b3261e;
 }
 
 .brightness-controls[hidden],

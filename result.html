@@ -168,6 +168,7 @@
                 <button type="button" class="btn btn-ghost" data-brightness-reset hidden>
                   Сбросить
                 </button>
+                <p class="brightness-error" data-brightness-error role="status" hidden></p>
               </div>
               <a
                 class="btn btn-primary"
@@ -1074,7 +1075,7 @@
           if (digitalGuide) {
             digitalGuide.classList.toggle("is-guide-off", showFullDigital);
           }
-          if (window.GosphotoBrightness && resultId) {
+          if (window.GosphotoBrightness && resultId && data.brightness_editable === true) {
             if (!brightnessCtl) {
               brightnessCtl = GosphotoBrightness.mount({
                 root: document.getElementById("result-brightness-controls"),
@@ -1082,6 +1083,16 @@
                 printImg: resultPrintImage,
                 resultId,
                 getBrightnessUrl: (rid) => `/api/result/${rid}/brightness`,
+                onError: () => {
+                  const el = document.querySelector("[data-brightness-error]");
+                  if (!el) return;
+                  el.textContent = "Не удалось изменить яркость. Попробуйте ещё раз.";
+                  el.hidden = false;
+                  clearTimeout(el._t);
+                  el._t = setTimeout(() => {
+                    el.hidden = true;
+                  }, 4000);
+                },
                 onApplied: (resp, token) => {
                   if (resp.paid && resp.digital_url && resultDownload && !resultDownload.hidden) {
                     resultDownload.href = `${resp.digital_url}${resp.digital_url.includes("?") ? "&" : "?"}bv=${token}`;
