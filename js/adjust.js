@@ -62,8 +62,24 @@
     let currentB = DEFAULT;
     let currentC = DEFAULT;
     let timer = null;
-    let inflight = 0;
-    let seq = 0;
+    let inflight = false;
+    let queued = false;
+    const preload =
+      o.preload ||
+      function (url, cb) {
+        if (typeof Image === "undefined") {
+          cb(true);
+          return;
+        }
+        const probe = new Image();
+        probe.onload = function () {
+          cb(true);
+        };
+        probe.onerror = function () {
+          cb(false);
+        };
+        probe.src = url;
+      };
 
     function paint() {
       const ratioB = currentB / serverB;
@@ -97,10 +113,34 @@
       rootEl.hidden = false;
     }
 
+    function finish() {
+      inflight = false;
+      if (queued) {
+        queued = false;
+        if (!timer) fire();
+      }
+    }
+
+    // Serialize: never run two POSTs at once; when one finishes, send the latest pair once.
+    function fire() {
+      if (inflight) {
+        queued = true;
+        return;
+      }
+      if (
+        Math.abs(currentB - serverB) < 0.0005 &&
+        Math.abs(currentC - serverC) < 0.0005
+      ) {
+        paint();
+        return;
+      }
+      send(currentB, currentC);
+    }
+
     async function send(brightness, contrast) {
-      const mySeq = ++seq;
-      inflight += 1;
+      inflight = true;
       const id = o.resultId;
+      let handedOff = false;
       try {
         const res = await fetch(getUrl(id), {
           method: "POST",
@@ -111,27 +151,63 @@
           return {};
         });
         if (!res.ok || data.ok === false) throw new Error("adjust_failed");
-        if (mySeq !== seq) return;
-        serverB = normalize(data.brightness != null ? data.brightness : brightness);
-        serverC = normalize(data.contrast != null ? data.contrast : contrast);
-        if (!timer) {
-          currentB = serverB;
-          currentC = serverC;
-        }
+        const nextB = normalize(data.brightness != null ? data.brightness : brightness);
+        const nextC = normalize(data.contrast != null ? data.contrast : contrast);
         const urls = pickUrls(data);
         const token = Date.now().toString(36);
-        if (o.digitalImg && urls.digital) o.digitalImg.src = bustUrl(urls.digital, token);
-        if (o.printImg && urls.print) o.printImg.src = bustUrl(urls.print, token);
-        paint();
-        if (typeof o.onApplied === "function") o.onApplied(data, token);
+        const digitalUrl = o.digitalImg && urls.digital ? bustUrl(urls.digital, token) : "";
+        const printUrl = o.printImg && urls.print ? bustUrl(urls.print, token) : "";
+
+        // Keep the optimistic CSS filter until the new bitmap is decoded, then swap
+        // src + server baseline + paint together (no flash of the old/new mismatch).
+        let pending = (digitalUrl ? 1 : 0) + (printUrl ? 1 : 0);
+        let failed = false;
+        function commit() {
+          if (failed) {
+            if (!timer && !queued) {
+              currentB = serverB;
+              currentC = serverC;
+            }
+            paint();
+            if (typeof o.onError === "function") o.onError(new Error("adjust_preload_failed"));
+            finish();
+            return;
+          }
+          serverB = nextB;
+          serverC = nextC;
+          if (digitalUrl) o.digitalImg.src = digitalUrl;
+          if (printUrl) o.printImg.src = printUrl;
+          if (!timer && !queued) {
+            currentB = serverB;
+            currentC = serverC;
+          }
+          paint();
+          if (typeof o.onApplied === "function") o.onApplied(data, token);
+          finish();
+        }
+        handedOff = true;
+        if (!pending) {
+          commit();
+          return;
+        }
+        function done(ok) {
+          if (!ok) failed = true;
+          pending -= 1;
+          if (pending === 0) commit();
+        }
+        if (digitalUrl) preload(digitalUrl, done);
+        if (printUrl) preload(printUrl, done);
       } catch (e) {
-        if (mySeq !== seq) return;
-        currentB = serverB;
-        currentC = serverC;
-        paint();
-        if (typeof o.onError === "function") o.onError(e);
-      } finally {
-        inflight -= 1;
+        if (!handedOff) {
+          queued = false;
+          if (!timer) {
+            currentB = serverB;
+            currentC = serverC;
+          }
+          paint();
+          if (typeof o.onError === "function") o.onError(e);
+          finish();
+        }
       }
     }
 
@@ -142,7 +218,7 @@
       if (timer) clearTimeout(timer);
       timer = setTimeout(function () {
         timer = null;
-        send(currentB, currentC);
+        fire();
       }, DEBOUNCE_MS);
     }
 
@@ -157,7 +233,7 @@
         currentB = DEFAULT;
         currentC = DEFAULT;
         paint();
-        send(DEFAULT, DEFAULT);
+        fire();
       });
     }
 
@@ -173,6 +249,7 @@
     normalize,
     isDirty,
     isPairDirty,
+    bustUrl,
     mount,
   };
   root.GosphotoAdjust = api;

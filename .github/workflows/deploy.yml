@@ -63,6 +63,15 @@ jobs:
           grep -q 'location = /ne-prinimaet-foto-na-gosuslugah' deploy/gosphoto.ru.nginx.http.conf
           echo "Landing OK"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: JS unit tests (adjust)
+        run: |
+          node js/adjust.test.js
+          node js/brightness.test.js
+
   deploy:
     name: Deploy to gosphoto.ru
     runs-on: ubuntu-latest
@@ -108,9 +117,21 @@ jobs:
             --exclude 'deploy' \
             --exclude 'README.md' \
             --exclude '.gitignore' \
+            --exclude 'docs' \
+            --exclude '.superpowers' \
+            --exclude '.tmp' \
+            --exclude '*.test.js' \
             -e "ssh -i $HOME/.ssh/deploy_ed25519 -o IdentitiesOnly=yes" \
             ./ \
             "${DEPLOY_USER}@${DEPLOY_HOST}:${WEB_ROOT}/"
+
+      - name: Remove previously deployed dev-only files
+        env:
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          ssh -i "$HOME/.ssh/deploy_ed25519" -o IdentitiesOnly=yes \
+            "${DEPLOY_USER}@${DEPLOY_HOST}" \
+            "cd ${WEB_ROOT} && rm -rf docs .superpowers .tmp && rm -f js/*.test.js"
 
       - name: Rsync nginx config and install script
         env:

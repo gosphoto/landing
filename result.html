@@ -22,7 +22,7 @@
     />
     <link rel="stylesheet" href="/css/styles.css?v=20261122-adjust" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
-    <script src="/js/adjust.js?v=20261122-adjust"></script>
+    <script src="/js/adjust.js?v=20261122-adjust2"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -1019,6 +1019,13 @@
         }
 
         let adjustCtl = null;
+        // Last cache-bust token from a successful /adjust; re-applied on every renderResult
+        // so a focus/payment refresh does not swap in a stale pre-adjust bitmap.
+        let lastAdjustBv = "";
+        function withBv(url) {
+          if (!url || !lastAdjustBv || !window.GosphotoAdjust) return url;
+          return GosphotoAdjust.bustUrl(url, lastAdjustBv);
+        }
 
         function renderResult(data) {
           const paid = !!data.paid;
@@ -1072,7 +1079,7 @@
           const digitalGuide = document.getElementById("result-digital-guide");
 
           if (resultDigitalImage && previewDigital) {
-            resultDigitalImage.src = previewDigital;
+            resultDigitalImage.src = withBv(previewDigital);
             resultDigitalImage.alt = showFullDigital
               ? "Фото 35×45 для Госуслуг"
               : "Превью фото 35×45 для Госуслуг";
@@ -1080,7 +1087,7 @@
             resultDigitalImage.onclick = null;
           }
           if (previewPrint && resultPrintImage) {
-            resultPrintImage.src = previewPrint;
+            resultPrintImage.src = withBv(previewPrint);
             resultPrintImage.hidden = false;
           }
           if (digitalGuide) {
@@ -1105,6 +1112,7 @@
                   }, 4000);
                 },
                 onApplied: (resp, token) => {
+                  lastAdjustBv = token;
                   if (resp.paid && resp.digital_url && resultDownload && !resultDownload.hidden) {
                     resultDownload.href = `${resp.digital_url}${resp.digital_url.includes("?") ? "&" : "?"}bv=${token}`;
                   }
@@ -1125,7 +1133,7 @@
 
           if (resultDownload) {
             if (paid && digitalUrl) {
-              resultDownload.href = digitalUrl;
+              resultDownload.href = withBv(digitalUrl);
               resultDownload.hidden = false;
               resultDownload.removeAttribute("aria-disabled");
               resultDownload.innerHTML =
@@ -1147,7 +1155,7 @@
           }
           if (resultDownloadPrint) {
             if (paid && printUrl) {
-              resultDownloadPrint.href = printUrl;
+              resultDownloadPrint.href = withBv(printUrl);
               resultDownloadPrint.hidden = false;
               resultDownloadPrint.removeAttribute("aria-disabled");
             } else {
