@@ -7,6 +7,7 @@ assert.strictEqual(a.isDirty(1), false);
 assert.strictEqual(a.isDirty(1.2), true);
 assert.strictEqual(a.isPairDirty(1, 1), false);
 assert.strictEqual(a.isPairDirty(1, 1.2), true);
+assert.strictEqual(a.isPairDirty(1, 1, 1.2), true);
 
 function fakeElement() {
   const listeners = {};
@@ -83,6 +84,7 @@ async function testPendingEditSurvivesEarlierResponse() {
     assert.deepStrictEqual(JSON.parse(requests[1].options.body), {
       brightness: 1.3,
       contrast: 1,
+      saturation: 1,
     });
   } finally {
     global.fetch = originalFetch;
@@ -94,11 +96,13 @@ async function testPendingEditSurvivesEarlierResponse() {
 function harness(extra) {
   const inputB = fakeElement();
   const inputC = fakeElement();
+  const inputS = fakeElement();
   const resetBtn = fakeElement();
   const digitalImg = Object.assign(fakeElement(), { src: "orig.jpg" });
   const elements = {
     "[data-brightness]": inputB,
     "[data-contrast]": inputC,
+    "[data-saturation]": inputS,
     "[data-adjust-reset]": resetBtn,
   };
   const root = {
@@ -139,6 +143,7 @@ function harness(extra) {
   return {
     inputB,
     inputC,
+    inputS,
     digitalImg,
     requests,
     events,
@@ -186,13 +191,35 @@ async function testPostsAreSerializedAndLatestPairSentOnce() {
     assert.deepStrictEqual(JSON.parse(h.requests[1].options.body), {
       brightness: 1.35,
       contrast: 0.8,
+      saturation: 1,
     });
 
-    h.ok(1, { brightness: 1.35, contrast: 0.8 });
+    h.ok(1, { brightness: 1.35, contrast: 0.8, saturation: 1 });
     await h.tick();
     assert.strictEqual(h.requests.length, 2, "nothing further queued");
     assert.strictEqual(h.inputB.value, "1.35");
     assert.strictEqual(h.inputC.value, "0.8");
+  } finally {
+    h.restore();
+  }
+}
+
+async function testSaturationSliderPostsAndFilters() {
+  const h = harness();
+  try {
+    h.slide(h.inputS, 1.2);
+    h.flushTimer();
+    assert.strictEqual(h.requests.length, 1);
+    assert.deepStrictEqual(JSON.parse(h.requests[0].options.body), {
+      brightness: 1,
+      contrast: 1,
+      saturation: 1.2,
+    });
+    assert.strictEqual(h.digitalImg.style.filter, "saturate(1.2)");
+    h.ok(0, { brightness: 1, contrast: 1, saturation: 1.2 });
+    await h.tick();
+    assert.strictEqual(h.inputS.value, "1.2");
+    assert.strictEqual(h.digitalImg.style.filter, "");
   } finally {
     h.restore();
   }
@@ -309,6 +336,7 @@ testPendingEditSurvivesEarlierResponse()
   .then(testErrorRevertsToServerBaseline)
   .then(testFilterKeptUntilNewImageLoaded)
   .then(testPreloadFailureKeepsOldImageAndReports)
+  .then(testSaturationSliderPostsAndFilters)
   .then(() => console.log("ok"))
   .catch((error) => {
     console.error(error);

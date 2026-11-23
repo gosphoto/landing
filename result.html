@@ -20,9 +20,9 @@
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/css/styles.css?v=20261122-adjust" />
+    <link rel="stylesheet" href="/css/styles.css?v=20261123-saturation" />
     <script src="/js/photo-guide.js?v=20260907-note"></script>
-    <script src="/js/adjust.js?v=20261122-adjust2"></script>
+    <script src="/js/adjust.js?v=20261123-saturation"></script>
     <script type="text/javascript">
       (function (m, e, t, r, i, k, a) {
         m[i] =
@@ -170,6 +170,17 @@
                   id="result-contrast"
                   class="brightness-range"
                   data-contrast
+                  type="range"
+                  min="0.7"
+                  max="1.35"
+                  step="0.01"
+                  value="1"
+                />
+                <label class="brightness-label" for="result-saturation">Цветность</label>
+                <input
+                  id="result-saturation"
+                  class="brightness-range"
+                  data-saturation
                   type="range"
                   min="0.7"
                   max="1.35"
@@ -1126,6 +1137,7 @@
               adjustCtl.applyFromServer({
                 brightness: data.brightness,
                 contrast: data.contrast != null ? data.contrast : 1,
+                saturation: data.saturation != null ? data.saturation : 1,
               });
               adjustCtl.show();
             }
